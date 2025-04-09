@@ -109,57 +109,107 @@ def register_customer():
 
 @app.route('/search_flights', methods=['POST'])
 def search_flights():
-    # from_location = request.form['from_location']
-    # to_location = request.form['to_location']
-    # date = request.form['date']
-    # print(from_location,to_location,date)
-    # conn = get_db_connection()
-    # cursor = conn.cursor(dictionary=True)
-    # cursor.execute("""
-    #     SELECT * FROM Flight
-    #     WHERE departure_airport = %s AND arrival_airport = %s AND DATE(departure_time) = %s
-    # """, (from_location, to_location, date))
-    # flights = cursor.fetchall()
-    # cursor.close()
-    # conn.close()
+    from_location = request.form.get('from_location', '').strip()
+    to_location = request.form.get('to_location', '').strip()
+    date = request.form.get('date', '').strip()
+    print(from_location,to_location,date)
 
-    from_location = request.form['from_location']
-    to_location = request.form['to_location']
-    # date = request.form['date']
-    print(from_location,to_location)
+    query = "SELECT * FROM Flight WHERE 1=1"  # 基础查询
+    params = []
+
+    # 动态添加查询条件
+    if from_location:
+        query += " AND departure_airport = %s"
+        params.append(from_location)
+    if to_location:
+        query += " AND arrival_airport = %s"
+        params.append(to_location)
+    if date:
+        query += " AND DATE(departure_time) = %s"
+        params.append(date)
+
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("""
-        SELECT * FROM Flight
-        WHERE departure_airport = %s AND arrival_airport = %s 
-    """, (from_location, to_location))
+    cursor.execute(query, params)  # 动态查询
     flights = cursor.fetchall()
     cursor.close()
     conn.close()
-    print("flights:",flights)
-    return render_template('index.html', flights=flights, from_location=from_location, to_location=to_location)
+    print("result:",flights)
+    return render_template('index.html', flights=flights, from_location=from_location, to_location=to_location, date=date)
 
+# @app.route('/check_status', methods=['POST'])
+# def check_status():
+#     flight_num = request.form['flight_num']
+#     departure_date = request.form['departure_date']
+#     arrival_date = request.form.get('arrival_date', '').strip()
+
+#     query = "SELECT * FROM Flight WHERE 1=1"  # 基础查询
+#     params = []
+
+#     # 动态添加查询条件
+#     if flight_num:
+#         query += " AND flight_num = %s"
+#         params.append(flight_num)
+#     if departure_date:
+#         query += " AND DATE(departure_time) = %s"
+#         params.append(departure_date)
+#     if arrival_date:
+#         query += " AND DATE(arrival_time) = %s"
+#         params.append(arrival_date)
+
+#     conn = get_db_connection()
+#     cursor = conn.cursor(dictionary=True)
+#     cursor.execute(query, params)  # 动态查询
+#     flights = cursor.fetchall()
+#     cursor.close()
+#     conn.close()
+
+#     if flights:
+#         flash(f"Found {len(flights)} flight(s) matching your criteria.")
+#     else:
+#         flash("No flights found matching your criteria.")
+#     return render_template('index.html', flights=flights, flight_num=flight_num, departure_date=departure_date, arrival_date=arrival_date)
+#     # return redirect(url_for('home'))
 @app.route('/check_status', methods=['POST'])
 def check_status():
-    flight_num = request.form['flight_num']
-    departure_date = request.form['departure_date']
+    flight_num = request.form.get('flight_num', '').strip()
+    departure_date = request.form.get('departure_date', '').strip()
+    arrival_date = request.form.get('arrival_date', '').strip()
+
+    query = "SELECT * FROM Flight WHERE 1=1"  # 基础查询
+    params = []
+
+    # 动态添加查询条件
+    if flight_num:
+        query += " AND flight_num = %s"
+        params.append(flight_num)
+    if departure_date:
+        query += " AND DATE(departure_time) = %s"
+        params.append(departure_date)
+    if arrival_date:
+        query += " AND DATE(arrival_time) = %s"
+        params.append(arrival_date)
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("""
-        SELECT status FROM Flight
-        WHERE flight_num = %s AND DATE(departure_time) = %s
-    """, (flight_num, departure_date))
-    result = cursor.fetchone()
+    cursor.execute(query, params)  # 动态查询
+    status_results = cursor.fetchall()
     cursor.close()
     conn.close()
 
-    if result:
-        flash(f"Flight status: {result['status']}")
-    else:
-        flash("Flight not found.")
+    # if status_results:
+    #     flash(f"Found {len(status_results)} flight(s) matching your criteria.")
+    # else:
+    #     flash("No flights found matching your criteria.")
 
-    return redirect(url_for('home'))
+    return render_template(
+        'index.html',
+        status_results=status_results,
+        flight_num=flight_num,
+        departure_date=departure_date,
+        arrival_date=arrival_date
+    )
+
 
 if __name__ == '__main__':
     app.run(debug=True)
