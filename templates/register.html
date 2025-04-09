@@ -1,0 +1,19 @@
+<form method="post">
+	<label>User Type:
+	  <select name="user_type" required>
+		<option value="customer">Customer</option>
+		<option value="booking_agent">Booking Agent</option>
+		<option value="airline_staff">Airline Staff</option>
+	  </select>
+	</label><br>
+	<label>Email: <input name="email" required></label><br>
+	<label>Password: <input type="password" name="password" required></label><br>
+	
+	<!-- 显示更多字段依用户类型 -->
+	<div id="extra_fields">
+	  <!-- 可使用 JS 来动态切换 -->
+	</div>
+  
+	<button type="submit">Register</button>
+  </form>
+  
