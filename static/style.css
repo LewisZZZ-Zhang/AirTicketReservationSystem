@@ -1,12 +1,11 @@
 :root {
     --primary-blue: #2196F3;
     --secondary-blue: #1976D2;
-    --background: #F5F9FF;
 }
 
 body {
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    background: var(--background);
+    background: #F5F9FF;
     margin: 0;
     color: #2c3e50;
 }
@@ -120,76 +119,6 @@ tr:last-child td {
 .status-ontime { color: #4CAF50; }
 .status-cancelled { color: #F44336; }
 
-/* 表单样式 */
-.search-form, .status-form {
-    background: white;
-    border-radius: 12px;
-    padding: 2.5rem;
-    margin: 2rem auto;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-}
-
-.form-group {
-    margin: 1.5rem 0;
-}
-
-input[type="text"],
-input[type="date"] {
-    width: 100%;
-    padding: 1rem;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: border-color 0.3s;
-}
-
-input:focus {
-    border-color: var(--primary-blue);
-    outline: none;
-}
-
-.submit-btn {
-    background: var(--primary-blue);
-    color: white;
-    padding: 1rem 2rem;
-    border: none;
-    border-radius: 8px;
-    font-size: 1.1rem;
-    cursor: pointer;
-    width: 100%;
-    transition: background 0.3s;
-}
-
-.submit-btn:hover {
-    background: var(--secondary-blue);
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-    .nav-container {
-        flex-direction: column;
-        padding: 1rem;
-    }
-    
-    .nav-links {
-        margin-top: 1rem;
-    }
-    
-    .nav-links a {
-        margin: 0 1rem;
-    }
-    
-    .hero h1 {
-        font-size: 2rem;
-    }
-}
-
-/* 新增导航样式 */
-.welcome-message {
-    color: rgba(255,255,255,0.95);
-    margin-left: 2.5rem;
-}
-
 /* 搜索表单样式 */
 .search-form {
     background: white;
@@ -233,7 +162,48 @@ input:focus {
     margin: 2rem 0;
 }
 
-/* 状态标签 */
-.status-delayed { color: #FF9800; }
-.status-ontime { color: #4CAF50; }
-.status-cancelled { color: #F44336; }
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .nav-container {
+        flex-direction: column;
+        padding: 1rem;
+    }
+    
+    .nav-links {
+        margin-top: 1rem;
+    }
+    
+    .nav-links a {
+        margin: 0 1rem;
+    }
+    
+    .hero h1 {
+        font-size: 2rem;
+    }
+}
+
+/* 新增导航样式 */
+.welcome-message {
+    color: rgba(255,255,255,0.95);
+    margin-left: 2.5rem;
+}
+
+.form-group {
+    display: flex;
+    align-items: center;
+    margin: 1rem 0;
+}
+
+.form-group label {
+    flex: 0 0 150px; /* 固定宽度 */
+    font-weight: bold;
+    margin-right: 1rem;
+}
+
+.form-group input {
+    flex: 1; /* 输入框占据剩余空间 */
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+}

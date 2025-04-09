@@ -5,13 +5,16 @@
         <h2>Search Flights</h2>
         <form action="{{ url_for('search_flights') }}" method="POST">
             <div class="form-group">
-                <input type="text" name="from_location" value="{{ from_location }}" placeholder="From City/Airport">
+                <label for="from_location">From City/Airport:</label>
+                <input type="text" id="from_location" name="from_location" value="{{ from_location }}">
             </div>
             <div class="form-group">
-                <input type="text" name="to_location" value="{{ to_location }}" placeholder="To City/Airport">
+                <label for="to_location">To City/Airport:</label>
+                <input type="text" id="to_location" name="to_location" value="{{ to_location }}">
             </div>
             <div class="form-group">
-                <input type="date" name="date" value="{{ date }}">
+                <label for="date">Date:</label>
+                <input type="date" id="date" name="date" value="{{ date }}">
             </div>
             <button type="submit" class="cta-button">Search Flights</button>
         </form>

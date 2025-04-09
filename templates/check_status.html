@@ -5,13 +5,16 @@
         <h2>Check Flight Status</h2>
         <form action="{{ url_for('check_status') }}" method="POST">
             <div class="form-group">
-                <input type="text" name="flight_num" value="{{ flight_num }}" placeholder="Flight Number">
+                <label for="flight_num">Flight Number:</label>
+                <input type="text" id="flight_num" name="flight_num" value="{{ flight_num }}">
             </div>
             <div class="form-group">
-                <input type="date" name="departure_date" value="{{ departure_date }}">
+                <label for="departure_date">Departure Date:</label>
+                <input type="date" id="departure_date" name="departure_date" value="{{ departure_date }}">
             </div>
             <div class="form-group">
-                <input type="date" name="arrival_date" value="{{ arrival_date }}">
+                <label for="arrival_date">Arrival Date:</label>
+                <input type="date" id="arrival_date" name="arrival_date" value="{{ arrival_date }}">
             </div>
             <button type="submit" class="cta-button">Check Status</button>
         </form>
