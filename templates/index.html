@@ -8,6 +8,41 @@
     <input type="submit" value="Search Flights">
 </form>
 
+<h2>Search Results</h2>
+{% if flights %}
+<p>Showing results for flights from <strong>{{ from_location }}</strong> to <strong>{{ to_location }}</strong>:</p>
+<table>
+    <thead>
+        <tr>
+            <th>Airline Name</th>
+            <th>Flight Number</th>
+            <th>Departure Airport</th>
+            <th>Departure Time</th>
+            <th>Arrival Airport</th>
+            <th>Arrival Time</th>
+            <th>Price</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for flight in flights %}
+        <tr>
+            <td>{{ flight.airline_name }}</td>
+            <td>{{ flight.flight_num }}</td>
+            <td>{{ flight.departure_airport }}</td>
+            <td>{{ flight.departure_time }}</td>
+            <td>{{ flight.arrival_airport }}</td>
+            <td>{{ flight.arrival_time }}</td>
+            <td>{{ flight.price }}</td>
+            <td>{{ flight.status }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No flights found for your search.</p>
+{% endif %}
+
 <h2>Check Flight Status</h2>
 <form action="{{ url_for('check_status') }}" method="POST">
     Flight Number: <input type="text" name="flight_num" required><br>

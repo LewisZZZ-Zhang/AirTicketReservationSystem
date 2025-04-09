@@ -136,8 +136,8 @@ def search_flights():
     flights = cursor.fetchall()
     cursor.close()
     conn.close()
-
-    return render_template('index.html', flights=flights)
+    print("flights:",flights)
+    return render_template('index.html', flights=flights, from_location=from_location, to_location=to_location)
 
 @app.route('/check_status', methods=['POST'])
 def check_status():
