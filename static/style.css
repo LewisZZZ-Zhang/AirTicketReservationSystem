@@ -1,89 +1,239 @@
-/* 通用样式 */
+:root {
+    --primary-blue: #2196F3;
+    --secondary-blue: #1976D2;
+    --background: #F5F9FF;
+}
+
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--background);
     margin: 0;
-    padding: 0;
-    background-color: #f4f4f9;
-    color: #333;
+    color: #2c3e50;
 }
 
-/* 标题样式 */
-h1 {
+/* 顶部导航 */
+.top-nav {
+    background: var(--primary-blue);
+    padding: 1rem 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2rem;
+}
+
+.nav-brand {
+    color: white;
+    font-size: 1.8rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.nav-links a {
+    color: rgba(255,255,255,0.95);
+    text-decoration: none;
+    margin-left: 2.5rem;
+    font-weight: 500;
+    transition: opacity 0.3s;
+}
+
+.nav-links a:hover {
+    opacity: 0.9;
+}
+
+/* 主内容区 */
+.container {
+    max-width: 1200px;
+    margin: 3rem auto;
+    padding: 0 2rem;
+}
+
+.hero {
     text-align: center;
-    color: #4CAF50;
-    margin-top: 20px;
+    padding: 6rem 0;
 }
 
-/* 表单样式 */
-form {
-    text-align: center;
-    margin: 20px auto;
-    padding: 10px;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    width: 50%;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+.hero h1 {
+    font-size: 2.8rem;
+    color: var(--primary-blue);
+    margin-bottom: 2rem;
 }
 
-form input[type="text"] {
-    width: 80%;
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+/* 按钮样式 */
+.cta-buttons {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    margin-top: 2rem;
 }
 
-form input[type="submit"] {
-    padding: 10px 20px;
-    background-color: #4CAF50;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+.cta-button {
+    background: var(--primary-blue);
+    color: white;
+    padding: 1.2rem 2.5rem;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
-form input[type="submit"]:hover {
-    background-color: #45a049;
+.cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0,0,0,0.15);
 }
 
 /* 表格样式 */
 table {
-    width: 80%;
-    margin: 20px auto;
+    width: 100%;
     border-collapse: collapse;
-    background-color: #fff;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-table, th, td {
-    border: 1px solid #ddd;
-}
-
-th, td {
-    padding: 10px;
-    text-align: center;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    margin: 2rem 0;
 }
 
 th {
-    background-color: #4CAF50;
+    background: var(--primary-blue);
     color: white;
+    padding: 1.2rem;
+    font-weight: 600;
 }
 
-tr:nth-child(even) {
-    background-color: #f9f9f9;
+td {
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
 }
 
-/* 链接样式 */
-a {
-    display: block;
+tr:last-child td {
+    border-bottom: none;
+}
+
+/* 状态标签 */
+.status-delayed { color: #FF9800; }
+.status-ontime { color: #4CAF50; }
+.status-cancelled { color: #F44336; }
+
+/* 表单样式 */
+.search-form, .status-form {
+    background: white;
+    border-radius: 12px;
+    padding: 2.5rem;
+    margin: 2rem auto;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+.form-group {
+    margin: 1.5rem 0;
+}
+
+input[type="text"],
+input[type="date"] {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+input:focus {
+    border-color: var(--primary-blue);
+    outline: none;
+}
+
+.submit-btn {
+    background: var(--primary-blue);
+    color: white;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.3s;
+}
+
+.submit-btn:hover {
+    background: var(--secondary-blue);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .nav-container {
+        flex-direction: column;
+        padding: 1rem;
+    }
+    
+    .nav-links {
+        margin-top: 1rem;
+    }
+    
+    .nav-links a {
+        margin: 0 1rem;
+    }
+    
+    .hero h1 {
+        font-size: 2rem;
+    }
+}
+
+/* 新增导航样式 */
+.welcome-message {
+    color: rgba(255,255,255,0.95);
+    margin-left: 2.5rem;
+}
+
+/* 搜索表单样式 */
+.search-form {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 2rem auto;
+    max-width: 500px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+.search-form form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.search-form .form-group {
+    margin: 0.5rem 0;
+}
+
+.search-form input {
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.search-form .cta-button {
+    width: auto;
+    padding: 1rem 2rem;
+    margin: 1rem auto 0;
+}
+
+/* 结果样式 */
+.results {
+    margin-top: 2rem;
+}
+
+.no-results {
     text-align: center;
-    margin: 20px auto;
-    text-decoration: none;
-    color: #4CAF50;
-    font-weight: bold;
+    color: #666;
+    margin: 2rem 0;
 }
 
-a:hover {
-    color: #45a049;
-}
+/* 状态标签 */
+.status-delayed { color: #FF9800; }
+.status-ontime { color: #4CAF50; }
+.status-cancelled { color: #F44336; }

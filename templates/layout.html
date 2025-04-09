@@ -6,20 +6,23 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <header>
-        <h1>Air Ticket Reservation System</h1>
-        <nav>
-            <a href="{{ url_for('home') }}">Home</a>
-            {% if session.get('user_type') %}
-                <span>Welcome, {{ session.get('username') }}!</span>
-                <a href="{{ url_for('logout') }}">Logout</a>
-            {% else %}
-                <a href="{{ url_for('login') }}">Login</a>
-                <a href="{{ url_for('register') }}">Register</a>
-            {% endif %}
-        </nav>
-    </header>
-    <main>
+    <div class="top-nav">
+        <div class="nav-container">
+            <a href="{{ url_for('home') }}" class="nav-brand">Air Ticket Reservation System</a>
+            <nav class="nav-links">
+                <a href="{{ url_for('home') }}">Home</a>
+                {% if session.get('user_type') %}
+                    <span class="welcome-message">Welcome, {{ session.get('username') }}!</span>
+                    <a href="{{ url_for('logout') }}">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}">Login</a>
+                    <a href="{{ url_for('register') }}">Register</a>
+                {% endif %}
+            </nav>
+        </div>
+    </div>
+    
+    <main class="container">
         {% with messages = get_flashed_messages() %}
           {% if messages %}
             <ul class="flashes">

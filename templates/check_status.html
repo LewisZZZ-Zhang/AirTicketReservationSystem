@@ -2,24 +2,24 @@
 {% block content %}
 <div class="container">
     <div class="search-form">
-        <h2>Search Flights</h2>
-        <form action="{{ url_for('search_flights') }}" method="POST">
+        <h2>Check Flight Status</h2>
+        <form action="{{ url_for('check_status') }}" method="POST">
             <div class="form-group">
-                <input type="text" name="from_location" value="{{ from_location }}" placeholder="From City/Airport">
+                <input type="text" name="flight_num" value="{{ flight_num }}" placeholder="Flight Number">
             </div>
             <div class="form-group">
-                <input type="text" name="to_location" value="{{ to_location }}" placeholder="To City/Airport">
+                <input type="date" name="departure_date" value="{{ departure_date }}">
             </div>
             <div class="form-group">
-                <input type="date" name="date" value="{{ date }}">
+                <input type="date" name="arrival_date" value="{{ arrival_date }}">
             </div>
-            <button type="submit" class="cta-button">Search Flights</button>
+            <button type="submit" class="cta-button">Check Status</button>
         </form>
     </div>
 
-    {% if flights %}
+    {% if status_results %}
     <div class="results">
-        <h2>Search Results</h2>
+        <h2>Status Results</h2>
         <table>
             <thead>
                 <tr>
@@ -29,12 +29,11 @@
                     <th>Departure Time</th>
                     <th>Arrival Airport</th>
                     <th>Arrival Time</th>
-                    <th>Price</th>
                     <th>Status</th>
                 </tr>
             </thead>
             <tbody>
-                {% for flight in flights %}
+                {% for flight in status_results %}
                 <tr>
                     <td>{{ flight.airline_name }}</td>
                     <td>{{ flight.flight_num }}</td>
@@ -42,7 +41,6 @@
                     <td>{{ flight.departure_time }}</td>
                     <td>{{ flight.arrival_airport }}</td>
                     <td>{{ flight.arrival_time }}</td>
-                    <td>{{ flight.price }}</td>
                     <td class="status-{{ flight.status|lower }}">{{ flight.status }}</td>
                 </tr>
                 {% endfor %}

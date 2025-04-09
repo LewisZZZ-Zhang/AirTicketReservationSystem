@@ -1,12 +1,10 @@
 {% extends "layout.html" %}
 {% block content %}
-<h1>Welcome to the Air Ticket Reservation System</h1>
-<p>Use the navigation below to explore the system:</p>
-
-<ul>
-    <li><a href="{{ url_for('search_flights') }}">Search Flights</a></li>
-    <li><a href="{{ url_for('check_status') }}">Check Flight Status</a></li>
-    <li><a href="{{ url_for('register') }}">Register as a Customer</a></li>
-    <li><a href="{{ url_for('login') }}">Login</a></li>
-</ul>
+<div class="hero">
+    <h1>Welcome to Air Ticket System</h1>
+    <div class="cta-buttons">
+        <a href="{{ url_for('search_flights') }}" class="cta-button">Search Flights</a>
+        <a href="{{ url_for('check_status') }}" class="cta-button">Check Flight Status</a>
+    </div>
+</div>
 {% endblock %}

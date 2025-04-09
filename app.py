@@ -174,7 +174,7 @@ def search_flights():
 #         flash("No flights found matching your criteria.")
 #     return render_template('index.html', flights=flights, flight_num=flight_num, departure_date=departure_date, arrival_date=arrival_date)
 #     # return redirect(url_for('home'))
-@app.route('/check_status', methods=['POST'])
+@app.route('/check_status', methods=['GET','POST'])
 def check_status():
     flight_num = request.form.get('flight_num', '').strip()
     departure_date = request.form.get('departure_date', '').strip()
@@ -207,7 +207,7 @@ def check_status():
     #     flash("No flights found matching your criteria.")
 
     return render_template(
-        'search_flights.html',
+        'check_status.html',
         status_results=status_results,
         flight_num=flight_num,
         departure_date=departure_date,
