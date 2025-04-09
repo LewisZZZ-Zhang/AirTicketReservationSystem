@@ -109,16 +109,30 @@ def register_customer():
 
 @app.route('/search_flights', methods=['POST'])
 def search_flights():
+    # from_location = request.form['from_location']
+    # to_location = request.form['to_location']
+    # date = request.form['date']
+    # print(from_location,to_location,date)
+    # conn = get_db_connection()
+    # cursor = conn.cursor(dictionary=True)
+    # cursor.execute("""
+    #     SELECT * FROM Flight
+    #     WHERE departure_airport = %s AND arrival_airport = %s AND DATE(departure_time) = %s
+    # """, (from_location, to_location, date))
+    # flights = cursor.fetchall()
+    # cursor.close()
+    # conn.close()
+
     from_location = request.form['from_location']
     to_location = request.form['to_location']
-    date = request.form['date']
-
+    # date = request.form['date']
+    print(from_location,to_location)
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
         SELECT * FROM Flight
-        WHERE departure_airport = %s AND arrival_airport = %s AND DATE(departure_time) = %s
-    """, (from_location, to_location, date))
+        WHERE departure_airport = %s AND arrival_airport = %s 
+    """, (from_location, to_location))
     flights = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -134,7 +148,7 @@ def check_status():
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
         SELECT status FROM Flight
-        WHERE flight_number = %s AND DATE(departure_time) = %s
+        WHERE flight_num = %s AND DATE(departure_time) = %s
     """, (flight_num, departure_date))
     result = cursor.fetchone()
     cursor.close()
