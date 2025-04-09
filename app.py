@@ -107,8 +107,12 @@ def register_customer():
 
     return render_template('register_customer.html')
 
-@app.route('/search_flights', methods=['POST'])
+@app.route('/search_flights', methods=['GET','POST'])
 def search_flights():
+    if request.method == 'GET':
+        # 如果是 GET 请求，直接渲染搜索页面
+        return render_template('search_flights.html', flights=None, from_location='', to_location='', date='')
+
     from_location = request.form.get('from_location', '').strip()
     to_location = request.form.get('to_location', '').strip()
     date = request.form.get('date', '').strip()
@@ -135,7 +139,7 @@ def search_flights():
     cursor.close()
     conn.close()
     print("result:",flights)
-    return render_template('index.html', flights=flights, from_location=from_location, to_location=to_location, date=date)
+    return render_template('search_flights.html', flights=flights, from_location=from_location, to_location=to_location, date=date)
 
 # @app.route('/check_status', methods=['POST'])
 # def check_status():
@@ -203,7 +207,7 @@ def check_status():
     #     flash("No flights found matching your criteria.")
 
     return render_template(
-        'index.html',
+        'search_flights.html',
         status_results=status_results,
         flight_num=flight_num,
         departure_date=departure_date,
