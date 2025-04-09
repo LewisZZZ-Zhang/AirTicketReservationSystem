@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>Register as Customer</h2>
+<form action="{{ url_for('register_customer') }}" method="POST">
+    Name: <input type="text" name="name" required><br>
+    Email: <input type="email" name="email" required><br>
+    Password: <input type="password" name="password" required><br>
+    Building Number: <input type="text" name="building_number"><br>
+    Street: <input type="text" name="street"><br>
+    City: <input type="text" name="city"><br>
+    State: <input type="text" name="state"><br>
+    Phone Number: <input type="text" name="phone_number"><br>
+    Passport Number: <input type="text" name="passport_number"><br>
+    Passport Expiration: <input type="date" name="passport_expiration"><br>
+    Passport Country: <input type="text" name="passport_country"><br>
+    Date of Birth: <input type="date" name="date_of_birth" required><br>
+    <input type="submit" value="Register">
+</form>
+{% endblock %}

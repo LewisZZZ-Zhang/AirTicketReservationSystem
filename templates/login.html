@@ -1,6 +1,15 @@
-<form method="post">
-	<label>Email: <input name="email" required></label><br>
-	<label>Password: <input type="password" name="password" required></label><br>
-	<button type="submit">Login</button>
-  </form>
-  
+{% extends "layout.html" %}
+{% block content %}
+<h2>Login</h2>
+<form action="{{ url_for('login') }}" method="POST">
+    Email: <input type="email" name="email" required><br>
+    Password: <input type="password" name="password" required><br>
+    User Type:
+    <select name="user_type" required>
+        <option value="customer">Customer</option>
+        <option value="agent">Booking Agent</option>
+        <option value="staff">Airline Staff</option>
+    </select><br>
+    <input type="submit" value="Login">
+</form>
+{% endblock %}

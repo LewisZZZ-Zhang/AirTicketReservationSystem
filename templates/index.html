@@ -1,13 +1,17 @@
-<!DOCTYPE html>
-<html>
+{% extends "layout.html" %}
+{% block content %}
+<h2>Search Flights</h2>
+<form action="{{ url_for('search_flights') }}" method="POST">
+    From City/Airport: <input type="text" name="from_location" required><br>
+    To City/Airport: <input type="text" name="to_location" required><br>
+    Date: <input type="date" name="date" required><br>
+    <input type="submit" value="Search Flights">
+</form>
 
-<head>
-
-</head>
-
-<body>
-    <a href="/login">Login</a>
-	<a href="/register">Register</a>
-</body>
-
-</html>
+<h2>Check Flight Status</h2>
+<form action="{{ url_for('check_status') }}" method="POST">
+    Flight Number: <input type="text" name="flight_num" required><br>
+    Departure Date: <input type="date" name="departure_date" required><br>
+    <input type="submit" value="Check Status">
+</form>
+{% endblock %}
