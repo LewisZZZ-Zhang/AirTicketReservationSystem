@@ -32,15 +32,23 @@ body {
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: center; /* 垂直居中对齐 */
     padding: 0 2rem;
 }
 
 .nav-brand {
+    display: flex;
+    align-items: center; /* 图标和文字垂直居中 */
     color: white;
     font-size: 1.8rem;
     font-weight: 600;
     text-decoration: none;
+}
+
+.nav-logo {
+    height: 40px; /* 设置图标高度 */
+    width: auto; /* 保持宽高比例 */
+    margin-right: 10px; /* 图标与文字之间的间距 */
 }
 
 .nav-links a {

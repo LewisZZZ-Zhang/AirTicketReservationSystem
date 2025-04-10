@@ -8,8 +8,11 @@
 <body>
     <div class="top-nav">
         <div class="nav-container">
-            <a href="{{ url_for('home') }}" class="nav-brand">Air Ticket Reservation System</a>
-            <nav class="nav-links">
+          <a href="{{ url_for('home') }}" class="nav-brand">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="nav-logo">
+            Air Ticket Reservation System
+          </a>
+          <nav class="nav-links">
                 <a href="{{ url_for('home') }}">Home</a>
                 {% if session.get('user_type') %}
                     <span class="welcome-message">Welcome, {{ session.get('username') }}!</span>

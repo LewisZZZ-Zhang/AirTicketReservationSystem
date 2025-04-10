@@ -174,11 +174,12 @@ def search_flights():
 #         flash("No flights found matching your criteria.")
 #     return render_template('index.html', flights=flights, flight_num=flight_num, departure_date=departure_date, arrival_date=arrival_date)
 #     # return redirect(url_for('home'))
+
 @app.route('/check_status', methods=['GET','POST'])
 def check_status():
     if request.method == 'GET':
         # 如果是 GET 请求，直接渲染搜索页面
-        return render_template('search_flights.html', flights=None, from_location='', to_location='', date='')
+        return render_template('check_status.html', flights=None, from_location='', to_location='', date='')
     flight_num = request.form.get('flight_num', '').strip()
     departure_date = request.form.get('departure_date', '').strip()
     arrival_date = request.form.get('arrival_date', '').strip()
