@@ -1,15 +1,10 @@
 {% extends "layout.html" %}
 {% block content %}
 <h2>Login</h2>
-<form action="{{ url_for('login') }}" method="POST">
-    Email: <input type="email" name="email" required><br>
-    Password: <input type="password" name="password" required><br>
-    User Type:
-    <select name="user_type" required>
-        <option value="customer">Customer</option>
-        <option value="agent">Booking Agent</option>
-        <option value="staff">Airline Staff</option>
-    </select><br>
-    <input type="submit" value="Login">
-</form>
+<p>Select your login type:</p>
+<ul>
+    <li><a href="{{ url_for('login_customer') }}">Customer Login</a></li>
+    <li><a href="{{ url_for('login_agent') }}">Booking Agent Login</a></li>
+    <li><a href="{{ url_for('login_staff') }}">Airline Staff Login</a></li>
+</ul>
 {% endblock %}

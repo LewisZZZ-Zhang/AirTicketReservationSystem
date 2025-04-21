@@ -1,0 +1,9 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>Booking Agent Login</h2>
+<form action="{{ url_for('login_agent') }}" method="POST">
+    Email: <input type="email" name="email" required><br>
+    Password: <input type="password" name="password" required><br>
+    <input type="submit" value="Login">
+</form>
+{% endblock %}

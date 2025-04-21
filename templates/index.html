@@ -7,4 +7,44 @@
         <a href="{{ url_for('check_status') }}" class="cta-button">Check Flight Status</a>
     </div>
 </div>
+
+{% if session['username'] is defined and session['user_type'] == 'customer' %}
+    {% if tickets %}
+        <h3>Your Tickets</h3>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Ticket ID</th>
+                    <th>Airline</th>
+                    <th>Flight Number</th>
+                    <th>Departure Airport</th>
+                    <th>Arrival Airport</th>
+                    <th>Departure Time</th>
+                    <th>Arrival Time</th>
+                    <th>Status</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ticket in tickets %}
+                <tr>
+                    <td>{{ ticket.ticket_id }}</td>
+                    <td>{{ ticket.airline_name }}</td>
+                    <td>{{ ticket.flight_num }}</td>
+                    <td>{{ ticket.departure_airport }}</td>
+                    <td>{{ ticket.arrival_airport }}</td>
+                    <td>{{ ticket.departure_time }}</td>
+                    <td>{{ ticket.arrival_time }}</td>
+                    <td>{{ ticket.status }}</td>
+                    <td>{{ ticket.price }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>You have no tickets.</p>
+    {% endif %}
+{% else %}
+    <p>Please <a href="{{ url_for('login_customer') }}">login</a> to view your tickets.</p>
+{% endif %}
 {% endblock %}

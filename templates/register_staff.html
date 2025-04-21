@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>Register as Airline Staff</h2>
+<form action="{{ url_for('register_staff') }}" method="POST">
+    Username: <input type="text" name="username" required><br>
+    Password: <input type="password" name="password" required><br>
+    First Name: <input type="text" name="first_name" required><br>
+    Last Name: <input type="text" name="last_name" required><br>
+    Date of Birth: <input type="date" name="date_of_birth" required><br>
+    Airline Name: <input type="text" name="airline_name" required><br>
+    <input type="submit" value="Register">
+</form>
+{% endblock %}
