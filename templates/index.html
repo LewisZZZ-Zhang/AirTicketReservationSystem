@@ -10,7 +10,8 @@
 
 {% if session['username'] is defined and session['user_type'] == 'customer' %}
     {% if tickets %}
-        <h3>Your Tickets</h3>
+        <h3>My upcoming flights:</h3>
+        <p><a href="{{ url_for('view_all_tickets') }}">View all my flights</a></p>
         <table border="1">
             <thead>
                 <tr>
@@ -42,7 +43,8 @@
             </tbody>
         </table>
     {% else %}
-        <p>You have no tickets.</p>
+        <p>I have no upcoming flights.</p>
+        <p><a href="{{ url_for('view_all_tickets') }}">View all my flights</a></p>
     {% endif %}
 {% else %}
     <p>Please <a href="{{ url_for('login_customer') }}">login</a> to view your tickets.</p>

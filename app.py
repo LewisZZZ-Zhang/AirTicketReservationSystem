@@ -40,7 +40,7 @@ def home():
             FROM Purchases
             JOIN Ticket ON Purchases.ticket_id = Ticket.ticket_id
             JOIN Flight ON Ticket.airline_name = Flight.airline_name AND Ticket.flight_num = Flight.flight_num
-            WHERE Purchases.customer_email = %s
+            WHERE Purchases.customer_email = %s and Flight.status = 'Upcoming'
         """, (customer_email,))
         tickets = cursor.fetchall()
         cursor.close()
@@ -129,8 +129,6 @@ def login_staff():
             return redirect(url_for('login_staff'))
 
     return render_template('login_staff.html')
-
-
 
 @app.route('/register')
 def register():
@@ -320,5 +318,64 @@ def check_status():
     )
 
 
+
+@app.route('/view_all_tickets', methods=['GET', 'POST'])
+def view_all_tickets():
+    if 'username' not in session or session['user_type'] != 'customer':
+        flash('Please log in as a customer to view your tickets.')
+        return redirect(url_for('login_customer'))
+
+    customer_email = session['username']
+    start_date = request.form.get('start_date', '').strip()
+    end_date = request.form.get('end_date', '').strip()
+    from_location = request.form.get('from_location', '').strip()
+    to_location = request.form.get('to_location', '').strip()
+
+    query = """
+        SELECT 
+            Ticket.ticket_id, 
+            Flight.airline_name, 
+            Flight.flight_num, 
+            Flight.departure_airport, 
+            Flight.arrival_airport, 
+            Flight.departure_time, 
+            Flight.arrival_time, 
+            Flight.status, 
+            Flight.price
+        FROM Purchases
+        JOIN Ticket ON Purchases.ticket_id = Ticket.ticket_id
+        JOIN Flight ON Ticket.airline_name = Flight.airline_name AND Ticket.flight_num = Flight.flight_num
+        WHERE Purchases.customer_email = %s
+    """
+    params = [customer_email]
+
+    # 动态添加筛选条件
+    if start_date:
+        query += " AND DATE(Flight.departure_time) >= %s"
+        params.append(start_date)
+    if end_date:
+        query += " AND DATE(Flight.departure_time) <= %s"
+        params.append(end_date)
+    if from_location:
+        query += " AND (Flight.departure_airport = %s OR Flight.departure_city = %s)"
+        params.extend([from_location, from_location])
+    if to_location:
+        query += " AND (Flight.arrival_airport = %s OR Flight.arrival_city = %s)"
+        params.extend([to_location, to_location])
+
+    # 默认按 status 排序
+    query += " ORDER BY Flight.status"
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute(query, params)
+    tickets = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    return render_template('all_tickets.html', tickets=tickets)
+
+
 if __name__ == '__main__':
     app.run(debug=True)
+    # app.run(host='0.0.0.0', port=5000, debug=True)

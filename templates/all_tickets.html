@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>All My Tickets</h1>
+
+<form method="POST" action="{{ url_for('view_all_tickets') }}">
+    <label for="start_date">Start Date:</label>
+    <input type="date" id="start_date" name="start_date">
+    
+    <label for="end_date">End Date:</label>
+    <input type="date" id="end_date" name="end_date">
+    
+    <label for="from_location">From (Airport/City):</label>
+    <input type="text" id="from_location" name="from_location">
+    
+    <label for="to_location">To (Airport/City):</label>
+    <input type="text" id="to_location" name="to_location">
+    
+    <button type="submit">Filter</button>
+</form>
+
+{% if tickets %}
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Ticket ID</th>
+                <th>Airline</th>
+                <th>Flight Number</th>
+                <th>Departure Airport</th>
+                <th>Arrival Airport</th>
+                <th>Departure Time</th>
+                <th>Arrival Time</th>
+                <th>Status</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ticket in tickets %}
+            <tr>
+                <td>{{ ticket.ticket_id }}</td>
+                <td>{{ ticket.airline_name }}</td>
+                <td>{{ ticket.flight_num }}</td>
+                <td>{{ ticket.departure_airport }}</td>
+                <td>{{ ticket.arrival_airport }}</td>
+                <td>{{ ticket.departure_time }}</td>
+                <td>{{ ticket.arrival_time }}</td>
+                <td>{{ ticket.status }}</td>
+                <td>{{ ticket.price }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No tickets found matching your criteria.</p>
+{% endif %}
+{% endblock %}
