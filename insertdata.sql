@@ -42,7 +42,7 @@ INSERT INTO `customer` (
    'Queens St', 'New York', 'NY', 1234567890,
    'P12345678', '2028-06-01', 'USA', '1995-05-20'),
   ('tonystark@example.com',   'Tony Stark',   'ironman',   '10880',
-   'Malibu Point', 'Malibu', 'CA', 9876543210,
+   'Malibu Point', 'Malibu', 'CA', 1111111111,
    'P87654321', '2030-12-15', 'USA', '1970-05-29');
 
 -- 9. 航班
