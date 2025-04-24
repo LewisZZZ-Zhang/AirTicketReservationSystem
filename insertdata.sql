@@ -105,10 +105,10 @@ INSERT INTO `flight` (
   `airline_name`, `flight_num`, `departure_airport`, `departure_time`,
   `arrival_airport`, `arrival_time`, `price`, `status`, `airplane_id`
 ) VALUES
-  ('China Eastern', 1005, 'HND', '2025-05-15 09:00:00', 'PVG', '2025-05-15 12:30:00', 600, 'Upcoming', 1),
-  ('China Eastern', 1006, 'PVG', '2025-06-01 14:00:00', 'JFK', '2025-06-01 18:00:00', 850, 'Upcoming', 1),
-  ('Emirates', 2004, 'SIN', '2025-06-10 06:00:00', 'DXB', '2025-06-10 12:00:00', 1000, 'Upcoming', 3),
-  ('Emirates', 2005, 'DXB', '2025-06-15 08:00:00', 'LAX', '2025-06-15 16:00:00', 1250, 'Upcoming', 3);
+  ('China Eastern', 1005, 'HND', '2025-05-15 09:00:00', 'PVG', '2025-05-15 12:30:00', 600, 'Delayed', 1),
+  ('China Eastern', 1006, 'PVG', '2025-06-01 14:00:00', 'JFK', '2025-06-01 18:00:00', 850, 'Delayed', 1),
+  ('Emirates', 2004, 'SIN', '2025-06-10 06:00:00', 'DXB', '2025-06-10 12:00:00', 1000, 'In Progress', 3),
+  ('Emirates', 2005, 'DXB', '2025-06-15 08:00:00', 'LAX', '2025-06-15 16:00:00', 1250, 'In Progress', 3);
 
 
 INSERT INTO `ticket` (`ticket_id`, `airline_name`, `flight_num`) VALUES
