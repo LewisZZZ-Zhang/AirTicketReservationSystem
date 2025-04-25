@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <h2>Welcome, {{ session['username'] }}</h2>
+
+    <h3>Total Spending</h3>
+    <p><strong>${{ total_spent }}</strong></p>
+
+    <h3>Spending Chart</h3>
+    <canvas id="spendingChart" width="400" height="200"></canvas>
+
+    <h3>Filter by Date Range</h3>
+    <form method="POST" action="{{ url_for('user_home') }}">
+        <label for="start_date">Start Date:</label>
+        <input type="date" id="start_date" name="start_date" value="{{ start_date }}">
+        <label for="end_date">End Date:</label>
+        <input type="date" id="end_date" name="end_date" value="{{ end_date }}">
+        <button type="submit">Filter</button>
+    </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('spendingChart').getContext('2d');
+    const spendingChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ month_wise_spending | map(attribute='month') | list | tojson }},
+            datasets: [{
+                label: 'Monthly Spending',
+                data: {{ month_wise_spending | map(attribute='total') | list | tojson }},
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

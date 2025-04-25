@@ -15,6 +15,7 @@
           <nav class="nav-links">
                 <a href="{{ url_for('home') }}">Home</a>
                 {% if session.get('user_type') %}
+                    <a href="{{ url_for('user_home') }}">MyAccount</a> <!-- 添加用户主页链接 -->
                     <span class="welcome-message">Welcome, {{ session.get('username') }}!</span>
                     <a href="{{ url_for('logout') }}">Logout</a>
                 {% else %}

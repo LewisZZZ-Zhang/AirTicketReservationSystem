@@ -34,6 +34,7 @@
                     <th>Arrival Time</th>
                     <th>Price</th>
                     <th>Status</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -47,6 +48,13 @@
                     <td>{{ flight.arrival_time }}</td>
                     <td>{{ flight.price }}</td>
                     <td class="status-{{ flight.status|lower }}">{{ flight.status }}</td>
+                    <td>
+                        <form action="{{ url_for('purchase_ticket') }}" method="POST">
+                            <input type="hidden" name="airline_name" value="{{ flight.airline_name }}">
+                            <input type="hidden" name="flight_num" value="{{ flight.flight_num }}">
+                            <button type="submit" class="cta-button">Purchase</button>
+                        </form>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
