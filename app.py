@@ -515,6 +515,8 @@ def user_home():
                     ORDER BY month
                 """, (user_email, start_date, end_date))
                 month_wise_spending = cursor.fetchall()
+
+                print("Filtered month-wise spending:", month_wise_spending)
     finally:
         cursor.close()
         conn.close()
