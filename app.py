@@ -306,28 +306,25 @@ def purchase_ticket():
         print(flight_num, result)
         if result and result[0] > 0:
             print("OK to purchase")
-            # 获取一个未被购买的票
+            cursor.execute("SELECT MAX(ticket_id) FROM ticket")
+            max_id = cursor.fetchone()[0] or 0
+            new_ticket_id = max_id + 1
+
+            # 插入新的 ticket
             cursor.execute("""
-                SELECT ticket_id
-                FROM Ticket
-                WHERE airline_name = %s AND flight_num = %s
-                AND ticket_id NOT IN (SELECT ticket_id FROM Purchases)
-                LIMIT 1
-            """, (airline_name, flight_num))
-            ticket = cursor.fetchone()
-            if ticket:
-                ticket_id = ticket[0]
-                # 插入购票记录
-                cursor.execute("""
-                    INSERT INTO Purchases (ticket_id, customer_email, purchase_date)
-                    VALUES (%s, %s, %s)
-                """, (ticket_id, customer_email, datetime.now().strftime('%Y-%m-%d')))
-                conn.commit()
-                flash('Ticket purchased successfully!')
-            else:
-                flash('No available tickets for this flight. error2')
+                INSERT INTO ticket (ticket_id, airline_name, flight_num)
+                VALUES (%s, %s, %s)
+            """, (new_ticket_id, airline_name, flight_num))
+
+            # 插入购票记录
+            cursor.execute("""
+                INSERT INTO Purchases (ticket_id, customer_email, purchase_date)
+                VALUES (%s, %s, %s)
+            """, (new_ticket_id, customer_email, datetime.now().strftime('%Y-%m-%d')))
+            conn.commit()
+            flash('Ticket purchased successfully!')
         else:
-            flash('No available tickets for this flight. error1')
+            flash('No available tickets for this flight. **Error1**')
     except mysql.connector.Error as err:
         flash(f"Error: {err}")
     finally:
@@ -427,7 +424,11 @@ def view_all_tickets():
         params.extend([to_location, to_location])
 
     # 默认按 status 排序
-    query += " ORDER BY Flight.status"
+    query += """
+        ORDER BY 
+            FIELD(Flight.status, 'Upcoming', 'Delayed', 'In progress'),
+            Flight.departure_time
+    """
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
