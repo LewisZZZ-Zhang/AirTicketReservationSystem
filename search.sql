@@ -30,3 +30,30 @@ LEFT JOIN purchases p
     ON t.ticket_id = p.ticket_id
 WHERE f.airline_name = 'Emirates' AND f.flight_num = 2004
 GROUP BY a.seats;
+
+-- 每月花销
+SELECT DATE_FORMAT(Purchases.purchase_date, '%%Y-%%m') AS month, SUM(Flight.price) AS monthly_spent
+FROM Purchases
+JOIN Ticket ON Purchases.ticket_id = Ticket.ticket_id
+JOIN Flight ON Ticket.airline_name = Flight.airline_name AND Ticket.flight_num = Flight.flight_num
+WHERE Purchases.customer_email = 
+    AND DATE(Purchases.purchase_date) >= %s
+    AND DATE(Purchases.purchase_date) <= %s
+GROUP BY month
+ORDER BY month
+
+SELECT 
+    DATE_FORMAT(p.purchase_date, '%Y-%m') AS month,
+    SUM(f.price) AS total_spending
+FROM 
+    purchases p
+JOIN 
+    ticket t ON p.ticket_id = t.ticket_id
+JOIN 
+    flight f ON t.airline_name = f.airline_name AND t.flight_num = f.flight_num
+WHERE 
+    p.customer_email = 'tonystark@example.com'
+GROUP BY 
+    month
+ORDER BY 
+    month;

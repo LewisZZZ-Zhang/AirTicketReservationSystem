@@ -249,7 +249,7 @@ def search_flights():
     from_location = request.form.get('from_location', '').strip()
     to_location = request.form.get('to_location', '').strip()
     date = request.form.get('date', '').strip()
-    print(from_location,to_location,date)
+    # print(from_location,to_location,date)
 
     query = "SELECT * FROM Flight WHERE 1=1"  # 基础查询
     params = []
@@ -271,7 +271,7 @@ def search_flights():
     flights = cursor.fetchall()
     cursor.close()
     conn.close()
-    print("result:",flights)
+    # print("result:",flights)
     return render_template('search_flights.html', flights=flights, from_location=from_location, to_location=to_location, date=date)
 
 @app.route('/purchase_ticket', methods=['POST'])
@@ -303,7 +303,7 @@ def purchase_ticket():
             GROUP BY a.seats;
         """, (airline_name, flight_num))
         result = cursor.fetchone()
-        print(flight_num, result)
+        # print(flight_num, result)
         if result and result[0] > 0:
             print("OK to purchase")
             cursor.execute("SELECT MAX(ticket_id) FROM ticket")
@@ -439,95 +439,97 @@ def view_all_tickets():
 
     return render_template('all_tickets.html', tickets=tickets)
 
+# ...existing code...
+
+from datetime import datetime, timedelta
+
 @app.route('/user_home', methods=['GET', 'POST'])
 def user_home():
-    if 'username' not in session:
-        flash('Please log in to view your homepage.')
-        return redirect(url_for('login'))
+    if 'username' not in session or session['user_type'] != 'customer':
+        flash('Please log in as a customer to view your dashboard.')
+        return redirect(url_for('login_customer'))
 
-    user_email = session['username']
-    user_type = session['user_type']
+    customer_email = session['username']
 
-    if user_type != 'customer':
-        flash('Only customers can view this page.')
-        return redirect(url_for('home'))
+    # 默认起止时间：最近半年
+    today = datetime.today()
+    default_start = (today - timedelta(days=180)).replace(day=1)
+    default_end = today
 
+    # 获取用户选择的起止年月
+    start_month = request.form.get('start_month')
+    end_month = request.form.get('end_month')
+
+    if start_month:
+        start_date = datetime.strptime(start_month, '%Y-%m')
+    else:
+        start_date = default_start
+
+    if end_month:
+        # 取该月最后一天
+        end_date = datetime.strptime(end_month, '%Y-%m')
+        next_month = (end_date.replace(day=28) + timedelta(days=4)).replace(day=1)
+        end_date = next_month - timedelta(days=1)
+    else:
+        end_date = default_end
+
+    # 查询半年内总花销
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
+    cursor.execute("""
+        SELECT SUM(Flight.price) AS total_spent
+        FROM Purchases
+        JOIN Ticket ON Purchases.ticket_id = Ticket.ticket_id
+        JOIN Flight ON Ticket.airline_name = Flight.airline_name AND Ticket.flight_num = Flight.flight_num
+        WHERE Purchases.customer_email = %s
+          AND DATE(Purchases.purchase_date) >= %s
+          AND DATE(Purchases.purchase_date) <= %s
+    """, (customer_email, start_date.strftime('%Y-%m-%d'), end_date.strftime('%Y-%m-%d')))
+    total_spent = cursor.fetchone()['total_spent'] or 0
 
-    # Default: Past year and last 6 months
-    total_spent = 0
-    month_wise_spending = []
-    start_date = None
-    end_date = None
+    # 查询每月花销
+    cursor.execute("""
+        SELECT DATE_FORMAT(Purchases.purchase_date, '%%Y-%%m') AS month, SUM(Flight.price) AS monthly_spent
+        FROM Purchases
+        JOIN Ticket ON Purchases.ticket_id = Ticket.ticket_id
+        JOIN Flight ON Ticket.airline_name = Flight.airline_name AND Ticket.flight_num = Flight.flight_num
+        WHERE Purchases.customer_email = %s
+            AND DATE(Purchases.purchase_date) >= %s
+            AND DATE(Purchases.purchase_date) <= %s
+        GROUP BY month
+        ORDER BY month
+    """, (customer_email, start_date.strftime('%Y-%m-%d'), end_date.strftime('%Y-%m-%d')))
+    print(customer_email, start_date.strftime('%Y-%m-%d'), end_date.strftime('%Y-%m-%d'))
+    monthly_data = cursor.fetchall()
+    print("monthly_data", monthly_data)
+    cursor.close()
+    conn.close()
 
-    try:
-        # Calculate total spending in the past year
-        cursor.execute("""
-            SELECT SUM(Flight.price) AS total_spent
-            FROM Purchases
-            JOIN Ticket ON Purchases.ticket_id = Ticket.ticket_id
-            JOIN Flight ON Ticket.airline_name = Flight.airline_name AND Ticket.flight_num = Flight.flight_num
-            WHERE Purchases.customer_email = %s
-            AND Purchases.purchase_date >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
-        """, (user_email,))
-        total_spent = cursor.fetchone()['total_spent'] or 0
-
-        # Calculate month-wise spending for the last 6 months
-        cursor.execute("""
-            SELECT DATE_FORMAT(Purchases.purchase_date, '%Y-%m') AS month, SUM(Flight.price) AS total
-            FROM Purchases
-            JOIN Ticket ON Purchases.ticket_id = Ticket.ticket_id
-            JOIN Flight ON Ticket.airline_name = Flight.airline_name AND Ticket.flight_num = Flight.flight_num
-            WHERE Purchases.customer_email = %s
-            AND Purchases.purchase_date >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
-            GROUP BY DATE_FORMAT(Purchases.purchase_date, '%Y-%m')
-            ORDER BY month
-        """, (user_email,))
-        month_wise_spending = cursor.fetchall()
-
-        # If a custom date range is provided
-        if request.method == 'POST':
-            start_date = request.form.get('start_date')
-            end_date = request.form.get('end_date')
-
-            if start_date and end_date:
-                # Calculate total spending within the range
-                cursor.execute("""
-                    SELECT SUM(Flight.price) AS total_spent
-                    FROM Purchases
-                    JOIN Ticket ON Purchases.ticket_id = Ticket.ticket_id
-                    JOIN Flight ON Ticket.airline_name = Flight.airline_name AND Ticket.flight_num = Flight.flight_num
-                    WHERE Purchases.customer_email = %s
-                    AND Purchases.purchase_date BETWEEN %s AND %s
-                """, (user_email, start_date, end_date))
-                total_spent = cursor.fetchone()['total_spent'] or 0
-
-                # Calculate month-wise spending within the range
-                cursor.execute("""
-                    SELECT DATE_FORMAT(Purchases.purchase_date, '%Y-%m') AS month, SUM(Flight.price) AS total
-                    FROM Purchases
-                    JOIN Ticket ON Purchases.ticket_id = Ticket.ticket_id
-                    JOIN Flight ON Ticket.airline_name = Flight.airline_name AND Ticket.flight_num = Flight.flight_num
-                    WHERE Purchases.customer_email = %s
-                    AND Purchases.purchase_date BETWEEN %s AND %s
-                    GROUP BY DATE_FORMAT(Purchases.purchase_date, '%Y-%m')
-                    ORDER BY month
-                """, (user_email, start_date, end_date))
-                month_wise_spending = cursor.fetchall()
-
-                print("Filtered month-wise spending:", month_wise_spending)
-    finally:
-        cursor.close()
-        conn.close()
+    # 构造柱状图数据
+    months = []
+    monthly_spent = []
+    # 补全没有消费的月份
+    current = start_date
+    while current <= end_date:
+        m = current.strftime('%Y-%m')
+        months.append(m)
+        found = next((item['monthly_spent'] for item in monthly_data if item['month'] == m), 0)
+        monthly_spent.append(float(found) if found else 0)
+        # 下个月
+        if current.month == 12:
+            current = current.replace(year=current.year+1, month=1)
+        else:
+            current = current.replace(month=current.month+1)
 
     return render_template(
         'user_home.html',
         total_spent=total_spent,
-        month_wise_spending=month_wise_spending,
-        start_date=start_date,
-        end_date=end_date
+        months=months,
+        monthly_spent=monthly_spent,
+        start_month=start_date.strftime('%Y-%m'),
+        end_month=end_date.strftime('%Y-%m')
     )
+# ...existing code...
 
 if __name__ == '__main__':
     app.run(debug=True)
