@@ -290,10 +290,17 @@ def purchase_ticket():
     try:
         # 检查是否还有可用票
         cursor.execute("""
-            SELECT COUNT(*) AS ticket_count
-            FROM Ticket
-            WHERE airline_name = %s AND flight_num = %s
-            AND ticket_id NOT IN (SELECT ticket_id FROM Purchases)
+            SELECT 
+                a.seats - IFNULL(COUNT(p.ticket_id), 0) AS remaining_seats
+            FROM flight f
+            JOIN airplane a 
+                ON f.airline_name = a.airline_name AND f.airplane_id = a.airplane_id
+            LEFT JOIN ticket t 
+                ON f.airline_name = t.airline_name AND f.flight_num = t.flight_num
+            LEFT JOIN purchases p 
+                ON t.ticket_id = p.ticket_id
+            WHERE f.airline_name = %s AND f.flight_num = %s
+            GROUP BY a.seats;
         """, (airline_name, flight_num))
         result = cursor.fetchone()
         print(flight_num, result)
