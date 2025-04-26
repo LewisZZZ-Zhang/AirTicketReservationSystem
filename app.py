@@ -489,7 +489,7 @@ def user_home():
 
     # 查询每月花销
     cursor.execute("""
-        SELECT DATE_FORMAT(Purchases.purchase_date, '%%Y-%%m') AS month, SUM(Flight.price) AS monthly_spent
+        SELECT DATE_FORMAT(Purchases.purchase_date, '%Y-%m') AS month, SUM(Flight.price) AS monthly_spent
         FROM Purchases
         JOIN Ticket ON Purchases.ticket_id = Ticket.ticket_id
         JOIN Flight ON Ticket.airline_name = Flight.airline_name AND Ticket.flight_num = Flight.flight_num
@@ -499,7 +499,7 @@ def user_home():
         GROUP BY month
         ORDER BY month
     """, (customer_email, start_date.strftime('%Y-%m-%d'), end_date.strftime('%Y-%m-%d')))
-    print(customer_email, start_date.strftime('%Y-%m-%d'), end_date.strftime('%Y-%m-%d'))
+    # print(customer_email, start_date.strftime('%Y-%m-%d'), end_date.strftime('%Y-%m-%d'))
     monthly_data = cursor.fetchall()
     print("monthly_data", monthly_data)
     cursor.close()

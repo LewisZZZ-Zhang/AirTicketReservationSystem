@@ -225,3 +225,17 @@ tr:last-child td {
     border-radius: 5px;
     font-size: 1rem;
 }
+
+/* Add to your style.css */
+.filter-bar {
+    flex-direction: row;
+    justify-content: flex-start;
+    margin-top: 1.5rem;
+    margin-bottom: 2rem;
+    background: none;
+    box-shadow: none;
+    padding: 0;
+}
+.filter-bar .form-group {
+    margin: 0;
+}

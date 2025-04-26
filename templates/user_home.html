@@ -3,16 +3,16 @@
 <div class="container">
     <h2>Total Spending (Last 6 Months): ¥{{ total_spent }}</h2>
 
-    <form method="post" class="search-form" style="max-width:400px;">
-        <div class="form-group">
-            <label for="start_month">Start Month:</label>
+    <form method="post" class="search-form filter-bar" style="display: flex; align-items: center; gap: 1.5rem; max-width: 700px; margin-bottom: 2rem;">
+        <div class="form-group" style="margin: 0;">
+            <label for="start_month" style="margin-right: 0.5rem;">Start Month:</label>
             <input type="month" id="start_month" name="start_month" value="{{ start_month }}">
         </div>
-        <div class="form-group">
-            <label for="end_month">End Month:</label>
+        <div class="form-group" style="margin: 0;">
+            <label for="end_month" style="margin-right: 0.5rem;">End Month:</label>
             <input type="month" id="end_month" name="end_month" value="{{ end_month }}">
         </div>
-        <button type="submit" class="cta-button">Filter</button>
+        <button type="submit" class="cta-button" style="margin: 0;">Filter</button>
     </form>
 
     <h3>Monthly Spending</h3>
