@@ -239,3 +239,48 @@ tr:last-child td {
 .filter-bar .form-group {
     margin: 0;
 }
+
+/* Staff red theme */
+.staff-theme {
+    --primary-blue: #e53935;
+    --secondary-blue: #b71c1c;
+}
+
+.staff-btn-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+    margin: 2.5rem 0 0 0;
+}
+
+.staff-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 110px;
+    background: var(--primary-blue);
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 14px;
+    text-decoration: none;
+    box-shadow: 0 4px 16px rgba(229,57,53,0.08);
+    transition: background 0.2s, transform 0.2s;
+    text-align: center;
+    padding: 0 10px;
+}
+.staff-btn:hover {
+    background: var(--secondary-blue);
+    transform: translateY(-2px) scale(1.03);
+}
+
+@media (max-width: 1000px) {
+    .staff-btn-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media (max-width: 600px) {
+    .staff-btn-grid {
+        grid-template-columns: 1fr;
+    }
+}

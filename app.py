@@ -123,7 +123,7 @@ def login_staff():
             session['username'] = username
             session['user_type'] = 'staff'
             flash('Airline Staff login successful!')
-            return redirect(url_for('home'))
+            return redirect(url_for('staff_home'))
         else:
             flash('Invalid login credentials.')
             return redirect(url_for('login_staff'))
@@ -529,7 +529,38 @@ def user_home():
         start_month=start_date.strftime('%Y-%m'),
         end_month=end_date.strftime('%Y-%m')
     )
-# ...existing code...
+
+@app.route('/staff_home')
+def staff_home():
+    if 'username' not in session or session['user_type'] != 'staff':
+        flash('Please log in as airline staff to view this page.')
+        return redirect(url_for('login_staff'))
+    return render_template('staff_home.html')
+
+@app.route('/view_my_flights')
+def view_my_flights():
+    # TODO: Implement staff flight view
+    return "View My Flights page (to be implemented)"
+
+@app.route('/create_flight')
+def create_flight():
+    # TODO: Implement create flight
+    return "Create New Flight page (to be implemented)"
+
+@app.route('/change_flight_status')
+def change_flight_status():
+    # TODO: Implement change status
+    return "Change Status of Flights page (to be implemented)"
+
+@app.route('/add_airplane')
+def add_airplane():
+    # TODO: Implement add airplane
+    return "Add Airplane page (to be implemented)"
+
+@app.route('/add_airport')
+def add_airport():
+    # TODO: Implement add airport
+    return "Add New Airport page (to be implemented)"
 
 if __name__ == '__main__':
     app.run(debug=True)
