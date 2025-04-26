@@ -13,15 +13,20 @@
             Air Ticket Reservation System
           </a>
           <nav class="nav-links">
-                <a href="{{ url_for('home') }}">Home</a>
-                {% if session.get('user_type') %}
-                    <a href="{{ url_for('user_home') }}">MyAccount</a> <!-- 添加用户主页链接 -->
-                    <span class="welcome-message">Welcome, {{ session.get('username') }}!</span>
-                    <a href="{{ url_for('logout') }}">Logout</a>
-                {% else %}
-                    <a href="{{ url_for('login') }}">Login</a>
-                    <a href="{{ url_for('register') }}">Register</a>
+            <a href="{{ url_for('home') }}">Home</a>
+            {% if session.get('user_type') %}
+                {% if session.get('user_type') == 'customer' %}
+                    <a href="{{ url_for('user_home') }}">MyAccount</a>
+                {% elif session.get('user_type') == 'staff' %}
+                    <a href="{{ url_for('staff_home') }}">Staff Homepage</a>
                 {% endif %}
+                <span class="welcome-message">Welcome, {{ session.get('username') }}!</span>
+                <a href="{{ url_for('logout') }}">Logout</a>
+            {% else %}
+                <a href="{{ url_for('login') }}">Login</a>
+                <a href="{{ url_for('register') }}">Register</a>
+            {% endif %}
+        </nav>
             </nav>
         </div>
     </div>
