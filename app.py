@@ -1,9 +1,19 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 import mysql.connector
-from datetime import datetime
+from datetime import datetime, timedelta
+import uuid
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # 用于会话加密
+# 每次启动时生成一个新的版本号；重启后版本号变了，所有旧 session 都会被清除
+app.config['SESSION_VERSION'] = str(uuid.uuid4())
+
+@app.before_request
+def invalidate_old_sessions():
+    if session.get('session_version') != app.config['SESSION_VERSION']:
+        session.clear()
+        # 将新的版本号写入 session，以后请求才会跳过清除
+        session['session_version'] = app.config['SESSION_VERSION']
 
 # 数据库连接配置
 db_config = {
@@ -440,8 +450,6 @@ def view_all_tickets():
     return render_template('all_tickets.html', tickets=tickets)
 
 # ...existing code...
-
-from datetime import datetime, timedelta
 
 @app.route('/user_home', methods=['GET', 'POST'])
 def user_home():
