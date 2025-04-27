@@ -98,7 +98,7 @@ def login_agent():
             session['username'] = email
             session['user_type'] = 'agent'
             flash('Booking Agent login successful!')
-            return redirect(url_for('home'))
+            return redirect(url_for('agent_home'))
         else:
             flash('Invalid login credentials.')
             return redirect(url_for('login_agent'))
@@ -561,6 +561,230 @@ def add_airplane():
 def add_airport():
     # TODO: Implement add airport
     return "Add New Airport page (to be implemented)"
+
+
+#4/27 agent
+@app.route('/agent/home')
+def agent_home():
+    if 'username' not in session or session['user_type'] != 'agent':
+        flash('Please log in as a booking agent to view this page.')
+        return redirect(url_for('login_agent'))
+    return render_template('agent_home.html')
+
+
+@app.route('/agent/view_flights', methods=['GET', 'POST'])
+def agent_view_flights():
+    if 'username' not in session or session['user_type'] != 'agent':
+        flash('Please log in as a booking agent to view flights.')
+        return redirect(url_for('login_agent'))
+
+    agent_email = session['username']
+    start_date = request.form.get('start_date', '').strip()
+    end_date = request.form.get('end_date', '').strip()
+    from_location = request.form.get('from_location', '').strip()
+    to_location = request.form.get('to_location', '').strip()
+
+    query = """
+        SELECT 
+            Flight.airline_name, 
+            Flight.flight_num, 
+            Flight.departure_airport, 
+            Flight.arrival_airport, 
+            Flight.departure_time, 
+            Flight.arrival_time, 
+            Flight.status, 
+            Flight.price
+        FROM Purchases
+        JOIN Ticket ON Purchases.ticket_id = Ticket.ticket_id
+        JOIN Flight ON Ticket.airline_name = Flight.airline_name AND Ticket.flight_num = Flight.flight_num
+        WHERE Purchases.booking_agent_id = (
+            SELECT booking_agent_id FROM Booking_Agent WHERE email = %s
+        )
+    """
+    params = [agent_email]
+
+    # Add filters dynamically
+    if start_date:
+        query += " AND DATE(Flight.departure_time) >= %s"
+        params.append(start_date)
+    if end_date:
+        query += " AND DATE(Flight.departure_time) <= %s"
+        params.append(end_date)
+    if from_location:
+        query += " AND Flight.departure_airport = %s"
+        params.append(from_location)
+    if to_location:
+        query += " AND Flight.arrival_airport = %s"
+        params.append(to_location)
+
+    query += " ORDER BY Flight.departure_time"
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute(query, params)
+    flights = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    return render_template('agent_view_flights.html', flights=flights)
+
+
+@app.route('/agent/purchase_ticket', methods=['POST'])
+def agent_purchase_ticket():
+    if 'username' not in session or session['user_type'] != 'agent':
+        flash('Please log in as a booking agent to purchase tickets.')
+        return redirect(url_for('login_agent'))
+
+    agent_email = session['username']
+    customer_email = request.form['customer_email']
+    airline_name = request.form['airline_name']
+    flight_num = request.form['flight_num']
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        # Check if the agent works for the airline
+        cursor.execute("""
+            SELECT 1 FROM Booking_Agent_Works_For 
+            WHERE booking_agent_email = %s AND airline_name = %s
+        """, (agent_email, airline_name))
+        if not cursor.fetchone():
+            flash('You can only purchase tickets for airlines you work for.')
+            return redirect(url_for('search_flights'))
+
+        # Check if there are available tickets
+        cursor.execute("""
+            SELECT 
+                a.seats - IFNULL(COUNT(p.ticket_id), 0) AS remaining_seats
+            FROM Flight f
+            JOIN Airplane a 
+                ON f.airline_name = a.airline_name AND f.airplane_id = a.airplane_id
+            LEFT JOIN Ticket t 
+                ON f.airline_name = t.airline_name AND f.flight_num = t.flight_num
+            LEFT JOIN Purchases p 
+                ON t.ticket_id = p.ticket_id
+            WHERE f.airline_name = %s AND f.flight_num = %s
+            GROUP BY a.seats;
+        """, (airline_name, flight_num))
+        result = cursor.fetchone()
+        if not result or result[0] <= 0:
+            flash('No available tickets for this flight.')
+            return redirect(url_for('search_flights'))
+
+        # Insert new ticket
+        cursor.execute("SELECT MAX(ticket_id) FROM Ticket")
+        max_id = cursor.fetchone()[0] or 0
+        new_ticket_id = max_id + 1
+
+        cursor.execute("""
+            INSERT INTO Ticket (ticket_id, airline_name, flight_num)
+            VALUES (%s, %s, %s)
+        """, (new_ticket_id, airline_name, flight_num))
+
+        # Insert purchase record
+        cursor.execute("""
+            INSERT INTO Purchases (ticket_id, customer_email, booking_agent_id, purchase_date)
+            VALUES (%s, %s, (
+                SELECT booking_agent_id FROM Booking_Agent WHERE email = %s
+            ), %s)
+        """, (new_ticket_id, customer_email, agent_email, datetime.now().strftime('%Y-%m-%d')))
+        conn.commit()
+        flash('Ticket purchased successfully!')
+    except mysql.connector.Error as err:
+        flash(f"Error: {err}")
+    finally:
+        cursor.close()
+        conn.close()
+
+    return redirect(url_for('search_flights'))
+
+
+@app.route('/agent/view_commission', methods=['GET', 'POST'])
+def agent_view_commission():
+    if 'username' not in session or session['user_type'] != 'agent':
+        flash('Please log in as a booking agent to view your commission.')
+        return redirect(url_for('login_agent'))
+
+    agent_email = session['username']
+    start_date = request.form.get('start_date', (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d'))
+    end_date = request.form.get('end_date', datetime.now().strftime('%Y-%m-%d'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("""
+        SELECT 
+            SUM(Flight.price * 0.1) AS total_commission,
+            AVG(Flight.price * 0.1) AS avg_commission,
+            COUNT(*) AS total_tickets
+        FROM Purchases
+        JOIN Ticket ON Purchases.ticket_id = Ticket.ticket_id
+        JOIN Flight ON Ticket.airline_name = Flight.airline_name AND Ticket.flight_num = Flight.flight_num
+        WHERE Purchases.booking_agent_id = (
+            SELECT booking_agent_id FROM Booking_Agent WHERE email = %s
+        )
+        AND DATE(Purchases.purchase_date) BETWEEN %s AND %s
+    """, (agent_email, start_date, end_date))
+    commission_data = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    return render_template('agent_view_commission.html', commission_data=commission_data, start_date=start_date, end_date=end_date)
+
+
+@app.route('/agent/view_top_customers')
+def agent_view_top_customers():
+    if 'username' not in session or session['user_type'] != 'agent':
+        flash('Please log in as a booking agent to view top customers.')
+        return redirect(url_for('login_agent'))
+
+    agent_email = session['username']
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Top 5 customers by tickets sold
+    cursor.execute("""
+        SELECT 
+            Purchases.customer_email, 
+            COUNT(*) AS tickets_sold
+        FROM Purchases
+        JOIN Ticket ON Purchases.ticket_id = Ticket.ticket_id
+        WHERE Purchases.booking_agent_id = (
+            SELECT booking_agent_id FROM Booking_Agent WHERE email = %s
+        )
+        AND Purchases.purchase_date >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
+        GROUP BY Purchases.customer_email
+        ORDER BY tickets_sold DESC
+        LIMIT 5
+    """, (agent_email,))
+    top_customers_tickets = cursor.fetchall()
+
+    # Top 5 customers by commission earned
+    cursor.execute("""
+        SELECT 
+            Purchases.customer_email, 
+            SUM(Flight.price * 0.1) AS commission_earned
+        FROM Purchases
+        JOIN Ticket ON Purchases.ticket_id = Ticket.ticket_id
+        JOIN Flight ON Ticket.airline_name = Flight.airline_name AND Ticket.flight_num = Flight.flight_num
+        WHERE Purchases.booking_agent_id = (
+            SELECT booking_agent_id FROM Booking_Agent WHERE email = %s
+        )
+        AND Purchases.purchase_date >= DATE_SUB(NOW(), INTERVAL 1 YEAR)
+        GROUP BY Purchases.customer_email
+        ORDER BY commission_earned DESC
+        LIMIT 5
+    """, (agent_email,))
+    top_customers_commission = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template('agent_view_top_customers.html', 
+                           top_customers_tickets=top_customers_tickets, 
+                           top_customers_commission=top_customers_commission)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

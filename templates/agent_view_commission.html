@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View My Commission</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>My Commission</h1>
+        <a href="{{ url_for('agent_home') }}">Back to Home</a>
+    </header>
+    <main>
+        <form method="POST">
+            <label for="start_date">Start Date:</label>
+            <input type="date" id="start_date" name="start_date" value="{{ start_date }}">
+            <label for="end_date">End Date:</label>
+            <input type="date" id="end_date" name="end_date" value="{{ end_date }}">
+            <button type="submit">Filter</button>
+        </form>
+
+        <h2>Commission Summary</h2>
+        <p>Total Commission: ${{ commission_data.total_commission or 0 }}</p>
+        <p>Average Commission per Ticket: ${{ commission_data.avg_commission or 0 }}</p>
+        <p>Total Tickets Sold: {{ commission_data.total_tickets or 0 }}</p>
+    </main>
+</body>
+</html>
