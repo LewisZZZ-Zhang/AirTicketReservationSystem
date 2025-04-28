@@ -6,14 +6,14 @@ import uuid
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # 用于会话加密
 # 每次启动时生成一个新的版本号；重启后版本号变了，所有旧 session 都会被清除
-app.config['SESSION_VERSION'] = str(uuid.uuid4())
+# app.config['SESSION_VERSION'] = str(uuid.uuid4())
 
-@app.before_request
-def invalidate_old_sessions():
-    if session.get('session_version') != app.config['SESSION_VERSION']:
-        session.clear()
-        # 将新的版本号写入 session，以后请求才会跳过清除
-        session['session_version'] = app.config['SESSION_VERSION']
+# @app.before_request
+# def invalidate_old_sessions():
+#     if session.get('session_version') != app.config['SESSION_VERSION']:
+#         session.clear()
+#         # 将新的版本号写入 session，以后请求才会跳过清除
+#         session['session_version'] = app.config['SESSION_VERSION']
 
 # 数据库连接配置
 db_config = {
@@ -637,75 +637,81 @@ def agent_view_flights():
     return render_template('agent_view_flights.html', flights=flights)
 
 
-@app.route('/agent/purchase_ticket', methods=['POST'])
-def agent_purchase_ticket():
-    if 'username' not in session or session['user_type'] != 'agent':
-        flash('Please log in as a booking agent to purchase tickets.')
-        return redirect(url_for('login_agent'))
+# 这里有点问题，前端要新弄一个html给agent
+# Purchase tickets: Booking agent chooses a flight and purchases tickets for other customers giving 
+# customer information. You may find it easier to implement this along with a use case to search for 
+# flights. Notice that as described in the previous assignments, the booking agent may only purchase tickets from 
+# airlines they work for.
 
-    agent_email = session['username']
-    customer_email = request.form['customer_email']
-    airline_name = request.form['airline_name']
-    flight_num = request.form['flight_num']
+# @app.route('/agent/purchase_ticket', methods=['POST'])
+# def agent_purchase_ticket():
+#     if 'username' not in session or session['user_type'] != 'agent':
+#         flash('Please log in as a booking agent to purchase tickets.')
+#         return redirect(url_for('login_agent'))
 
-    conn = get_db_connection()
-    cursor = conn.cursor()
+#     agent_email = session['username']
+#     customer_email = request.form['customer_email']  这里有点问题，前端要新弄一个html给agent
+#     airline_name = request.form['airline_name']       
+#     flight_num = request.form['flight_num']  
 
-    try:
-        # Check if the agent works for the airline
-        cursor.execute("""
-            SELECT 1 FROM Booking_Agent_Works_For 
-            WHERE booking_agent_email = %s AND airline_name = %s
-        """, (agent_email, airline_name))
-        if not cursor.fetchone():
-            flash('You can only purchase tickets for airlines you work for.')
-            return redirect(url_for('search_flights'))
+#     conn = get_db_connection()
+#     cursor = conn.cursor()
 
-        # Check if there are available tickets
-        cursor.execute("""
-            SELECT 
-                a.seats - IFNULL(COUNT(p.ticket_id), 0) AS remaining_seats
-            FROM Flight f
-            JOIN Airplane a 
-                ON f.airline_name = a.airline_name AND f.airplane_id = a.airplane_id
-            LEFT JOIN Ticket t 
-                ON f.airline_name = t.airline_name AND f.flight_num = t.flight_num
-            LEFT JOIN Purchases p 
-                ON t.ticket_id = p.ticket_id
-            WHERE f.airline_name = %s AND f.flight_num = %s
-            GROUP BY a.seats;
-        """, (airline_name, flight_num))
-        result = cursor.fetchone()
-        if not result or result[0] <= 0:
-            flash('No available tickets for this flight.')
-            return redirect(url_for('search_flights'))
+#     try:
+#         # Check if the agent works for the airline
+#         cursor.execute("""
+#             SELECT 1 FROM Booking_Agent_Works_For 
+#             WHERE booking_agent_email = %s AND airline_name = %s
+#         """, (agent_email, airline_name))
+#         if not cursor.fetchone():
+#             flash('You can only purchase tickets for airlines you work for.')
+#             return redirect(url_for('search_flights'))
 
-        # Insert new ticket
-        cursor.execute("SELECT MAX(ticket_id) FROM Ticket")
-        max_id = cursor.fetchone()[0] or 0
-        new_ticket_id = max_id + 1
+#         # Check if there are available tickets
+#         cursor.execute("""
+#             SELECT 
+#                 a.seats - IFNULL(COUNT(p.ticket_id), 0) AS remaining_seats
+#             FROM Flight f
+#             JOIN Airplane a 
+#                 ON f.airline_name = a.airline_name AND f.airplane_id = a.airplane_id
+#             LEFT JOIN Ticket t 
+#                 ON f.airline_name = t.airline_name AND f.flight_num = t.flight_num
+#             LEFT JOIN Purchases p 
+#                 ON t.ticket_id = p.ticket_id
+#             WHERE f.airline_name = %s AND f.flight_num = %s
+#             GROUP BY a.seats;
+#         """, (airline_name, flight_num))
+#         result = cursor.fetchone()
+#         if not result or result[0] <= 0:
+#             flash('No available tickets for this flight.')
+#             return redirect(url_for('search_flights'))
 
-        cursor.execute("""
-            INSERT INTO Ticket (ticket_id, airline_name, flight_num)
-            VALUES (%s, %s, %s)
-        """, (new_ticket_id, airline_name, flight_num))
+#         # Insert new ticket
+#         cursor.execute("SELECT MAX(ticket_id) FROM Ticket")
+#         max_id = cursor.fetchone()[0] or 0
+#         new_ticket_id = max_id + 1
 
-        # Insert purchase record
-        cursor.execute("""
-            INSERT INTO Purchases (ticket_id, customer_email, booking_agent_id, purchase_date)
-            VALUES (%s, %s, (
-                SELECT booking_agent_id FROM Booking_Agent WHERE email = %s
-            ), %s)
-        """, (new_ticket_id, customer_email, agent_email, datetime.now().strftime('%Y-%m-%d')))
-        conn.commit()
-        flash('Ticket purchased successfully!')
-    except mysql.connector.Error as err:
-        flash(f"Error: {err}")
-    finally:
-        cursor.close()
-        conn.close()
+#         cursor.execute("""
+#             INSERT INTO Ticket (ticket_id, airline_name, flight_num)
+#             VALUES (%s, %s, %s)
+#         """, (new_ticket_id, airline_name, flight_num))
 
-    return redirect(url_for('search_flights'))
+#         # Insert purchase record
+#         cursor.execute("""
+#             INSERT INTO Purchases (ticket_id, customer_email, booking_agent_id, purchase_date)
+#             VALUES (%s, %s, (
+#                 SELECT booking_agent_id FROM Booking_Agent WHERE email = %s
+#             ), %s)
+#         """, (new_ticket_id, customer_email, agent_email, datetime.now().strftime('%Y-%m-%d')))
+#         conn.commit()
+#         flash('Ticket purchased successfully!')
+#     except mysql.connector.Error as err:
+#         flash(f"Error: {err}")
+#     finally:
+#         cursor.close()
+#         conn.close()
+
+#     return redirect(url_for('search_flights'))
 
 
 @app.route('/agent/view_commission', methods=['GET', 'POST'])
