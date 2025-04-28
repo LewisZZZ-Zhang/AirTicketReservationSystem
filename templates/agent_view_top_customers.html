@@ -1,52 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Top Customers</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
-<body>
-    <header>
-        <h1>Top Customers</h1>
-        <a href="{{ url_for('agent_home') }}">Back to Home</a>
-    </header>
-    <main>
-        <h2>Top 5 Customers by Tickets Sold</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Customer Email</th>
-                    <th>Tickets Sold</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for customer in top_customers_tickets %}
-                <tr>
-                    <td>{{ customer.customer_email }}</td>
-                    <td>{{ customer.tickets_sold }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-        <h2>Top 5 Customers by Commission Earned</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Customer Email</th>
-                    <th>Commission Earned</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for customer in top_customers_commission %}
-                <tr>
-                    <td>{{ customer.customer_email }}</td>
-                    <td>${{ customer.commission_earned }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </main>
-</body>
-</html>
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <h2>Top Customers</h2>
+    <h3>Top 5 Customers by Tickets Sold</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Customer Email</th>
+                <th>Tickets Sold</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for customer in top_customers_tickets %}
+            <tr>
+                <td>{{ customer.customer_email }}</td>
+                <td>{{ customer.tickets_sold }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <h3>Top 5 Customers by Commission Earned</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Customer Email</th>
+                <th>Commission Earned</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for customer in top_customers_commission %}
+            <tr>
+                <td>{{ customer.customer_email }}</td>
+                <td>¥{{ customer.commission_earned }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

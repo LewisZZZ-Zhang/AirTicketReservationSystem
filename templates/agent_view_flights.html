@@ -1,57 +1,54 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View My Flights</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
-<body>
-    <header>
-        <h1>My Flights</h1>
-        <a href="{{ url_for('agent_home') }}">Back to Home</a>
-    </header>
-    <main>
-        <form method="POST">
-            <label for="start_date">Start Date:</label>
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <h2>My Flights</h2>
+    <form method="POST" class="search-form filter-bar" style="display: flex; align-items: flex-end; gap: 1.5rem; max-width: 900px; margin-bottom: 2rem;">
+        <div class="form-group" style="flex-direction: column; align-items: flex-start; margin: 0;">
+            <label for="start_date" style="margin-bottom: 0.3rem;">Start Date:</label>
             <input type="date" id="start_date" name="start_date" value="{{ request.form.get('start_date', '') }}">
-            <label for="end_date">End Date:</label>
+        </div>
+        <div class="form-group" style="flex-direction: column; align-items: flex-start; margin: 0;">
+            <label for="end_date" style="margin-bottom: 0.3rem;">End Date:</label>
             <input type="date" id="end_date" name="end_date" value="{{ request.form.get('end_date', '') }}">
-            <label for="from_location">From:</label>
+        </div>
+        <div class="form-group" style="flex-direction: column; align-items: flex-start; margin: 0;">
+            <label for="from_location" style="margin-bottom: 0.3rem;">From:</label>
             <input type="text" id="from_location" name="from_location" value="{{ request.form.get('from_location', '') }}">
-            <label for="to_location">To:</label>
+        </div>
+        <div class="form-group" style="flex-direction: column; align-items: flex-start; margin: 0;">
+            <label for="to_location" style="margin-bottom: 0.3rem;">To:</label>
             <input type="text" id="to_location" name="to_location" value="{{ request.form.get('to_location', '') }}">
-            <button type="submit">Filter</button>
-        </form>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>Airline</th>
-                    <th>Flight Number</th>
-                    <th>Departure</th>
-                    <th>Arrival</th>
-                    <th>Departure Time</th>
-                    <th>Arrival Time</th>
-                    <th>Status</th>
-                    <th>Price</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for flight in flights %}
-                <tr>
-                    <td>{{ flight.airline_name }}</td>
-                    <td>{{ flight.flight_num }}</td>
-                    <td>{{ flight.departure_airport }}</td>
-                    <td>{{ flight.arrival_airport }}</td>
-                    <td>{{ flight.departure_time }}</td>
-                    <td>{{ flight.arrival_time }}</td>
-                    <td>{{ flight.status }}</td>
-                    <td>{{ flight.price }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </main>
-</body>
-</html>
+        </div>
+        <button type="submit" class="cta-button" style="margin: 0;">Filter</button>
+    </form>
+    </form>
+    <table>
+        <thead>
+            <tr>
+                <th>Airline</th>
+                <th>Flight Number</th>
+                <th>Departure</th>
+                <th>Arrival</th>
+                <th>Departure Time</th>
+                <th>Arrival Time</th>
+                <th>Status</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for flight in flights %}
+            <tr>
+                <td>{{ flight.airline_name }}</td>
+                <td>{{ flight.flight_num }}</td>
+                <td>{{ flight.departure_airport }}</td>
+                <td>{{ flight.arrival_airport }}</td>
+                <td>{{ flight.departure_time }}</td>
+                <td>{{ flight.arrival_time }}</td>
+                <td>{{ flight.status }}</td>
+                <td>{{ flight.price }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -18,7 +18,9 @@
                 {% if session.get('user_type') == 'customer' %}
                     <a href="{{ url_for('user_home') }}">MyAccount</a>
                 {% elif session.get('user_type') == 'staff' %}
-                    <a href="{{ url_for('staff_home') }}">Staff Homepage</a>
+                    <a href="{{ url_for('staff_home') }}">StaffHomepage</a>
+                {% elif session.get('user_type') == 'agent' %}
+                    <a href="{{ url_for('agent_home') }}">AgentHomepage</a>
                 {% endif %}
                 <span class="welcome-message">Welcome, {{ session.get('username') }}!</span>
                 <a href="{{ url_for('logout') }}">Logout</a>

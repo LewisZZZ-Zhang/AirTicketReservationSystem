@@ -68,7 +68,7 @@ INSERT INTO `purchases` (
   (2, 'tonystark@example.com',    1,    '2025-04-09');
 
 
--- 04/23 还没有加，我要去问问
+-- 04/23 
 INSERT INTO `airport` (`airport_name`, `airport_city`) VALUES
   ('LAX', 'Los Angeles'),
   ('CDG', 'Paris'),
@@ -127,6 +127,3 @@ INSERT INTO `purchases` (`ticket_id`, `customer_email`, `booking_agent_id`, `pur
   (8, 'tonystark@example.com', NULL, '2025-04-22'),
   (10, 'tonystark@example.com', 1,    '2025-04-22');
 
-
-
--- 加一点2023年，2024年，不同月份的机票，给tony stark，这个是用来测试用户的花费显示的
