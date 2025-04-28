@@ -133,7 +133,7 @@ def login_staff():
             session['username'] = username
             session['user_type'] = 'staff'
             flash('Airline Staff login successful!')
-            return redirect(url_for('staff_home'))
+            return redirect(url_for('/staff/staff_home'))
         else:
             flash('Invalid login credentials.')
             return redirect(url_for('login_staff'))
@@ -538,34 +538,97 @@ def user_home():
         end_month=end_date.strftime('%Y-%m')
     )
 
-@app.route('/staff_home')
+@app.route('/staff/staff_home')
 def staff_home():
     if 'username' not in session or session['user_type'] != 'staff':
         flash('Please log in as airline staff to view this page.')
         return redirect(url_for('login_staff'))
     return render_template('staff_home.html')
 
-@app.route('/view_my_flights')
-def view_my_flights():
-    # TODO: Implement staff flight view
-    return "View My Flights page (to be implemented)"
+# ...existing code...
 
-@app.route('/create_flight')
+@app.route('/staff/view_my_flights', methods=['GET', 'POST'])
+def view_my_flights():
+    if 'username' not in session or session['user_type'] != 'staff':
+        flash('Please log in as airline staff to view flights.')
+        return redirect(url_for('login_staff'))
+
+    username = session['username']
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    # 获取员工所属航空公司
+    cursor.execute("SELECT airline_name FROM Airline_Staff WHERE username = %s", (username,))
+    staff = cursor.fetchone()
+    if not staff:
+        flash('Staff not found.')
+        cursor.close()
+        conn.close()
+        return redirect(url_for('staff_home'))
+    airline_name = staff['airline_name']
+
+    # 默认时间范围：未来30天
+    today = datetime.today().date()
+    default_start = today
+    default_end = today + timedelta(days=30)
+
+    # 获取筛选条件
+    start_date = request.form.get('start_date', default_start.strftime('%Y-%m-%d'))
+    end_date = request.form.get('end_date', default_end.strftime('%Y-%m-%d'))
+    from_location = request.form.get('from_location', '').strip()
+    to_location = request.form.get('to_location', '').strip()
+
+    query = """
+        SELECT 
+            Flight.airline_name, Flight.flight_num, Flight.departure_airport, 
+            Flight.arrival_airport, Flight.departure_time, Flight.arrival_time, 
+            Flight.status, Flight.price
+        FROM Flight
+        WHERE Flight.airline_name = %s
+          AND DATE(Flight.departure_time) >= %s
+          AND DATE(Flight.departure_time) <= %s
+    """
+    params = [airline_name, start_date, end_date]
+
+    if from_location:
+        query += " AND (Flight.departure_airport = %s OR Flight.departure_airport IN (SELECT airport_name FROM Airport WHERE airport_city = %s))"
+        params.extend([from_location, from_location])
+    if to_location:
+        query += " AND (Flight.arrival_airport = %s OR Flight.arrival_airport IN (SELECT airport_name FROM Airport WHERE airport_city = %s))"
+        params.extend([to_location, to_location])
+
+    query += " ORDER BY Flight.departure_time"
+
+    cursor.execute(query, params)
+    flights = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    return render_template(
+        'staff_view_my_flights.html',
+        flights=flights,
+        start_date=start_date,
+        end_date=end_date,
+        from_location=from_location,
+        to_location=to_location
+    )
+# ...existing code...
+
+@app.route('/staff/create_flight')
 def create_flight():
     # TODO: Implement create flight
     return "Create New Flight page (to be implemented)"
 
-@app.route('/change_flight_status')
+@app.route('/staff/change_flight_status')
 def change_flight_status():
     # TODO: Implement change status
     return "Change Status of Flights page (to be implemented)"
 
-@app.route('/add_airplane')
+@app.route('/staff/add_airplane')
 def add_airplane():
     # TODO: Implement add airplane
     return "Add Airplane page (to be implemented)"
 
-@app.route('/add_airport')
+@app.route('/staff/add_airport')
 def add_airport():
     # TODO: Implement add airport
     return "Add New Airport page (to be implemented)"
