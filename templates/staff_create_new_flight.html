@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <h2>Create New Flight</h2>
+    <form method="POST">
+        <div class="form-group">
+            <label for="flight_num">Flight Number:</label>
+            <input type="text" id="flight_num" name="flight_num" required>
+        </div>
+        <div class="form-group">
+            <label for="departure_airport">Departure Airport:</label>
+            <input type="text" id="departure_airport" name="departure_airport" required>
+        </div>
+        <div class="form-group">
+            <label for="departure_time">Departure Time:</label>
+            <input type="datetime-local" id="departure_time" name="departure_time" required>
+        </div>
+        <div class="form-group">
+            <label for="arrival_airport">Arrival Airport:</label>
+            <input type="text" id="arrival_airport" name="arrival_airport" required>
+        </div>
+        <div class="form-group">
+            <label for="arrival_time">Arrival Time:</label>
+            <input type="datetime-local" id="arrival_time" name="arrival_time" required>
+        </div>
+        <div class="form-group">
+            <label for="price">Price:</label>
+            <input type="number" id="price" name="price" required>
+        </div>
+        <div class="form-group">
+            <label for="airplane_id">Airplane ID:</label>
+            <input type="number" id="airplane_id" name="airplane_id" required>
+        </div>
+        <button type="submit" class="cta-button">Create Flight</button>
+    </form>
+</div>
+{% endblock %}

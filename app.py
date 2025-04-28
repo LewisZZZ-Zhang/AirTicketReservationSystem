@@ -133,7 +133,7 @@ def login_staff():
             session['username'] = username
             session['user_type'] = 'staff'
             flash('Airline Staff login successful!')
-            return redirect(url_for('/staff/staff_home'))
+            return redirect(url_for('staff_home'))
         else:
             flash('Invalid login credentials.')
             return redirect(url_for('login_staff'))
@@ -611,12 +611,99 @@ def view_my_flights():
         from_location=from_location,
         to_location=to_location
     )
-# ...existing code...
 
-@app.route('/staff/create_flight')
+
+@app.route('/staff/create_flight', methods=['GET', 'POST'])
 def create_flight():
-    # TODO: Implement create flight
-    return "Create New Flight page (to be implemented)"
+    if 'username' not in session or session['user_type'] != 'staff':
+        flash('You are not authorized to create flights.')
+        return redirect(url_for('login_staff'))
+
+    username = session['username']
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Verify if the user is an airline staff
+    cursor.execute("SELECT airline_name FROM Airline_Staff WHERE username = %s", (username,))
+    staff = cursor.fetchone()
+    if not staff:
+        flash('You are not authorized to create flights.')
+        cursor.close()
+        conn.close()
+        return redirect(url_for('staff_home'))
+
+    airline_name = staff['airline_name']
+
+    if request.method == 'POST':
+        # Get flight details from the form
+        flight_num = request.form['flight_num']
+        departure_airport = request.form['departure_airport']
+        departure_time = request.form['departure_time']
+        arrival_airport = request.form['arrival_airport']
+        arrival_time = request.form['arrival_time']
+        price = request.form['price']
+        airplane_id = request.form['airplane_id']
+        
+        # Validate input data
+        if not all([flight_num, departure_airport, departure_time, arrival_airport, arrival_time, price, airplane_id]):
+            flash('All fields are required.')
+            cursor.close()
+            conn.close()
+            return redirect(url_for('create_flight'))
+
+        # Check if departure time is earlier than arrival time
+        if datetime.fromisoformat(departure_time) >= datetime.fromisoformat(arrival_time):
+            flash('Departure time must be earlier than arrival time.')
+            cursor.close()
+            conn.close()
+            return redirect(url_for('create_flight'))
+
+        # Check if departure and arrival airports exist
+        cursor.execute("SELECT 1 FROM Airport WHERE airport_name = %s", (departure_airport,))
+        if not cursor.fetchone():
+            flash(f"Departure airport '{departure_airport}' does not exist.")
+            cursor.close()
+            conn.close()
+            return redirect(url_for('create_flight'))
+
+        cursor.execute("SELECT 1 FROM Airport WHERE airport_name = %s", (arrival_airport,))
+        if not cursor.fetchone():
+            flash(f"Arrival airport '{arrival_airport}' does not exist.")
+            cursor.close()
+            conn.close()
+            return redirect(url_for('create_flight'))
+
+        # Check if airplane exists and belongs to the airline
+        cursor.execute("""
+            SELECT 1 FROM Airplane 
+            WHERE airplane_id = %s AND airline_name = %s
+        """, (airplane_id, airline_name))
+        if not cursor.fetchone():
+            flash(f"Airplane ID '{airplane_id}' does not exist or does not belong to your airline.")
+            cursor.close()
+            conn.close()
+            return redirect(url_for('create_flight'))
+
+        try:
+            # Insert the new flight into the database
+            cursor.execute("""
+                INSERT INTO Flight (airline_name, flight_num, departure_airport, departure_time, 
+                                    arrival_airport, arrival_time, price, airplane_id, status)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'Upcoming')
+            """, (airline_name, flight_num, departure_airport, departure_time, 
+                  arrival_airport, arrival_time, price, airplane_id))
+            conn.commit()
+            flash('Flight created successfully!')
+            return redirect(url_for('staff_home'))
+        except mysql.connector.Error as err:
+            flash(f"Error: {err}")
+        finally:
+            cursor.close()
+            conn.close()
+
+    cursor.close()
+    conn.close()
+    return render_template('staff_create_new_flight.html', airline_name=airline_name)
 
 @app.route('/staff/change_flight_status')
 def change_flight_status():
