@@ -66,7 +66,7 @@ def login_customer():
         if user and user['password'] == password:  # 如果密码是明文存储
             session['username'] = email
             session['user_type'] = 'customer'
-            flash('Customer login successful!')
+            flash('Login successful. Welcome,' + session['username'] + '!')
             return redirect(url_for('home'))
         else:
             flash('Invalid login credentials.')
@@ -91,7 +91,7 @@ def login_agent():
         if user and user['password'] == password:  # 如果密码是明文存储
             session['username'] = email
             session['user_type'] = 'agent'
-            flash('Booking Agent login successful!')
+            flash('Login successful. Welcome,' + session['username'] + '!')
             return redirect(url_for('agent_home'))
         else:
             flash('Invalid login credentials.')
@@ -126,7 +126,7 @@ def login_staff():
                 authorization += (',' + p['permission_type'])
             #print(authorization) #Displays how authorization loos like
             session['user_type'] = authorization
-            flash('Airline Staff login successful!')
+            flash('Login successful. Welcome,' + session['username'] + '!')
             return redirect(url_for('staff_home'))
         else:
             flash('Invalid login credentials.')
@@ -383,7 +383,7 @@ def check_status():
 
 
 
-@app.route('/view_all_tickets', methods=['GET', 'POST'])
+@app.route('/customer/history', methods=['GET', 'POST'])
 def view_all_tickets():
     if 'username' not in session.keys() or session['user_type'] != 'customer':
         flash('Please log in as a customer to view your tickets.')
@@ -445,8 +445,8 @@ def view_all_tickets():
 
 # ...existing code...
 
-@app.route('/user_home', methods=['GET', 'POST'])
-def user_home():
+@app.route('/customer/spending', methods=['GET', 'POST'])
+def spending():
     if 'username' not in session.keys() or session['user_type'] != 'customer':
         flash('Please log in as a customer to view your dashboard.')
         return redirect(url_for('login_customer'))
@@ -524,7 +524,7 @@ def user_home():
             current = current.replace(month=current.month+1)
 
     return render_template(
-        'user_home.html',
+        'spending.html',
         total_spent=total_spent,
         months=months,
         monthly_spent=monthly_spent,
@@ -609,9 +609,9 @@ def view_my_flights():
 
 @app.route('/staff/create_flight', methods=['GET', 'POST'])
 def create_flight():
-    if 'username' not in session.keys() or 'staff' not in session['user_type']:
-        flash('You are not authorized to create flights.')
-        return redirect(url_for('login_staff'))
+    if 'username' not in session.keys() or 'Admin' not in session['user_type']:
+        flash('Unauthorized Access! You are not authorized to create flights.')
+        return redirect(url_for('staff_home'))
 
     username = session['username']
     conn = get_db_connection()
@@ -701,16 +701,27 @@ def create_flight():
 
 @app.route('/staff/change_flight_status')
 def change_flight_status():
-    # TODO: Implement change status
+    if 'username' not in session.keys() or 'Operator' not in session['user_type']:
+        flash('Unauthorized Access! You are not authorized to change flights status.')
+        return redirect(url_for('staff_home'))
+    
+    # TODO: Implement change status   
     return "Change Status of Flights page (to be implemented)"
+
 
 @app.route('/staff/add_airplane')
 def add_airplane():
+    if 'username' not in session.keys() or 'Admin' not in session['user_type']:
+        flash('Unauthorized Access! You are not authorized to add airplanes.')
+
     # TODO: Implement add airplane
     return "Add Airplane page (to be implemented)"
 
 @app.route('/staff/add_airport')
 def add_airport():
+    if 'username' not in session.keys() or 'Admin' not in session['user_type']:
+        flash('Unauthorized Access! You are not authorized to add airports.')
+
     # TODO: Implement add airport
     return "Add New Airport page (to be implemented)"
 
