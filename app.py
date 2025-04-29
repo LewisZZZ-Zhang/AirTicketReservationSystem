@@ -280,7 +280,7 @@ def search_flights():
 
 @app.route('/purchase_ticket', methods=['POST'])
 def purchase_ticket():
-    if 'username' not in session.keys() or session['user_type'] != 'customer':
+    if 'username' not in session.keys() or 'customer' not in session['user_type'] :
         flash('Please log in to purchase tickets.')
         return redirect(url_for('login'))
 
@@ -609,7 +609,7 @@ def view_my_flights():
 
 @app.route('/staff/create_flight', methods=['GET', 'POST'])
 def create_flight():
-    if 'username' not in session.keys() or session['user_type'] != 'staff':
+    if 'username' not in session.keys() or 'staff' not in session['user_type']:
         flash('You are not authorized to create flights.')
         return redirect(url_for('login_staff'))
 
