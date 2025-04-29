@@ -936,7 +936,11 @@ def agent_purchase_ticket():
 
         return redirect(url_for('agent_home'))
 
-    return render_template('agent_purchase_ticket.html')
+    # Pre-fill form with query parameters
+    airline_name = request.args.get('airline_name', '')
+    flight_num = request.args.get('flight_num', '')
+
+    return render_template('agent_purchase_ticket.html', airline_name=airline_name, flight_num=flight_num)
 
 
 @app.route('/agent/view_commission', methods=['GET', 'POST'])

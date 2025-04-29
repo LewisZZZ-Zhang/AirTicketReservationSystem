@@ -43,17 +43,24 @@
                     <td>{{ flight.airline_name }}</td>
                     <td>{{ flight.flight_num }}</td>
                     <td>{{ flight.departure_airport }}</td>
-                    <td>{{ flight.departure_time }}</td>
                     <td>{{ flight.arrival_airport }}</td>
+                    <td>{{ flight.departure_time }}</td>
                     <td>{{ flight.arrival_time }}</td>
                     <td>{{ flight.price }}</td>
-                    <td class="status-{{ flight.status|lower }}">{{ flight.status }}</td>
+                    <td>{{ flight.status }}</td>
                     <td>
-                        <form action="{{ url_for('purchase_ticket') }}" method="POST">
+                        <!-- Show the Purchase button for agents -->
+                        {% if session['user_type'] == 'agent' %}
+                        <a href="{{ url_for('agent_purchase_ticket') }}?airline_name={{ flight.airline_name }}&flight_num={{ flight.flight_num }}" 
+                           class="btn btn-primary">Purchase</a>
+                        {% else %}
+                        <!-- Show the Purchase button for customers -->
+                        <form method="POST" action="{{ url_for('purchase_ticket') }}">
                             <input type="hidden" name="airline_name" value="{{ flight.airline_name }}">
                             <input type="hidden" name="flight_num" value="{{ flight.flight_num }}">
-                            <button type="submit" class="cta-button">Purchase</button>
+                            <button type="submit" class="btn btn-primary">Purchase</button>
                         </form>
+                        {% endif %}
                     </td>
                 </tr>
                 {% endfor %}
