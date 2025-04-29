@@ -1,4 +1,34 @@
--- 这个是一些sql语句，方便快速查看一些数据
+-- 这个是一些可以直接调用的 view 和 procedure
+-- Procedures
+-- 1. Upcoming tickets of a specific customer
+DELIMITER //
+
+CREATE PROCEDURE customer_get_upcoming_flights(IN p_customer_email VARCHAR(50))
+BEGIN
+    SELECT 
+        t.ticket_id, 
+        f.airline_name, 
+        f.flight_num, 
+        f.departure_airport, 
+        f.arrival_airport, 
+        f.departure_time, 
+        f.arrival_time, 
+        f.status, 
+        f.price
+    FROM Purchases p
+    JOIN Ticket t ON p.ticket_id = t.ticket_id
+    JOIN Flight f ON t.airline_name = f.airline_name AND t.flight_num = f.flight_num
+    WHERE p.customer_email = p_customer_email AND f.status = 'Upcoming';
+END //
+
+DELIMITER ;
+
+
+-- Views
+
+
+
+-- SQL Commands
 -- 查看每个用户的所有机票
 SELECT 
     Customer.email AS customer_email,
@@ -57,3 +87,5 @@ GROUP BY
     month
 ORDER BY 
     month;
+
+
