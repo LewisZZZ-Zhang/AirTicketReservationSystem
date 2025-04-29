@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container staff-theme" style="max-width: 700px;">
+    <h2>Add New Airplane for {{ airline_name }}</h2>
+    <form method="POST" style="margin-bottom:2rem;">
+        <div class="form-group">
+            <label for="airplane_id">Airplane ID:</label>
+            <input type="number" id="airplane_id" name="airplane_id" required>
+        </div>
+        <div class="form-group">
+            <label for="seats">Number of Seats:</label>
+            <input type="number" id="seats" name="seats" required>
+        </div>
+        <button type="submit" class="cta-button">Add Airplane</button>
+    </form>
+    <h3>All Airplanes of {{ airline_name }}</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Airplane ID</th>
+                <th>Seats</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for airplane in airplanes %}
+            <tr>
+                <td>{{ airplane.airplane_id }}</td>
+                <td>{{ airplane.seats }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
