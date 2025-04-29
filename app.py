@@ -616,7 +616,7 @@ def view_my_flights():
 @app.route('/staff/create_flight', methods=['GET', 'POST'])
 def create_flight():
     if 'username' not in session or session['user_type'] != 'staff':
-        flash('You are not authorized to create flights.')
+        flash('You are not authorized to create flights. ERROR 1')
         return redirect(url_for('login_staff'))
 
     username = session['username']
@@ -627,12 +627,19 @@ def create_flight():
     cursor.execute("SELECT airline_name FROM Airline_Staff WHERE username = %s", (username,))
     staff = cursor.fetchone()
     if not staff:
-        flash('You are not authorized to create flights.')
+        flash('You are not authorized to create flights. ERROR 2')
         cursor.close()
         conn.close()
         return redirect(url_for('staff_home'))
 
     airline_name = staff['airline_name']
+
+    cursor.execute("SELECT 1 FROM Permission WHERE username = %s AND permission_type = 'admin'", (username,))
+    if not cursor.fetchone():
+        flash('You do not have admin permission to create flights.')
+        cursor.close()
+        conn.close()
+        return redirect(url_for('staff_home'))
 
     if request.method == 'POST':
         # Get flight details from the form
@@ -710,10 +717,63 @@ def change_flight_status():
     # TODO: Implement change status
     return "Change Status of Flights page (to be implemented)"
 
-@app.route('/staff/add_airplane')
+@app.route('/staff/add_airplane', methods=['GET', 'POST'])
 def add_airplane():
-    # TODO: Implement add airplane
-    return "Add Airplane page (to be implemented)"
+    # 权限检查：必须为staff且有Admin权限
+    if 'username' not in session or session['user_type'] != 'staff':
+        flash('Please log in as airline staff to add airplanes.')
+        return redirect(url_for('login_staff'))
+
+    username = session['username']
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # 检查是否有Admin权限
+    cursor.execute(
+        "SELECT 1 FROM Permission WHERE username = %s AND permission_type = 'Admin'",
+        (username,)
+    )
+    has_admin = cursor.fetchone()
+    if not has_admin:
+        cursor.close()
+        conn.close()
+        flash('You do not have permission to add airplanes.')
+        return redirect(url_for('staff_home'))
+
+    # 获取该员工所属航空公司
+    cursor.execute("SELECT airline_name FROM Airline_Staff WHERE username = %s", (username,))
+    staff = cursor.fetchone()
+    if not staff:
+        cursor.close()
+        conn.close()
+        flash('Staff not found.')
+        return redirect(url_for('staff_home'))
+    airline_name = staff['airline_name']
+
+    # 处理表单提交
+    if request.method == 'POST':
+        airplane_id = request.form.get('airplane_id')
+        seats = request.form.get('seats')
+        try:
+            cursor.execute(
+                "INSERT INTO Airplane (airline_name, airplane_id, seats) VALUES (%s, %s, %s)",
+                (airline_name, airplane_id, seats)
+            )
+            conn.commit()
+            flash('Airplane added successfully!')
+        except mysql.connector.Error as err:
+            flash(f"Error: {err}")
+
+    # 查询该航空公司所有飞机
+    cursor.execute(
+        "SELECT airplane_id, seats FROM Airplane WHERE airline_name = %s ORDER BY airplane_id",
+        (airline_name,)
+    )
+    airplanes = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    return render_template('staff_add_airplane.html', airline_name=airline_name, airplanes=airplanes)
 
 @app.route('/staff/add_airport')
 def add_airport():
