@@ -540,7 +540,7 @@ def staff_home():
     return render_template('staff_home.html')
 
 # ...existing code...
-
+# Staff Functions
 @app.route('/staff/view_my_flights', methods=['GET', 'POST'])
 def view_my_flights():
     if 'username' not in session.keys() or 'staff' not in session['user_type']:
@@ -607,6 +607,37 @@ def view_my_flights():
     )
 
 
+@app.route('/staff/top_agents')
+def view_agents():
+    # TODO
+    return "View top 5 booking agents. (to be implemented)"
+
+
+@app.route('/staff/frequent_customers')
+def view_frequent_customers():
+    # TODO
+    return "View frequent customers. (to be implemented)"
+
+
+@app.route('/staff/ticket_sales')
+def view_ticket_sales():
+    # TODO
+    return "View ticket sales. (to be implemented)"
+
+
+@app.route('/staff/earnings')
+def view_earning_analysis():
+    # TODO  
+    return "View earning analysis. (to be implemented)"
+
+
+@app.route('/staff/top_destinations')
+def view_top_destinations():
+    # TODO
+    return "View top destinations. (to be implemented)"
+
+
+#Admin Functions
 @app.route('/staff/create_flight', methods=['GET', 'POST'])
 def create_flight():
     if 'username' not in session.keys() or 'Admin' not in session['user_type']:
@@ -699,20 +730,11 @@ def create_flight():
     conn.close()
     return render_template('staff_create_new_flight.html', airline_name=airline_name)
 
-@app.route('/staff/change_flight_status')
-def change_flight_status():
-    if 'username' not in session.keys() or 'Operator' not in session['user_type']:
-        flash('Unauthorized Access! You are not authorized to change flights status.')
-        return redirect(url_for('staff_home'))
-    
-    # TODO: Implement change status   
-    return "Change Status of Flights page (to be implemented)"
 
-
-@app.route('/staff/add_airplane')
-def add_airplane():
+@app.route('/staff/change_airplane')
+def change_airplane():
     if 'username' not in session.keys() or 'Admin' not in session['user_type']:
-        flash('Unauthorized Access! You are not authorized to add airplanes.')
+        flash('Unauthorized Access! You are not authorized to change airplanes.')
 
     # TODO: Implement add airplane
     return "Add Airplane page (to be implemented)"
@@ -726,6 +748,33 @@ def add_airport():
     return "Add New Airport page (to be implemented)"
 
 
+@app.route('/staff/change_permissions')
+def change_permissions():
+    if 'username' not in session.keys() or 'Admin' not in session['user_type']:
+        flash('Unauthorized Access! You are not authorized to change permissions.')
+
+    # TODO: Implement add airport
+    return "Change permissions page (to be implemented)"
+
+
+@app.route('/staff/change_agents')
+def change_agents():
+    if 'username' not in session.keys() or 'Admin' not in session['user_type']:
+        flash('Unauthorized Access! You are not authorized to change agents.')
+
+    # TODO: Implement add airport
+    return "Change agents page (to be implemented)"
+
+
+#Operator Functions
+@app.route('/staff/change_flight_status')
+def change_flight_status():
+    if 'username' not in session.keys() or 'Operator' not in session['user_type']:
+        flash('Unauthorized Access! You are not authorized to change flights status.')
+        return redirect(url_for('staff_home'))
+    
+    # TODO: Implement change status   
+    return "Change Status of Flights page (to be implemented)"
 #4/27 agent
 @app.route('/agent/home')
 def agent_home():

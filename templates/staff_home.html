@@ -3,20 +3,27 @@
 <div class="container staff-theme" style="max-width: 900px;">
     <h2>Staff Functions</h2>
     <div class="staff-btn-grid">
-        <a href="{{ url_for('view_my_flights') }}" class="staff-btn">View My Flights</a>
+        <a href="{{ url_for('view_my_flights') }}" class="staff-btn">Upcoming Flights</a>
+        <a href="{{ url_for('view_agents') }}" class="staff-btn">Star Booking Agents</a>
+        <a href="{{ url_for('view_frequent_customers') }}" class="staff-btn">Frequent customers</a>
+        <a href="{{ url_for('view_ticket_sales') }}" class="staff-btn">View Ticket Sales</a>
+        <a href="{{ url_for('view_earning_analysis') }}" class="staff-btn">Earning Analysis</a>
+        <a href="{{ url_for('view_top_destinations') }}" class="staff-btn">Top Destinations</a>
     </div>
     {% if 'Admin' in session.get('user_type', '') %}
     <h2>Admin Functions</h2>
     <div class="staff-btn-grid">
         <a href="{{ url_for('create_flight') }}" class="staff-btn">Create New Flight</a>
-        <a href="{{ url_for('add_airplane') }}" class="staff-btn">Add Airplane</a>
+        <a href="{{ url_for('change_airplane') }}" class="staff-btn">Change Airplanes</a>
         <a href="{{ url_for('add_airport') }}" class="staff-btn">Add New Airport</a>
+        <a href="{{ url_for('change_permissions') }}" class="staff-btn">Change Permissions</a>
+        <a href="{{ url_for('change_agents') }}" class="staff-btn">Add/Delete Agents</a>
     </div>
     {% endif %}
     {% if 'Operator' in session.get('user_type', '') %}
     <h2>Operator Functions</h2>
     <div class="staff-btn-grid">
-        <a href="{{ url_for('change_flight_status') }}" class="staff-btn">Change Status of Flights</a>
+        <a href="{{ url_for('change_flight_status') }}" class="staff-btn">Change Flights Status</a>
     </div>
     {% endif %}
 </div>
