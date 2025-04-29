@@ -115,7 +115,8 @@ def login_staff():
 
         if user and user['password'] == password:  # 如果密码是明文存储
             session['username'] = username
-            session['user_type'] = 'staff'
+            permission = 'staff'
+            session['user_type'] = permission
             flash('Airline Staff login successful!')
             return redirect(url_for('staff_home'))
         else:
