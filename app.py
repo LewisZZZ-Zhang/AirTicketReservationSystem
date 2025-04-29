@@ -115,8 +115,17 @@ def login_staff():
 
         if user and user['password'] == password:  # 如果密码是明文存储
             session['username'] = username
-            permission = 'staff'
-            session['user_type'] = permission
+            authorization = 'staff'
+            conn = get_db_connection()
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute("SELECT permission_type FROM permission WHERE username = %s", (username,))
+            permissions = cursor.fetchall()
+            cursor.close()
+            conn.close()
+            for p in permissions:
+                authorization += (',' + p['permission_type'])
+            #print(authorization) #Displays how authorization loos like
+            session['user_type'] = authorization
             flash('Airline Staff login successful!')
             return redirect(url_for('staff_home'))
         else:
@@ -271,7 +280,7 @@ def search_flights():
 
 @app.route('/purchase_ticket', methods=['POST'])
 def purchase_ticket():
-    if 'username' not in session or session['user_type'] != 'customer':
+    if 'username' not in session.keys() or session['user_type'] != 'customer':
         flash('Please log in to purchase tickets.')
         return redirect(url_for('login'))
 
@@ -376,7 +385,7 @@ def check_status():
 
 @app.route('/view_all_tickets', methods=['GET', 'POST'])
 def view_all_tickets():
-    if 'username' not in session or session['user_type'] != 'customer':
+    if 'username' not in session.keys() or session['user_type'] != 'customer':
         flash('Please log in as a customer to view your tickets.')
         return redirect(url_for('login_customer'))
 
@@ -438,7 +447,7 @@ def view_all_tickets():
 
 @app.route('/user_home', methods=['GET', 'POST'])
 def user_home():
-    if 'username' not in session or session['user_type'] != 'customer':
+    if 'username' not in session.keys() or session['user_type'] != 'customer':
         flash('Please log in as a customer to view your dashboard.')
         return redirect(url_for('login_customer'))
 
@@ -525,7 +534,7 @@ def user_home():
 
 @app.route('/staff/staff_home')
 def staff_home():
-    if 'username' not in session or session['user_type'] != 'staff':
+    if 'username' not in session.keys() or 'staff' not in session['user_type']:
         flash('Please log in as airline staff to view this page.')
         return redirect(url_for('login_staff'))
     return render_template('staff_home.html')
@@ -534,7 +543,7 @@ def staff_home():
 
 @app.route('/staff/view_my_flights', methods=['GET', 'POST'])
 def view_my_flights():
-    if 'username' not in session or session['user_type'] != 'staff':
+    if 'username' not in session.keys() or 'staff' not in session['user_type']:
         flash('Please log in as airline staff to view flights.')
         return redirect(url_for('login_staff'))
 
@@ -600,7 +609,7 @@ def view_my_flights():
 
 @app.route('/staff/create_flight', methods=['GET', 'POST'])
 def create_flight():
-    if 'username' not in session or session['user_type'] != 'staff':
+    if 'username' not in session.keys() or session['user_type'] != 'staff':
         flash('You are not authorized to create flights.')
         return redirect(url_for('login_staff'))
 
@@ -709,7 +718,7 @@ def add_airport():
 #4/27 agent
 @app.route('/agent/home')
 def agent_home():
-    if 'username' not in session or session['user_type'] != 'agent':
+    if 'username' not in session.keys() or session['user_type'] != 'agent':
         flash('Please log in as a booking agent to view this page.')
         return redirect(url_for('login_agent'))
     return render_template('agent_home.html')
@@ -717,7 +726,7 @@ def agent_home():
 
 @app.route('/agent/view_flights', methods=['GET', 'POST'])
 def agent_view_flights():
-    if 'username' not in session or session['user_type'] != 'agent':
+    if 'username' not in session.keys() or session['user_type'] != 'agent':
         flash('Please log in as a booking agent to view flights.')
         return redirect(url_for('login_agent'))
 
@@ -780,7 +789,7 @@ def agent_view_flights():
 
 # @app.route('/agent/purchase_ticket', methods=['POST'])
 # def agent_purchase_ticket():
-#     if 'username' not in session or session['user_type'] != 'agent':
+#     if 'username' not in session.keys() or session['user_type'] != 'agent':
 #         flash('Please log in as a booking agent to purchase tickets.')
 #         return redirect(url_for('login_agent'))
 
@@ -851,7 +860,7 @@ def agent_view_flights():
 #4/29 测试一下改过的purchase
 @app.route('/agent/purchase_ticket', methods=['GET', 'POST'])
 def agent_purchase_ticket():
-    if 'username' not in session or session['user_type'] != 'agent':
+    if 'username' not in session.keys() or session['user_type'] != 'agent':
         flash('Please log in as a booking agent to purchase tickets.')
         return redirect(url_for('login_agent'))
 
@@ -930,7 +939,7 @@ def agent_purchase_ticket():
 
 @app.route('/agent/view_commission', methods=['GET', 'POST'])
 def agent_view_commission():
-    if 'username' not in session or session['user_type'] != 'agent':
+    if 'username' not in session.keys() or session['user_type'] != 'agent':
         flash('Please log in as a booking agent to view your commission.')
         return redirect(url_for('login_agent'))
 
@@ -962,7 +971,7 @@ def agent_view_commission():
 
 @app.route('/agent/view_top_customers')
 def agent_view_top_customers():
-    if 'username' not in session or session['user_type'] != 'agent':
+    if 'username' not in session.keys() or session['user_type'] != 'agent':
         flash('Please log in as a booking agent to view top customers.')
         return redirect(url_for('login_agent'))
 
