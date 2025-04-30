@@ -546,7 +546,6 @@ def staff_home():
     return render_template('staff_home.html')
 
 # ...existing code...
-
 @app.route('/staff/view_my_flights', methods=['GET', 'POST'])
 def view_my_flights():
     if 'username' not in session or session['user_type'] != 'staff':
@@ -576,6 +575,7 @@ def view_my_flights():
     end_date = request.form.get('end_date', default_end.strftime('%Y-%m-%d'))
     from_location = request.form.get('from_location', '').strip()
     to_location = request.form.get('to_location', '').strip()
+    selected_flight_num = request.form.get('selected_flight_num', '').strip()
 
     query = """
         SELECT 
@@ -600,6 +600,19 @@ def view_my_flights():
 
     cursor.execute(query, params)
     flights = cursor.fetchall()
+
+    # 如果选择了某个航班，查询该航班所有乘客
+    customers = []
+    if selected_flight_num:
+        cursor.execute("""
+            SELECT DISTINCT Customer.email, Customer.name
+            FROM Ticket
+            JOIN Purchases ON Ticket.ticket_id = Purchases.ticket_id
+            JOIN Customer ON Purchases.customer_email = Customer.email
+            WHERE Ticket.airline_name = %s AND Ticket.flight_num = %s
+        """, (airline_name, selected_flight_num))
+        customers = cursor.fetchall()
+
     cursor.close()
     conn.close()
 
@@ -609,7 +622,9 @@ def view_my_flights():
         start_date=start_date,
         end_date=end_date,
         from_location=from_location,
-        to_location=to_location
+        to_location=to_location,
+        selected_flight_num=selected_flight_num,
+        customers=customers
     )
 
 
@@ -712,10 +727,74 @@ def create_flight():
     conn.close()
     return render_template('staff_create_new_flight.html', airline_name=airline_name)
 
-@app.route('/staff/change_flight_status')
+@app.route('/staff/change_flight_status', methods=['GET', 'POST'])
 def change_flight_status():
-    # TODO: Implement change status
-    return "Change Status of Flights page (to be implemented)"
+    # 权限检查：必须为staff且有Operator权限
+    if 'username' not in session or session['user_type'] != 'staff':
+        flash('Please log in as airline staff to change flight status.')
+        return redirect(url_for('login_staff'))
+
+    username = session['username']
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # 检查是否有Operator权限
+    cursor.execute(
+        "SELECT 1 FROM Permission WHERE username = %s AND permission_type = 'Operator'",
+        (username,)
+    )
+    has_operator = cursor.fetchone()
+    if not has_operator:
+        cursor.close()
+        conn.close()
+        flash('You do not have permission to change flight status.')
+        return redirect(url_for('staff_home'))
+
+    # 获取该员工所属航空公司
+    cursor.execute("SELECT airline_name FROM Airline_Staff WHERE username = %s", (username,))
+    staff = cursor.fetchone()
+    if not staff:
+        cursor.close()
+        conn.close()
+        flash('Staff not found.')
+        return redirect(url_for('staff_home'))
+    airline_name = staff['airline_name']
+
+    # 处理表单提交
+    if request.method == 'POST':
+        flight_num = request.form.get('flight_num')
+        new_status = request.form.get('new_status')
+        # 检查航班是否属于该航空公司
+        cursor.execute(
+            "SELECT status FROM Flight WHERE airline_name = %s AND flight_num = %s",
+            (airline_name, flight_num)
+        )
+        flight = cursor.fetchone()
+        if not flight:
+            flash('Flight not found or does not belong to your airline.')
+        elif new_status not in ['Upcoming', 'In Progress', 'Delayed']:
+            flash('Invalid status.')
+        else:
+            try:
+                cursor.execute(
+                    "UPDATE Flight SET status = %s WHERE airline_name = %s AND flight_num = %s",
+                    (new_status, airline_name, flight_num)
+                )
+                conn.commit()
+                flash('Flight status updated successfully!')
+            except mysql.connector.Error as err:
+                flash(f"Error: {err}")
+
+    # 查询该航空公司所有航班
+    cursor.execute(
+        "SELECT flight_num, departure_airport, arrival_airport, departure_time, arrival_time, status FROM Flight WHERE airline_name = %s ORDER BY departure_time DESC",
+        (airline_name,)
+    )
+    flights = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    return render_template('staff_change_flight_status.html', airline_name=airline_name, flights=flights)
 
 @app.route('/staff/add_airplane', methods=['GET', 'POST'])
 def add_airplane():
@@ -780,6 +859,110 @@ def add_airport():
     # TODO: Implement add airport
     return "Add New Airport page (to be implemented)"
 
+@app.route('/staff/view_booking_agents', methods=['GET', 'POST'])
+def staff_view_booking_agents():
+    if 'username' not in session or session['user_type'] != 'staff':
+        flash('Please log in as airline staff to view this page.')
+        return redirect(url_for('login_staff'))
+
+    username = session['username']
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # 获取staff所属航空公司
+    cursor.execute("SELECT airline_name FROM Airline_Staff WHERE username = %s", (username,))
+    staff = cursor.fetchone()
+    if not staff:
+        flash('Staff not found.')
+        cursor.close()
+        conn.close()
+        return redirect(url_for('staff_home'))
+    airline_name = staff['airline_name']
+
+    # Top 5 agents by ticket sales (past month)
+    cursor.execute("""
+        SELECT ba.email, COUNT(*) AS tickets_sold
+        FROM Booking_Agent ba
+        JOIN Booking_Agent_Work_For bawf ON ba.email = bawf.email
+        JOIN Purchases p ON ba.booking_agent_id = p.booking_agent_id
+        JOIN Ticket t ON p.ticket_id = t.ticket_id
+        WHERE bawf.airline_name = %s
+          AND t.airline_name = %s
+          AND p.purchase_date >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)
+        GROUP BY ba.email
+        ORDER BY tickets_sold DESC
+        LIMIT 5
+    """, (airline_name, airline_name))
+    top_agents_month = cursor.fetchall()
+
+    # Top 5 agents by ticket sales (past year)
+    cursor.execute("""
+        SELECT ba.email, COUNT(*) AS tickets_sold
+        FROM Booking_Agent ba
+        JOIN Booking_Agent_Work_For bawf ON ba.email = bawf.email
+        JOIN Purchases p ON ba.booking_agent_id = p.booking_agent_id
+        JOIN Ticket t ON p.ticket_id = t.ticket_id
+        WHERE bawf.airline_name = %s
+          AND t.airline_name = %s
+          AND p.purchase_date >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
+        GROUP BY ba.email
+        ORDER BY tickets_sold DESC
+        LIMIT 5
+    """, (airline_name, airline_name))
+    top_agents_year = cursor.fetchall()
+
+    # Top 5 agents by commission (past year)
+    cursor.execute("""
+        SELECT ba.email, SUM(f.price * 0.1) AS total_commission
+        FROM Booking_Agent ba
+        JOIN Booking_Agent_Work_For bawf ON ba.email = bawf.email
+        JOIN Purchases p ON ba.booking_agent_id = p.booking_agent_id
+        JOIN Ticket t ON p.ticket_id = t.ticket_id
+        JOIN Flight f ON t.airline_name = f.airline_name AND t.flight_num = f.flight_num
+        WHERE bawf.airline_name = %s
+          AND f.airline_name = %s
+          AND p.purchase_date >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
+        GROUP BY ba.email
+        ORDER BY total_commission DESC
+        LIMIT 5
+    """, (airline_name, airline_name))
+    top_agents_commission = cursor.fetchall()
+
+    # All agents for this airline, with sorting
+    sort_by = request.args.get('sort_by', 'email')
+    order = request.args.get('order', 'asc')
+    if sort_by not in ['email', 'tickets_sold', 'total_commission']:
+        sort_by = 'email'
+    if order not in ['asc', 'desc']:
+        order = 'asc'
+
+    cursor.execute(f"""
+        SELECT ba.email,
+            COUNT(p.ticket_id) AS tickets_sold,
+            IFNULL(SUM(f.price * 0.1), 0) AS total_commission
+        FROM Booking_Agent ba
+        JOIN Booking_Agent_Work_For bawf ON ba.email = bawf.email
+        LEFT JOIN Purchases p ON ba.booking_agent_id = p.booking_agent_id
+        LEFT JOIN Ticket t ON p.ticket_id = t.ticket_id AND t.airline_name = %s
+        LEFT JOIN Flight f ON t.airline_name = f.airline_name AND t.flight_num = f.flight_num
+        WHERE bawf.airline_name = %s
+        GROUP BY ba.email
+        ORDER BY {sort_by} {order.upper()}
+    """, (airline_name, airline_name))
+    all_agents = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template(
+        'staff_view_booking_agents.html',
+        top_agents_month=top_agents_month,
+        top_agents_year=top_agents_year,
+        top_agents_commission=top_agents_commission,
+        all_agents=all_agents,
+        sort_by=sort_by,
+        order=order
+    )
 
 #4/27 agent
 @app.route('/agent/home')

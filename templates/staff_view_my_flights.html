@@ -1,59 +1,70 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class="container staff-theme" style="max-width: 1000px;">
-    <h2>My Airline's Flights</h2>
-    <form method="POST" class="search-form filter-bar"
-          style="display: flex; align-items: flex-end; justify-content: center; gap: 1.5rem; margin-bottom: 2rem;">
-        <div class="form-group" style="flex-direction: column; align-items: flex-start; margin: 0;">
-            <label for="start_date" style="margin-bottom: 0.3rem;">Start Date:</label>
-            <input type="date" id="start_date" name="start_date" value="{{ start_date }}" style="width: 180px;">
+    <h2>My Flights ({{ flights|length }})</h2>
+    <form method="POST" class="search-form filter-bar" style="margin-bottom: 2rem;">
+        <div class="form-group">
+            <label for="start_date">Start Date:</label>
+            <input type="date" id="start_date" name="start_date" value="{{ start_date }}">
         </div>
-        <div class="form-group" style="flex-direction: column; align-items: flex-start; margin: 0;">
-            <label for="end_date" style="margin-bottom: 0.3rem;">End Date:</label>
-            <input type="date" id="end_date" name="end_date" value="{{ end_date }}" style="width: 180px;">
+        <div class="form-group">
+            <label for="end_date">End Date:</label>
+            <input type="date" id="end_date" name="end_date" value="{{ end_date }}">
         </div>
-        <div class="form-group" style="flex-direction: column; align-items: flex-start; margin: 0;">
-            <label for="from_location" style="margin-bottom: 0.3rem;">From (Airport/City):</label>
-            <input type="text" id="from_location" name="from_location" value="{{ from_location }}" style="width: 180px;">
+        <div class="form-group">
+            <label for="from_location">From (Airport/City):</label>
+            <input type="text" id="from_location" name="from_location" value="{{ from_location }}">
         </div>
-        <div class="form-group" style="flex-direction: column; align-items: flex-start; margin: 0;">
-            <label for="to_location" style="margin-bottom: 0.3rem;">To (Airport/City):</label>
-            <input type="text" id="to_location" name="to_location" value="{{ to_location }}" style="width: 180px;">
+        <div class="form-group">
+            <label for="to_location">To (Airport/City):</label>
+            <input type="text" id="to_location" name="to_location" value="{{ to_location }}">
         </div>
-        <button type="submit" class="cta-button" style="margin: 0;">Filter</button>
+        <button type="submit" class="cta-button">Filter</button>
     </form>
 
-    {% if flights %}
     <table>
         <thead>
             <tr>
-                <th>Airline</th>
                 <th>Flight Number</th>
-                <th>Departure Airport</th>
-                <th>Arrival Airport</th>
+                <th>Departure</th>
+                <th>Arrival</th>
                 <th>Departure Time</th>
                 <th>Arrival Time</th>
                 <th>Status</th>
-                <th>Price</th>
+                <th>View Customers</th>
             </tr>
         </thead>
         <tbody>
             {% for flight in flights %}
             <tr>
-                <td>{{ flight.airline_name }}</td>
                 <td>{{ flight.flight_num }}</td>
                 <td>{{ flight.departure_airport }}</td>
                 <td>{{ flight.arrival_airport }}</td>
                 <td>{{ flight.departure_time }}</td>
                 <td>{{ flight.arrival_time }}</td>
                 <td>{{ flight.status }}</td>
-                <td>{{ flight.price }}</td>
+                <td>
+                    <form method="POST" style="display:inline;">
+                        <input type="hidden" name="start_date" value="{{ start_date }}">
+                        <input type="hidden" name="end_date" value="{{ end_date }}">
+                        <input type="hidden" name="from_location" value="{{ from_location }}">
+                        <input type="hidden" name="to_location" value="{{ to_location }}">
+                        <input type="hidden" name="selected_flight_num" value="{{ flight.flight_num }}">
+                        <button type="submit">View Customers</button>
+                    </form>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-    {% else %}
-        <p>No flights found for your criteria.</p>
+
+    {% if customers %}
+    <h3>Customers for Flight {{ selected_flight_num }}</h3>
+    <ul>
+        {% for c in customers %}
+        <li>{{ c.name }} ({{ c.email }})</li>
+        {% endfor %}
+    </ul>
     {% endif %}
 </div>
 {% endblock %}

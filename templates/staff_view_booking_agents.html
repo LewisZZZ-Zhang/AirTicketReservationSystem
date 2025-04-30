@@ -1,0 +1,98 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container staff-theme" style="max-width: 1100px;">
+    <h2>Top Booking Agents</h2>
+    <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+        <div style="flex:1; min-width: 300px;">
+            <h3>Top 5 by Ticket Sales (Past Month)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Tickets Sold</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for agent in top_agents_month %}
+                    <tr>
+                        <td>{{ agent.email }}</td>
+                        <td>{{ agent.tickets_sold }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div style="flex:1; min-width: 300px;">
+            <h3>Top 5 by Ticket Sales (Past Year)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Tickets Sold</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for agent in top_agents_year %}
+                    <tr>
+                        <td>{{ agent.email }}</td>
+                        <td>{{ agent.tickets_sold }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div style="flex:1; min-width: 300px;">
+            <h3>Top 5 by Commission (Past Year)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Total Commission</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for agent in top_agents_commission %}
+                    <tr>
+                        <td>{{ agent.email }}</td>
+                        <td>¥{{ agent.total_commission or 0 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <h2 style="margin-top:2.5rem;">All Booking Agents</h2>
+    <form method="get" style="margin-bottom:1rem;">
+        <label>Sort by: </label>
+        <select name="sort_by">
+            <option value="email" {% if sort_by == 'email' %}selected{% endif %}>Email</option>
+            <option value="tickets_sold" {% if sort_by == 'tickets_sold' %}selected{% endif %}>Tickets Sold</option>
+            <option value="total_commission" {% if sort_by == 'total_commission' %}selected{% endif %}>Total Commission</option>
+        </select>
+        <select name="order">
+            <option value="asc" {% if order == 'asc' %}selected{% endif %}>Ascending</option>
+            <option value="desc" {% if order == 'desc' %}selected{% endif %}>Descending</option>
+        </select>
+        <button type="submit" class="cta-button" style="padding:0.5rem 1.5rem;">Sort</button>
+    </form>
+    <table>
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>Tickets Sold</th>
+                <th>Total Commission</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for agent in all_agents %}
+            <tr>
+                <td>{{ agent.email }}</td>
+                <td>{{ agent.tickets_sold }}</td>
+                <td>¥{{ agent.total_commission or 0 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

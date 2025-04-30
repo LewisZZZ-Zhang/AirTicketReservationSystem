@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container staff-theme" style="max-width: 900px;">
+    <h2>Change Flight Status for {{ airline_name }}</h2>
+    <form method="POST" style="margin-bottom:2rem;">
+        <div class="form-group">
+            <label for="flight_num">Flight Number:</label>
+            <select id="flight_num" name="flight_num" required>
+                {% for flight in flights %}
+                <option value="{{ flight.flight_num }}">{{ flight.flight_num }} ({{ flight.departure_airport }} → {{ flight.arrival_airport }}, {{ flight.departure_time }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="new_status">New Status:</label>
+            <select id="new_status" name="new_status" required>
+                <option value="Upcoming">Upcoming</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Delayed">Delayed</option>
+            </select>
+        </div>
+        <button type="submit" class="cta-button">Change Status</button>
+    </form>
+    <h3>All Flights</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Flight Number</th>
+                <th>Departure</th>
+                <th>Arrival</th>
+                <th>Departure Time</th>
+                <th>Arrival Time</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for flight in flights %}
+            <tr>
+                <td>{{ flight.flight_num }}</td>
+                <td>{{ flight.departure_airport }}</td>
+                <td>{{ flight.arrival_airport }}</td>
+                <td>{{ flight.departure_time }}</td>
+                <td>{{ flight.arrival_time }}</td>
+                <td>{{ flight.status }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
