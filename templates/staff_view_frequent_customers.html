@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container staff-theme" style="max-width: 900px;">
+    <h2>Most Frequent Customer (Past Year)</h2>
+    {% if most_frequent %}
+        <p><strong>{{ most_frequent.name }}</strong> ({{ most_frequent.email }}) - {{ most_frequent.flight_count }} flights</p>
+    {% else %}
+        <p>No frequent customer found in the past year.</p>
+    {% endif %}
+
+    <h3>View All Flights of a Customer</h3>
+    <form method="POST" style="margin-bottom:1.5rem;">
+        <label for="customer_email">Select Customer:</label>
+        <select name="customer_email" id="customer_email">
+            <option value="">-- Select --</option>
+            {% for c in all_customers %}
+            <option value="{{ c.email }}" {% if c.email == customer_email %}selected{% endif %}>{{ c.name }} ({{ c.email }})</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="cta-button">View Flights</button>
+    </form>
+
+    {% if customer_flights %}
+    <h4>Flights for {{ customer_email }}</h4>
+    <table>
+        <thead>
+            <tr>
+                <th>Flight Number</th>
+                <th>Departure</th>
+                <th>Arrival</th>
+                <th>Departure Time</th>
+                <th>Arrival Time</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for f in customer_flights %}
+            <tr>
+                <td>{{ f.flight_num }}</td>
+                <td>{{ f.departure_airport }}</td>
+                <td>{{ f.arrival_airport }}</td>
+                <td>{{ f.departure_time }}</td>
+                <td>{{ f.arrival_time }}</td>
+                <td>{{ f.status }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+</div>
+{% endblock %}

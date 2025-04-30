@@ -964,6 +964,77 @@ def staff_view_booking_agents():
         order=order
     )
 
+@app.route('/staff/view_frequent_customers', methods=['GET', 'POST'])
+def staff_view_frequent_customers():
+    if 'username' not in session or session['user_type'] != 'staff':
+        flash('Please log in as airline staff to view this page.')
+        return redirect(url_for('login_staff'))
+
+    username = session['username']
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # 获取staff所属航空公司
+    cursor.execute("SELECT airline_name FROM Airline_Staff WHERE username = %s", (username,))
+    staff = cursor.fetchone()
+    if not staff:
+        flash('Staff not found.')
+        cursor.close()
+        conn.close()
+        return redirect(url_for('staff_home'))
+    airline_name = staff['airline_name']
+
+    # 查询过去一年内最常乘坐该航空公司航班的客户
+    cursor.execute("""
+        SELECT c.email, c.name, COUNT(*) AS flight_count
+        FROM Purchases p
+        JOIN Ticket t ON p.ticket_id = t.ticket_id
+        JOIN Customer c ON p.customer_email = c.email
+        WHERE t.airline_name = %s
+          AND p.purchase_date >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
+        GROUP BY c.email, c.name
+        ORDER BY flight_count DESC
+        LIMIT 1
+    """, (airline_name,))
+    most_frequent = cursor.fetchone()
+
+    # 如果选择了某个客户，显示其所有航班
+    customer_email = request.form.get('customer_email', '') if request.method == 'POST' else ''
+    customer_flights = []
+    if customer_email:
+        cursor.execute("""
+            SELECT f.flight_num, f.departure_airport, f.arrival_airport, f.departure_time, f.arrival_time, f.status
+            FROM Purchases p
+            JOIN Ticket t ON p.ticket_id = t.ticket_id
+            JOIN Flight f ON t.airline_name = f.airline_name AND t.flight_num = f.flight_num
+            WHERE t.airline_name = %s AND p.customer_email = %s
+            ORDER BY f.departure_time DESC
+        """, (airline_name, customer_email))
+        customer_flights = cursor.fetchall()
+
+    # 也可以列出所有过去一年乘坐过该航司的客户，供选择
+    cursor.execute("""
+        SELECT DISTINCT c.email, c.name
+        FROM Purchases p
+        JOIN Ticket t ON p.ticket_id = t.ticket_id
+        JOIN Customer c ON p.customer_email = c.email
+        WHERE t.airline_name = %s
+          AND p.purchase_date >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
+        ORDER BY c.name
+    """, (airline_name,))
+    all_customers = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template(
+        'staff_view_frequent_customers.html',
+        most_frequent=most_frequent,
+        all_customers=all_customers,
+        customer_email=customer_email,
+        customer_flights=customer_flights
+    )
+
 #4/27 agent
 @app.route('/agent/home')
 def agent_home():
