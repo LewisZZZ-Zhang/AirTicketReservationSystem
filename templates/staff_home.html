@@ -17,7 +17,7 @@
         <a href="{{ url_for('change_airplane') }}" class="staff-btn">Airplanes</a>
         <a href="{{ url_for('add_airport') }}" class="staff-btn">Add New Airport</a>
         <a href="{{ url_for('change_permissions') }}" class="staff-btn">Change Permissions</a>
-        <a href="{{ url_for('change_agents') }}" class="staff-btn">Add/Delete Agents</a>
+        <a href="{{ url_for('change_agent') }}" class="staff-btn">Add/Delete Agents</a>
     </div>
     {% endif %}
     {% if 'Operator' in session.get('user_type', '') %}

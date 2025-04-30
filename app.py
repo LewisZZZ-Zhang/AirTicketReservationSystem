@@ -761,10 +761,7 @@ def change_airplane():
     airline_name = staff['airline_name']
 
     if request.method == 'POST':
-        # Check for Admin permission again when trying to alter the databases
-        username = session['username']
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
+        # Doublecheck for Admin permission when altering the table
         cursor.execute("SELECT 1 FROM Permission WHERE username = %s AND permission_type = 'Admin'",(username,))
         has_admin = cursor.fetchone()
         if not has_admin:
@@ -870,8 +867,8 @@ def change_permissions():
 
 
 
-@app.route('/staff/change_agents', methods=['GET', 'POST'])
-def change_agents():
+@app.route('/staff/change_agent', methods=['GET', 'POST'])
+def change_agent():
     if 'username' not in session.keys() or 'Admin' not in session['user_type']:
         flash('Unauthorized Access! You are not authorized to change agents.')
         return redirect(url_for('staff_home'))
@@ -886,6 +883,15 @@ def change_agents():
     airline_name = staff['airline_name']
 
     if request.method == 'POST':
+        # Doublecheck for Admin permission when altering the table
+        cursor.execute("SELECT 1 FROM Permission WHERE username = %s AND permission_type = 'Admin'",(username,))
+        has_admin = cursor.fetchone()
+        if not has_admin:
+            cursor.close()
+            conn.close()
+            flash('You do not have permission to add airplanes.')
+            return redirect(url_for('staff_home'))
+        
         action = request.form['action']
         
         if action == 'add':
@@ -974,7 +980,7 @@ def change_agents():
     cursor.close()
     conn.close()
     
-    return render_template('staff_change_agents.html', 
+    return render_template('staff_change_agent.html', 
                          airline_name=airline_name, 
                          agents=agents)
 
