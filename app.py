@@ -964,6 +964,8 @@ def staff_view_booking_agents():
         order=order
     )
 
+
+
 @app.route('/staff/view_frequent_customers', methods=['GET', 'POST'])
 def staff_view_frequent_customers():
     if 'username' not in session or session['user_type'] != 'staff':
