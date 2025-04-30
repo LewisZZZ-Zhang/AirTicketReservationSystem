@@ -1,0 +1,114 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <h2>Manage Airplanes for {{ airline_name }}</h2>
+    
+    <div class="airplane-actions">
+        <div class="action-section">
+            <h3>Add New Airplane</h3>
+            <form method="POST">
+                <input type="hidden" name="action" value="add">
+                <div class="form-group">
+                    <label for="airplane_id">Airplane ID:</label>
+                    <input type="text" id="airplane_id" name="airplane_id" required>
+                </div>
+                <div class="form-group">
+                    <label for="seats">Number of Seats:</label>
+                    <input type="number" id="seats" name="seats" required min="1">
+                </div>
+                <button type="submit" class="cta-button">Add Airplane</button>
+            </form>
+        </div>
+
+        <div class="action-section">
+            <h3>Remove Existing Airplane</h3>
+            <form method="POST">
+                <input type="hidden" name="action" value="remove">
+                <div class="form-group">
+                    <label for="airplane_id_remove">Airplane ID:</label>
+                    <input type="text" id="airplane_id_remove" name="airplane_id_remove" required>
+                </div>
+                <button type="submit" class="cta-button danger">Remove Airplane</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="current-airplanes">
+        <h3>Current Airplanes</h3>
+        {% if airplanes %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Airplane ID</th>
+                        <th>Number of Seats</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for airplane in airplanes %}
+                    <tr>
+                        <td>{{ airplane.airplane_id }}</td>
+                        <td>{{ airplane.seats }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No airplanes currently registered for {{ airline_name }}.</p>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .airplane-actions {
+        display: flex;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .action-section {
+        flex: 1;
+        padding: 1rem;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+    
+    .cta-button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    .cta-button.danger {
+        background-color: #f44336;
+    }
+    
+    .cta-button:hover {
+        opacity: 0.9;
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    table, th, td {
+        border: 1px solid #ddd;
+    }
+    
+    th, td {
+        padding: 12px;
+        text-align: left;
+    }
+    
+    th {
+        background-color: #e53935;
+    }
+    
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+</style>
+{% endblock %}

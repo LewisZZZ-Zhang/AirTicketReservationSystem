@@ -47,6 +47,6 @@
         <a href="{{ url_for('view_all_tickets') }}">View all my flights</a>
     {% endif %}
 {% else %}
-    <p>Please <a href="{{ url_for('login_customer') }}">Login</a> as a customer to view your tickets.</p>
+    <p>Please <a href="{{ url_for('login_customer') }}">Login</a> as a <b>CUSTOMER</b> to view your tickets.</p>
 {% endif %}
 {% endblock %}

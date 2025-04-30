@@ -745,14 +745,103 @@ def create_flight():
     return render_template('staff_create_new_flight.html', airline_name=airline_name)
 
 
-@app.route('/staff/change_airplane')
+@app.route('/staff/change_airplane', methods=['GET', 'POST'])
 def change_airplane():
     if 'username' not in session.keys() or 'Admin' not in session['user_type']:
-        flash('Unauthorized Access! You are not authorized to create flights.')
+        flash('Unauthorized Access! You are not authorized to modify airplanes.')
         return redirect(url_for('staff_home'))
 
-    # TODO: Implement add airplane
-    return "Add Airplane page (to be implemented)"
+    username = session['username']
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Verify if the user is an airline staff
+    cursor.execute("SELECT airline_name FROM Airline_Staff WHERE username = %s", (username,))
+    staff = cursor.fetchone()
+    if not staff:
+        flash('You are not authorized to modify airplanes.')
+        cursor.close()
+        conn.close()
+        return redirect(url_for('staff_home'))
+
+    airline_name = staff['airline_name']
+
+    if request.method == 'POST':
+        action = request.form['action']
+        
+        if action == 'add':
+            # Get airplane details from the form
+            airplane_id = request.form['airplane_id']
+            seats = request.form['seats']
+            
+            # Validate input data
+            if not all([airplane_id, seats]):
+                flash('All fields are required for adding an airplane.')
+                cursor.close()
+                conn.close()
+                return redirect(url_for('change_airplane'))
+
+            try:
+                # Insert the new airplane into the database
+                cursor.execute("""
+                    INSERT INTO Airplane (airline_name, airplane_id, seats)
+                    VALUES (%s, %s, %s)
+                """, (airline_name, airplane_id, seats))
+                conn.commit()
+                flash('Airplane added successfully!')
+            except mysql.connector.Error as err:
+                if err.errno == 1062:  # Duplicate entry error
+                    flash(f"Error: Airplane ID {airplane_id} already exists.")
+                else:
+                    flash(f"Error: {err}")
+        
+        elif action == 'remove':
+            # Get airplane ID to remove
+            airplane_id = request.form['airplane_id_remove']
+            
+            if not airplane_id:
+                flash('Airplane ID is required for removal.')
+                cursor.close()
+                conn.close()
+                return redirect(url_for('change_airplane'))
+
+            try:
+                # Check if airplane exists and belongs to the airline
+                cursor.execute("""
+                    SELECT 1 FROM Airplane 
+                    WHERE airplane_id = %s AND airline_name = %s
+                """, (airplane_id, airline_name))
+                if not cursor.fetchone():
+                    flash(f"Airplane ID '{airplane_id}' does not exist or does not belong to your airline.")
+                    cursor.close()
+                    conn.close()
+                    return redirect(url_for('change_airplane'))
+
+                # Delete the airplane
+                cursor.execute("""
+                    DELETE FROM Airplane 
+                    WHERE airplane_id = %s AND airline_name = %s
+                """, (airplane_id, airline_name))
+                conn.commit()
+                flash('Airplane removed successfully!')
+            except mysql.connector.Error as err:
+                flash(f"Error: {err}")
+
+    # Get all airplanes for the current airline to display
+    cursor.execute("""
+        SELECT airplane_id, seats 
+        FROM Airplane 
+        WHERE airline_name = %s
+        ORDER BY airplane_id
+    """, (airline_name,))
+    airplanes = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+    
+    return render_template('staff_change_airplane.html', 
+                         airline_name=airline_name, 
+                         airplanes=airplanes)
 
 @app.route('/staff/add_airport')
 def add_airport():
