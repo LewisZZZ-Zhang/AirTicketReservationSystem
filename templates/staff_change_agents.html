@@ -1,0 +1,117 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <h2>Manage Booking Agents for {{ airline_name }}</h2>
+    
+    <div class="agent-actions">
+        <div class="action-section">
+            <h3>Add New Booking Agent</h3>
+            <form method="POST">
+                <input type="hidden" name="action" value="add">
+                <div class="form-group">
+                    <label for="agent_email">Agent Email:</label>
+                    <input type="email" id="agent_email" name="agent_email" required>
+                </div>
+                <button type="submit" class="cta-button">Add Agent</button>
+            </form>
+        </div>
+
+        <div class="action-section">
+            <h3>Remove Booking Agent</h3>
+            <form method="POST">
+                <input type="hidden" name="action" value="remove">
+                <div class="form-group">
+                    <label for="agent_email_remove">Agent Email:</label>
+                    <input type="email" id="agent_email_remove" name="agent_email_remove" required>
+                </div>
+                <button type="submit" class="cta-button danger">Remove Agent</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="current-agents">
+        <h3>Current Booking Agents</h3>
+        {% if agents %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Agent ID</th>
+                        <th>Email</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for agent in agents %}
+                    <tr>
+                        <td>{{ agent.booking_agent_id }}</td>
+                        <td>{{ agent.email }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No booking agents currently registered for {{ airline_name }}.</p>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .agent-actions {
+        display: flex;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .action-section {
+        flex: 1;
+        padding: 1rem;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+    
+    .cta-button {
+        background-color: var(--primary-blue);
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 600;
+    }
+    
+    .cta-button.danger {
+        background-color: #f44336;
+    }
+    
+    .cta-button:hover {
+        opacity: 0.9;
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+    
+    th {
+        background-color: var(--primary-blue);
+        color: white;
+    }
+    
+    tr:last-child td {
+        border-bottom: none;
+    }
+    
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+</style>
+{% endblock %}

@@ -755,15 +755,9 @@ def change_airplane():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Verify if the user is an airline staff
+    # Retrieve the staff's airline company.
     cursor.execute("SELECT airline_name FROM Airline_Staff WHERE username = %s", (username,))
     staff = cursor.fetchone()
-    if not staff:
-        flash('You are not authorized to modify airplanes.')
-        cursor.close()
-        conn.close()
-        return redirect(url_for('staff_home'))
-
     airline_name = staff['airline_name']
 
     if request.method == 'POST':
@@ -875,14 +869,115 @@ def change_permissions():
     return "Change permissions page (to be implemented)"
 
 
-@app.route('/staff/change_agents')
+
+@app.route('/staff/change_agents', methods=['GET', 'POST'])
 def change_agents():
     if 'username' not in session.keys() or 'Admin' not in session['user_type']:
         flash('Unauthorized Access! You are not authorized to change agents.')
         return redirect(url_for('staff_home'))
 
-    # TODO: Implement add airport
-    return "Change agents page (to be implemented)"
+    username = session['username']
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Retrieve the staff's airline company.
+    cursor.execute("SELECT airline_name FROM Airline_Staff WHERE username = %s", (username,))
+    staff = cursor.fetchone()
+    airline_name = staff['airline_name']
+
+    if request.method == 'POST':
+        action = request.form['action']
+        
+        if action == 'add':
+            # Get agent details from the form
+            agent_email = request.form['agent_email']
+            
+            # Validate input data
+            if not agent_email:
+                flash('Agent email is required.')
+                cursor.close()
+                conn.close()
+                return redirect(url_for('change_agents'))
+
+            try:
+                # Check if agent exists in booking_agent table
+                cursor.execute("SELECT 1 FROM Booking_Agent WHERE email = %s", (agent_email,))
+                if not cursor.fetchone():
+                    flash(f"Agent with email '{agent_email}' does not exist in the system.")
+                    cursor.close()
+                    conn.close()
+                    return redirect(url_for('change_agents'))
+
+                # Check if agent already works for this airline
+                cursor.execute("""
+                    SELECT 1 FROM Booking_Agent_Work_For 
+                    WHERE email = %s AND airline_name = %s
+                """, (agent_email, airline_name))
+                if cursor.fetchone():
+                    flash(f"Agent already works for {airline_name}.")
+                    cursor.close()
+                    conn.close()
+                    return redirect(url_for('change_agents'))
+
+                # Add the agent to work for this airline
+                cursor.execute("""
+                    INSERT INTO Booking_Agent_Work_For (email, airline_name)
+                    VALUES (%s, %s)
+                """, (agent_email, airline_name))
+                conn.commit()
+                flash('Booking agent added successfully!')
+            except mysql.connector.Error as err:
+                flash(f"Error: {err}")
+        
+        elif action == 'remove':
+            # Get agent email to remove
+            agent_email = request.form['agent_email_remove']
+            
+            if not agent_email:
+                flash('Agent email is required for removal.')
+                cursor.close()
+                conn.close()
+                return redirect(url_for('change_agents'))
+
+            try:
+                # Check if agent exists and works for this airline
+                cursor.execute("""
+                    SELECT 1 FROM Booking_Agent_Work_For 
+                    WHERE email = %s AND airline_name = %s
+                """, (agent_email, airline_name))
+                if not cursor.fetchone():
+                    flash(f"Agent with email '{agent_email}' does not work for your airline.")
+                    cursor.close()
+                    conn.close()
+                    return redirect(url_for('change_agents'))
+
+                # Remove the agent from working for this airline
+                cursor.execute("""
+                    DELETE FROM Booking_Agent_Work_For 
+                    WHERE email = %s AND airline_name = %s
+                """, (agent_email, airline_name))
+                conn.commit()
+                flash('Booking agent removed successfully!')
+            except mysql.connector.Error as err:
+                flash(f"Error: {err}")
+
+    # Get all booking agents for the current airline to display
+    cursor.execute("""
+        SELECT b.email, b.booking_agent_id 
+        FROM Booking_Agent b
+        JOIN Booking_Agent_Work_For w ON b.email = w.email
+        WHERE w.airline_name = %s
+        ORDER BY b.booking_agent_id
+    """, (airline_name,))
+    agents = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+    
+    return render_template('staff_change_agents.html', 
+                         airline_name=airline_name, 
+                         agents=agents)
+
 
 
 #Operator Functions
