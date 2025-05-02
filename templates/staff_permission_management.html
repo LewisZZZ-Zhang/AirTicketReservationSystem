@@ -1,0 +1,162 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <h2>Permission Management for {{ airline_name }}</h2>
+    
+    <div class="permission-actions">
+        <div class="action-section">
+            <h3>Grant Permission</h3>
+            <form method="POST">
+                <input type="hidden" name="action" value="add">
+                <div class="form-group">
+                    <label for="username">Staff Username:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="permission_type">Permission Type:</label>
+                    <select id="permission_type" name="permission_type" required>
+                        <option value="">Select Permission</option>
+                        <option value="Admin">Admin</option>
+                        <option value="Operator">Operator</option>
+                    </select>
+                </div>
+                <button type="submit" class="cta-button">Grant Permission</button>
+            </form>
+        </div>
+
+        <div class="action-section">
+            <h3>Revoke Permission</h3>
+            <form method="POST">
+                <input type="hidden" name="action" value="remove">
+                <div class="form-group">
+                    <label for="username_remove">Staff Username:</label>
+                    <input type="text" id="username_remove" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="permission_type_remove">Permission Type:</label>
+                    <select id="permission_type_remove" name="permission_type" required>
+                        <option value="">Select Permission</option>
+                        <option value="Admin">Admin</option>
+                        <option value="Operator">Operator</option>
+                    </select>
+                </div>
+                <button type="submit" class="cta-button danger">Revoke Permission</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="current-permissions">
+        <h3>Current Permissions</h3>
+        {% if current_permissions %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Permissions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for username, permissions in current_permissions.items() %}
+                    <tr>
+                        <td>{{ username }}</td>
+                        <td>
+                            {% for perm in permissions %}
+                            <span class="permission-tag">{{ perm }}</span>
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No permissions have been granted yet.</p>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .permission-actions {
+        display: flex;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .action-section {
+        flex: 1;
+        padding: 1rem;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: bold;
+    }
+    
+    input[type="text"], select {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+    }
+    
+    .cta-button {
+        background-color: var(--primary-blue);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 600;
+        margin-top: 0.5rem;
+    }
+    
+    .cta-button.danger {
+        background-color: #f44336;
+    }
+    
+    .cta-button:hover {
+        opacity: 0.9;
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+    
+    th {
+        background-color: var(--primary-blue);
+        color: white;
+    }
+    
+    tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .permission-tag {
+        display: inline-block;
+        background-color: #e3f2fd;
+        color: #1976d2;
+        padding: 2px 8px;
+        border-radius: 12px;
+        margin-right: 5px;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}

@@ -5,7 +5,7 @@
     <div class="staff-btn-grid">
         <a href="{{ url_for('view_my_flights') }}" class="staff-btn">Upcoming Flights</a>
         <a href="{{ url_for('view_agents') }}" class="staff-btn">Star Booking Agents</a>
-        <a href="{{ url_for('view_frequent_customers') }}" class="staff-btn">Frequent customers</a>
+        <a href="{{ url_for('view_frequent_customers') }}" class="staff-btn">Frequent Customers</a>
         <a href="{{ url_for('view_ticket_sales') }}" class="staff-btn">View Ticket Sales</a>
         <a href="{{ url_for('view_earning_analysis') }}" class="staff-btn">Earning Analysis</a>
         <a href="{{ url_for('view_top_destinations') }}" class="staff-btn">Top Destinations</a>
@@ -15,8 +15,8 @@
     <div class="staff-btn-grid">
         <a href="{{ url_for('create_flight') }}" class="staff-btn">Create New Flight</a>
         <a href="{{ url_for('change_airplane') }}" class="staff-btn">Airplanes</a>
-        <a href="{{ url_for('add_airport') }}" class="staff-btn">Add New Airport</a>
-        <a href="{{ url_for('change_permissions') }}" class="staff-btn">Change Permissions</a>
+        <a href="{{ url_for('airport_management') }}" class="staff-btn">Airport Management</a>
+        <a href="{{ url_for('manage_permission') }}" class="staff-btn">Manage Permissions</a>
         <a href="{{ url_for('change_agent') }}" class="staff-btn">Add/Delete Agents</a>
     </div>
     {% endif %}

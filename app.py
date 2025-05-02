@@ -532,12 +532,17 @@ def spending():
         end_month=end_date.strftime('%Y-%m')
     )
 
-@app.route('/staff/staff_home')
+@app.route('/staff')
 def staff_home():
     if 'username' not in session.keys() or 'staff' not in session['user_type']:
         flash('Please log in as airline staff to view this page.')
         return redirect(url_for('login_staff'))
     return render_template('staff_home.html')
+
+
+@app.route('/staff/home')
+def redirect_staff_home():
+    return redirect(url_for('staff_home'))
 
 
 # Staff Functions
@@ -846,24 +851,260 @@ def change_airplane():
                          airline_name=airline_name, 
                          airplanes=airplanes)
 
-@app.route('/staff/add_airport')
-def add_airport():
+
+@app.route('/staff/airport_management', methods=['GET', 'POST'])
+def airport_management():
     if 'username' not in session.keys() or 'Admin' not in session['user_type']:
-        flash('Unauthorized Access! You are not authorized to add airports.')
+        flash('Unauthorized Access! You are not authorized to manage airports.')
         return redirect(url_for('staff_home'))
 
-    # TODO: Implement add airport
-    return "Add New Airport page (to be implemented)"
+    username = session['username']
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("SELECT airline_name FROM Airline_Staff WHERE username = %s", (username,))
+    staff = cursor.fetchone()
+    airline_name = staff['airline_name']
+    search_results = None
+
+    if request.method == 'POST':
+        # Doublecheck for Admin permission when altering the table
+        cursor.execute("SELECT 1 FROM Permission WHERE username = %s AND permission_type = 'Admin'",(username,))
+        has_admin = cursor.fetchone()
+        if not has_admin:
+            cursor.close()
+            conn.close()
+            flash('You do not have permission to add airplanes.')
+            return redirect(url_for('staff_home'))
+        
+        action = request.form.get('action')
+        
+        if action == 'add':
+            airport_name = request.form['airport_name'].upper()
+            airport_city = request.form['airport_city']
+            
+            if not all([airport_name, airport_city]):
+                flash('All fields are required for adding an airport.')
+                cursor.close()
+                conn.close()
+                return redirect(url_for('airport_management'))
+
+            if len(airport_name) != 3:
+                flash('Airport code must be exactly 3 letters.')
+                cursor.close()
+                conn.close()
+                return redirect(url_for('airport_management'))
+
+            try:
+                cursor.execute("SELECT 1 FROM Airport WHERE airport_name = %s", (airport_name,))
+                if cursor.fetchone():
+                    flash(f"Airport '{airport_name}' already exists.")
+                    cursor.close()
+                    conn.close()
+                    return redirect(url_for('airport_management'))
+
+                cursor.execute("""
+                    INSERT INTO Airport (airport_name, airport_city)
+                    VALUES (%s, %s)
+                """, (airport_name, airport_city))
+                conn.commit()
+                flash(f"Airport '{airport_name}' added successfully!")
+            except mysql.connector.Error as err:
+                flash(f"Error: {err}")
+        
+        elif action == 'delete':
+            airport_name = request.form['airport_name_delete'].upper()
+            
+            if not airport_name:
+                flash('Airport code is required for deletion.')
+                cursor.close()
+                conn.close()
+                return redirect(url_for('airport_management'))
+
+            try:
+                cursor.execute("SELECT 1 FROM Airport WHERE airport_name = %s", (airport_name,))
+                if not cursor.fetchone():
+                    flash(f"Airport '{airport_name}' does not exist.")
+                    cursor.close()
+                    conn.close()
+                    return redirect(url_for('airport_management'))
+
+                cursor.execute("""
+                    SELECT 1 FROM Flight 
+                    WHERE departure_airport = %s OR arrival_airport = %s
+                    LIMIT 1
+                """, (airport_name, airport_name))
+                if cursor.fetchone():
+                    flash(f"Cannot delete airport '{airport_name}' as it is used in existing flights.")
+                    cursor.close()
+                    conn.close()
+                    return redirect(url_for('airport_management'))
+
+                cursor.execute("DELETE FROM Airport WHERE airport_name = %s", (airport_name,))
+                conn.commit()
+                flash(f"Airport '{airport_name}' deleted successfully!")
+            except mysql.connector.Error as err:
+                flash(f"Error: {err}")
+        
+        elif action == 'search':
+            search_term = request.form['search_term']
+            if not search_term:
+                flash('Please enter a search term.')
+                cursor.close()
+                conn.close()
+                return redirect(url_for('airport_management'))
+
+            try:
+                cursor.execute("""
+                    SELECT * FROM Airport 
+                    WHERE airport_name LIKE %s OR airport_city LIKE %s
+                    ORDER BY airport_name
+                """, (f'%{search_term}%', f'%{search_term}%'))
+                search_results = cursor.fetchall()
+                if not search_results:
+                    flash('No airports found matching your search.')
+            except mysql.connector.Error as err:
+                flash(f"Error: {err}")
+
+    cursor.close()
+    conn.close()
+    
+    return render_template('staff_airport_management.html', 
+                         airline_name=airline_name,
+                         search_results=search_results)
 
 
-@app.route('/staff/change_permissions')
-def change_permissions():
+@app.route('/staff/permission_management', methods=['GET', 'POST'])
+def manage_permission():
     if 'username' not in session.keys() or 'Admin' not in session['user_type']:
-        flash('Unauthorized Access! You are not authorized to change permissions.')
+        flash('Unauthorized Access! You are not authorized to manage permissions.')
         return redirect(url_for('staff_home'))
 
-    # TODO: Implement add airport
-    return "Change permissions page (to be implemented)"
+    admin_username = session['username']
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Get admin's airline
+    cursor.execute("SELECT airline_name FROM Airline_Staff WHERE username = %s", (admin_username,))
+    admin_airline = cursor.fetchone()
+    if not admin_airline:
+        flash('You are not associated with any airline.')
+        cursor.close()
+        conn.close()
+        return redirect(url_for('staff_home'))
+
+    airline_name = admin_airline['airline_name']
+    staff_list = []
+    current_permissions = {}
+
+    if request.method == 'POST':        
+        action = request.form.get('action')
+        target_username = request.form.get('username')
+        permission_type = request.form.get('permission_type')
+
+        # Validate inputs
+        if not all([action, target_username, permission_type]):
+            flash('All fields are required.')
+            cursor.close()
+            conn.close()
+            return redirect(url_for('manage_permission'))
+
+        # Check if target staff exists and belongs to same airline
+        cursor.execute("""
+            SELECT 1 FROM Airline_Staff 
+            WHERE username = %s AND airline_name = %s
+        """, (target_username, airline_name))
+        if not cursor.fetchone():
+            flash(f"Staff '{target_username}' not found in your airline.")
+            cursor.close()
+            conn.close()
+            return redirect(url_for('manage_permission'))
+
+        if action == 'add':
+            try:
+                # Check if permission already exists
+                cursor.execute("""
+                    SELECT 1 FROM Permission 
+                    WHERE username = %s AND permission_type = %s
+                """, (target_username, permission_type))
+                if cursor.fetchone():
+                    flash(f"Permission '{permission_type}' already granted to '{target_username}'.")
+                    cursor.close()
+                    conn.close()
+                    return redirect(url_for('manage_permission'))
+
+                # Add new permission
+                cursor.execute("""
+                    INSERT INTO Permission (username, permission_type)
+                    VALUES (%s, %s)
+                """, (target_username, permission_type))
+                conn.commit()
+                flash(f"Successfully granted '{permission_type}' permission to '{target_username}'.")
+            except mysql.connector.Error as err:
+                flash(f"Error: {err}")
+
+        elif action == 'remove':
+            # Special check for Admin permission removal
+            if permission_type == 'Admin':
+                # Check if this is the last admin
+                cursor.execute("""
+                    SELECT COUNT(*) as admin_count
+                    FROM Permission p
+                    JOIN Airline_Staff s ON p.username = s.username
+                    WHERE p.permission_type = 'Admin' 
+                    AND s.airline_name = %s
+                """, (airline_name,))
+                admin_count = cursor.fetchone()['admin_count']
+                
+                if admin_count <= 1:
+                    flash("Cannot remove last Admin permission from the airline.")
+                    cursor.close()
+                    conn.close()
+                    return redirect(url_for('manage_permission'))
+
+            try:
+                # Remove permission
+                cursor.execute("""
+                    DELETE FROM Permission 
+                    WHERE username = %s AND permission_type = %s
+                """, (target_username, permission_type))
+                if cursor.rowcount == 0:
+                    flash(f"Permission '{permission_type}' not found for '{target_username}'.")
+                else:
+                    conn.commit()
+                    flash(f"Successfully removed '{permission_type}' permission from '{target_username}'.")
+            except mysql.connector.Error as err:
+                flash(f"Error: {err}")
+
+    # Get all staff in the same airline
+    cursor.execute("""
+        SELECT username FROM Airline_Staff 
+        WHERE airline_name = %s
+        ORDER BY username
+    """, (airline_name,))
+    staff_list = [staff['username'] for staff in cursor.fetchall()]
+
+    # Get current permissions for all staff
+    cursor.execute("""
+        SELECT p.username, p.permission_type 
+        FROM Permission p
+        JOIN Airline_Staff s ON p.username = s.username
+        WHERE s.airline_name = %s
+        ORDER BY p.username, p.permission_type
+    """, (airline_name,))
+    
+    for row in cursor.fetchall():
+        if row['username'] not in current_permissions:
+            current_permissions[row['username']] = []
+        current_permissions[row['username']].append(row['permission_type'])
+
+    cursor.close()
+    conn.close()
+
+    return render_template('staff_permission_management.html',
+                         airline_name=airline_name,
+                         staff_list=staff_list,
+                         current_permissions=current_permissions)
 
 
 

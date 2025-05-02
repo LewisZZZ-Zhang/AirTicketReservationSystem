@@ -1,0 +1,157 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <h2>Airport Management</h2>
+    
+    <div class="airport-actions">
+        <div class="action-section">
+            <h3>Add New Airport</h3>
+            <form method="POST">
+                <input type="hidden" name="action" value="add">
+                <div class="form-group">
+                    <label for="airport_name">Airport Code (3 letters):</label>
+                    <input type="text" id="airport_name" name="airport_name" 
+                           pattern="[A-Za-z]{3}" title="3-letter airport code" 
+                           maxlength="3" required>
+                </div>
+                <div class="form-group">
+                    <label for="airport_city">City:</label>
+                    <input type="text" id="airport_city" name="airport_city" required>
+                </div>
+                <button type="submit" class="cta-button">Add Airport</button>
+            </form>
+        </div>
+
+        <div class="action-section">
+            <h3>Delete Airport</h3>
+            <form method="POST">
+                <input type="hidden" name="action" value="delete">
+                <div class="form-group">
+                    <label for="airport_name_delete">Airport Code:</label>
+                    <input type="text" id="airport_name_delete" name="airport_name_delete" 
+                           pattern="[A-Za-z]{3}" title="3-letter airport code" 
+                           maxlength="3" required>
+                </div>
+                <button type="submit" class="cta-button danger">Delete Airport</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="search-section">
+        <h3>Search Airports</h3>
+        <form method="POST">
+            <input type="hidden" name="action" value="search">
+            <div class="form-group">
+                <label for="search_term">Search by Code or City:</label>
+                <input type="text" id="search_term" name="search_term" required>
+            </div>
+            <button type="submit" class="cta-button">Search</button>
+        </form>
+    </div>
+
+    {% if search_results is not none %}
+    <div class="airport-list">
+        <h3>Search Results</h3>
+        {% if search_results %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Airport Code</th>
+                        <th>City</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for airport in search_results %}
+                    <tr>
+                        <td>{{ airport.airport_name }}</td>
+                        <td>{{ airport.airport_city }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No airports found matching your search.</p>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .airport-actions {
+        display: flex;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .action-section {
+        flex: 1;
+        padding: 1rem;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+    
+    .search-section {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 5px;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .search-section .form-group {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .search-section label {
+        margin-bottom: 0;
+    }
+    
+    .cta-button {
+        background-color: var(--primary-blue);
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 600;
+    }
+    
+    .cta-button.danger {
+        background-color: #f44336;
+    }
+    
+    .cta-button:hover {
+        opacity: 0.9;
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+    
+    th {
+        background-color: var(--primary-blue);
+        color: white;
+    }
+    
+    tr:last-child td {
+        border-bottom: none;
+    }
+    
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+</style>
+{% endblock %}
