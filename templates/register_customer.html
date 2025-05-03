@@ -1,19 +1,193 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>Register as Customer</h2>
-<form action="{{ url_for('register_customer') }}" method="POST">
-    Name: <input type="text" name="name" required><br>
-    Email: <input type="email" name="email" required><br>
-    Password: <input type="password" name="password" required><br>
-    Building Number: <input type="text" name="building_number"><br>
-    Street: <input type="text" name="street"><br>
-    City: <input type="text" name="city"><br>
-    State: <input type="text" name="state"><br>
-    Phone Number: <input type="text" name="phone_number"><br>
-    Passport Number: <input type="text" name="passport_number"><br>
-    Passport Expiration: <input type="date" name="passport_expiration"><br>
-    Passport Country: <input type="text" name="passport_country"><br>
-    Date of Birth: <input type="date" name="date_of_birth" required><br>
-    <input type="submit" value="Register">
-</form>
+<div class="registration-container">
+  <div class="registration-header">
+    <h2>Create Your Account</h2>
+    <p>Join us to start booking flights and managing your travel</p>
+  </div>
+
+  <form action="{{ url_for('register_customer') }}" method="POST" class="registration-form">
+    <div class="form-group full-width">
+      <label for="name" class="required-field">Full Name</label>
+      <input type="text" id="name" name="name" class="form-control" required>
+    </div>
+
+    <div class="form-group full-width">
+      <label for="email" class="required-field">Email Address</label>
+      <input type="email" id="email" name="email" class="form-control" required>
+    </div>
+
+    <div class="form-group full-width">
+      <label for="password" class="required-field">Password</label>
+      <input type="password" id="password" name="password" class="form-control" required>
+    </div>
+
+    <div class="form-section">Personal Information</div>
+
+    <div class="form-group">
+      <label for="date_of_birth" class="required-field">Date of Birth</label>
+      <input type="date" id="date_of_birth" name="date_of_birth" class="form-control" required>
+    </div>
+
+    <div class="form-group">
+      <label for="phone_number">Phone Number</label>
+      <input type="tel" id="phone_number" name="phone_number" class="form-control">
+    </div>
+
+    <div class="form-section">Address Information</div>
+
+    <div class="form-group">
+      <label for="building_number">Building Number</label>
+      <input type="text" id="building_number" name="building_number" class="form-control">
+    </div>
+
+    <div class="form-group">
+      <label for="street">Street</label>
+      <input type="text" id="street" name="street" class="form-control">
+    </div>
+
+    <div class="form-group">
+      <label for="city">City</label>
+      <input type="text" id="city" name="city" class="form-control">
+    </div>
+
+    <div class="form-group">
+      <label for="state">State/Province</label>
+      <input type="text" id="state" name="state" class="form-control">
+    </div>
+
+    <div class="form-section">Passport Information</div>
+
+    <div class="form-group">
+      <label for="passport_number">Passport Number</label>
+      <input type="text" id="passport_number" name="passport_number" class="form-control">
+    </div>
+
+    <div class="form-group">
+      <label for="passport_expiration">Passport Expiration</label>
+      <input type="date" id="passport_expiration" name="passport_expiration" class="form-control">
+    </div>
+
+    <div class="form-group">
+      <label for="passport_country">Passport Country</label>
+      <input type="text" id="passport_country" name="passport_country" class="form-control">
+    </div>
+
+    <button type="submit" class="submit-btn">Create Account</button>
+  </form>
+
+  <div class="login-redirect">
+    Already have an account? <a href="{{ url_for('login_customer') }}">Sign in here</a>
+  </div>
+</div>
+
+
+<style>
+    .registration-container {
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+  
+    .registration-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+  
+    .registration-header h2 {
+      color: #2c3e50;
+      margin-bottom: 0.5rem;
+    }
+  
+    .registration-header p {
+      color: #7f8c8d;
+    }
+  
+    .registration-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.2rem;
+    }
+  
+    .form-group {
+      margin-bottom: 1rem;
+    }
+  
+    .form-group.full-width {
+      grid-column: span 2;
+    }
+  
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #2c3e50;
+    }
+  
+    .form-control {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: all 0.3s;
+    }
+  
+    .form-control:focus {
+      border-color: #3498db;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    }
+  
+    .required-field::after {
+      content: " *";
+      color: #e74c3c;
+    }
+  
+    .submit-btn {
+      grid-column: span 2;
+      padding: 0.9rem;
+      background-color: #2ecc71;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin-top: 1rem;
+    }
+  
+    .submit-btn:hover {
+      background-color: #27ae60;
+    }
+  
+    .form-section {
+      grid-column: span 2;
+      margin: 1.5rem 0 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #eee;
+      color: #3498db;
+      font-weight: 500;
+    }
+  
+    .login-redirect {
+      text-align: center;
+      margin-top: 1.5rem;
+      color: #7f8c8d;
+    }
+  
+    .login-redirect a {
+      color: #3498db;
+      text-decoration: none;
+    }
+  
+    .login-redirect a:hover {
+      text-decoration: underline;
+    }
+  </style>
+  
 {% endblock %}

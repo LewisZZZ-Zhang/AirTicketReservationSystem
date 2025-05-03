@@ -560,14 +560,10 @@ def view_my_flights():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     # 获取员工所属航空公司
-    cursor.execute("SELECT airline_name FROM Airline_Staff WHERE username = %s", (username,))
-    staff = cursor.fetchone()
-    if not staff:
-        flash('Staff not found.')
-        cursor.close()
-        conn.close()
-        return redirect(url_for('staff_home'))
-    airline_name = staff['airline_name']
+    cursor.callproc('GetStaffAirlineInfo', (username,))
+    for result in cursor.stored_results():
+        staff = result.fetchone()
+        airline_name = staff['airline_name'] if staff else None
 
     # 默认时间范围：未来30天
     today = datetime.today().date()
@@ -672,13 +668,10 @@ def create_flight():
     cursor = conn.cursor(dictionary=True)
 
     # Verify if the user is an airline staff
-    cursor.execute("SELECT airline_name FROM Airline_Staff WHERE username = %s", (username,))
-    staff = cursor.fetchone()
-    if not staff:
-        flash('You are not authorized to create flights.')
-        cursor.close()
-        conn.close()
-        return redirect(url_for('staff_home'))
+    cursor.callproc('GetStaffAirlineInfo', (username,))
+    for result in cursor.stored_results():
+        staff = result.fetchone()
+        airline_name = staff['airline_name'] if staff else None
 
     airline_name = staff['airline_name']
 
@@ -765,9 +758,10 @@ def change_airplane():
     cursor = conn.cursor(dictionary=True)
 
     # Retrieve the staff's airline company.
-    cursor.execute("SELECT airline_name FROM Airline_Staff WHERE username = %s", (username,))
-    staff = cursor.fetchone()
-    airline_name = staff['airline_name']
+    cursor.callproc('GetStaffAirlineInfo', (username,))
+    for result in cursor.stored_results():
+        staff = result.fetchone()
+        airline_name = staff['airline_name'] if staff else None
 
     if request.method == 'POST':
         # Doublecheck for Admin permission when altering the table
@@ -866,9 +860,11 @@ def airport_management():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    cursor.execute("SELECT airline_name FROM Airline_Staff WHERE username = %s", (username,))
-    staff = cursor.fetchone()
-    airline_name = staff['airline_name']
+    cursor.callproc('GetStaffAirlineInfo', (username,))
+    for result in cursor.stored_results():
+        staff = result.fetchone()
+        airline_name = staff['airline_name'] if staff else None
+
     search_results = None
 
     if request.method == 'POST':
@@ -1123,9 +1119,10 @@ def change_agent():
     cursor = conn.cursor(dictionary=True)
 
     # Retrieve the staff's airline company.
-    cursor.execute("SELECT airline_name FROM Airline_Staff WHERE username = %s", (username,))
-    staff = cursor.fetchone()
-    airline_name = staff['airline_name']
+    cursor.callproc('GetStaffAirlineInfo', (username,))
+    for result in cursor.stored_results():
+        staff = result.fetchone()
+        airline_name = staff['airline_name'] if staff else None
 
     if request.method == 'POST':
         # Doublecheck for Admin permission when altering the table
@@ -1243,14 +1240,10 @@ def change_flight_status():
     cursor = conn.cursor(dictionary=True)
 
     # Get the airline the staff belongs to
-    cursor.execute("SELECT airline_name FROM Airline_Staff WHERE username = %s", (username,))
-    staff = cursor.fetchone()
-    if not staff:
-        flash('Staff not found.')
-        cursor.close()
-        conn.close()
-        return redirect(url_for('staff_home'))
-    airline_name = staff['airline_name']
+    cursor.callproc('GetStaffAirlineInfo', (username,))
+    for result in cursor.stored_results():
+        staff = result.fetchone()
+        airline_name = staff['airline_name'] if staff else None
 
     if request.method == 'POST':
         flight_num = request.form['flight_num']

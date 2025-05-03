@@ -1,17 +1,126 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class="container" style="max-width: 400px; margin: 2rem auto; padding: 1rem; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-  <h2 style="text-align: center; margin-bottom: 1.5rem;">Booking Agent Login</h2>
-  <form action="{{ url_for('login_agent') }}" method="POST" style="display: flex; flex-direction: column; gap: 1rem;">
-    <div class="form-group">
-      <label for="email" style="margin-bottom: 0.3rem;">Email</label>
-      <input type="email" id="email" name="email" required class="form-control" style="width: 100%; padding: 0.5rem;">
+<div class="agent-login-container">
+  <div class="agent-login-header">
+    <h2>Agent Portal</h2>
+    <p>Access your booking agent dashboard</p>
+  </div>
+  
+  <form action="{{ url_for('login_agent') }}" method="POST">
+    <div class="agent-form-group">
+      <label for="email">Agent Email</label>
+      <input type="email" id="email" name="email" required class="agent-form-control" placeholder="your@agency.com">
     </div>
-    <div class="form-group">
-      <label for="password" style="margin-bottom: 0.3rem;">Password</label>
-      <input type="password" id="password" name="password" required class="form-control" style="width: 100%; padding: 0.5rem;">
+    
+    <div class="agent-form-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" required class="agent-form-control" placeholder="••••••••">
     </div>
-    <button type="submit" class="cta-button" style="padding: 0.6rem 1.2rem; align-self: center;">Login</button>
+    
+    <button type="submit" class="agent-login-btn">Sign In</button>
   </form>
 </div>
+
+
+<style>
+  .agent-login-container {
+    max-width: 420px;
+    margin: 3rem auto;
+    padding: 2rem 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    background: white;
+    border: 1px solid #e1e5eb;
+  }
+
+  .agent-login-header {
+    text-align: center;
+    margin-bottom: 2.2rem;
+  }
+
+  .agent-login-header h2 {
+    color: #2c3e50;
+    margin-bottom: 0.6rem;
+    font-size: 1.9rem;
+    font-weight: 600;
+  }
+
+  .agent-login-header p {
+    color: #7f8c8d;
+    font-size: 0.95rem;
+  }
+
+  .agent-form-group {
+    margin-bottom: 1.4rem;
+  }
+
+  .agent-form-group label {
+    display: block;
+    margin-bottom: 0.6rem;
+    font-weight: 500;
+    color: #2c3e50;
+    font-size: 0.95rem;
+  }
+
+  .agent-form-control {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 1px solid #d1d9e6;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: #f8fafc;
+  }
+
+  .agent-form-control:focus {
+    border-color: #5d78ff;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(93, 120, 255, 0.15);
+    background-color: white;
+  }
+
+  .agent-login-btn {
+    width: 100%;
+    padding: 0.9rem;
+    background: linear-gradient(135deg, #5d78ff 0%, #6a5acd 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 0.5rem;
+    box-shadow: 0 2px 6px rgba(93, 120, 255, 0.3);
+  }
+
+  .agent-login-btn:hover {
+    background: linear-gradient(135deg, #4a6bff 0%, #5f4bdb 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(93, 120, 255, 0.4);
+  }
+
+  .agent-login-footer {
+    margin-top: 2rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    border-top: 1px solid #eee;
+    padding-top: 1.5rem;
+  }
+
+  .agent-login-footer a {
+    color: #5d78ff;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s;
+    margin: 0 0.5rem;
+  }
+
+  .agent-login-footer a:hover {
+    color: #4a6bff;
+    text-decoration: underline;
+  }
+</style>
+
 {% endblock %}

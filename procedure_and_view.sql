@@ -24,6 +24,23 @@ END //
 DELIMITER ;
 
 
+-- 2. Get the staff's airline name
+DELIMITER //
+
+CREATE PROCEDURE GetStaffAirlineName(
+    IN p_username VARCHAR(50),
+    OUT p_airline_name VARCHAR(50)
+)
+BEGIN
+    SELECT airline_name INTO p_airline_name
+    FROM Airline_Staff
+    WHERE username = p_username;
+END //
+
+DELIMITER ;
+
+
+
 -- Views
 
 

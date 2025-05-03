@@ -1,10 +1,136 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>Register as Booking Agent</h2>
-<form action="{{ url_for('register_agent') }}" method="POST">
-    Email: <input type="email" name="email" required><br>
-    Password: <input type="password" name="password" required><br>
-    Booking Agent ID: <input type="text" name="booking_agent_id" required><br>
-    <input type="submit" value="Register">
-</form>
+<div class="agent-registration-container">
+  <div class="agent-registration-header">
+    <h2>Agent Registration</h2>
+    <p>Create your professional booking agent account</p>
+  </div>
+
+  <form action="{{ url_for('register_agent') }}" method="POST">
+    <div class="agent-form-group">
+      <label for="email" class="required-field">Email Address</label>
+      <input type="email" id="email" name="email" class="agent-form-control" placeholder="your@agency.com" required>
+    </div>
+
+    <div class="agent-form-group">
+      <label for="password" class="required-field">Password</label>
+      <input type="password" id="password" name="password" class="agent-form-control" placeholder="Create a password" required>
+    </div>
+
+    <div class="agent-form-group">
+      <label for="booking_agent_id" class="required-field">Agent ID</label>
+      <input type="text" id="booking_agent_id" name="booking_agent_id" class="agent-form-control" placeholder="Your unique agent identification" required>
+    </div>
+
+    <button type="submit" class="agent-submit-btn">Register as Agent</button>
+  </form>
+
+  <div class="agent-login-redirect">
+    Already registered? <a href="{{ url_for('login_agent') }}">Sign in to your agent account</a>
+  </div>
+</div>
+
+<style>
+    .agent-registration-container {
+      max-width: 500px;
+      margin: 2rem auto;
+      padding: 2.5rem;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+      border: 1px solid #e1e5eb;
+    }
+  
+    .agent-registration-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+  
+    .agent-registration-header h2 {
+      color: #2c3e50;
+      margin-bottom: 0.5rem;
+      font-size: 1.9rem;
+      font-weight: 600;
+    }
+  
+    .agent-registration-header p {
+      color: #7f8c8d;
+      font-size: 1rem;
+    }
+  
+    .agent-form-group {
+      margin-bottom: 1.5rem;
+    }
+  
+    .agent-form-group label {
+      display: block;
+      margin-bottom: 0.6rem;
+      font-weight: 500;
+      color: #2c3e50;
+      font-size: 0.95rem;
+    }
+  
+    .agent-form-control {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      border: 1px solid #d1d9e6;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background-color: #f8fafc;
+    }
+  
+    .agent-form-control:focus {
+      border-color: #5d78ff;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(93, 120, 255, 0.15);
+      background-color: white;
+    }
+  
+    .required-field::after {
+      content: " *";
+      color: #e74c3c;
+    }
+  
+    .agent-submit-btn {
+      width: 100%;
+      padding: 0.9rem;
+      background: linear-gradient(135deg, #5d78ff 0%, #6a5acd 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 1rem;
+      box-shadow: 0 2px 6px rgba(93, 120, 255, 0.3);
+    }
+  
+    .agent-submit-btn:hover {
+      background: linear-gradient(135deg, #4a6bff 0%, #5f4bdb 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(93, 120, 255, 0.4);
+    }
+  
+    .agent-login-redirect {
+      text-align: center;
+      margin-top: 1.8rem;
+      color: #7f8c8d;
+      font-size: 0.95rem;
+    }
+  
+    .agent-login-redirect a {
+      color: #5d78ff;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+  
+    .agent-login-redirect a:hover {
+      color: #4a6bff;
+      text-decoration: underline;
+    }
+  </style>
+  
 {% endblock %}

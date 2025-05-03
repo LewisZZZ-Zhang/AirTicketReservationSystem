@@ -1,9 +1,157 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>Airline Staff Login</h2>
-<form action="{{ url_for('login_staff') }}" method="POST">
-    Username: <input type="text" name="username" required><br>
-    Password: <input type="password" name="password" required><br>
-    <input type="submit" value="Login">
-</form>
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <h2>Staff Portal</h2>
+            <p>Access your airline management tools</p>
+        </div>
+        
+        <form action="{{ url_for('login_staff') }}" method="POST" class="login-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                <i class="fas fa-user"></i>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                <i class="fas fa-lock"></i>
+            </div>
+            
+            <button type="submit" class="login-btn">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+            
+        </form>
+    </div>
+</div>
+
+
+
+<style>
+    .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 80vh;
+        background-color: #f5f7fa;
+        padding: 20px;
+    }
+
+    .login-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+        padding: 30px;
+        transition: transform 0.3s ease;
+    }
+
+    .login-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .login-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .login-header h2 {
+        color: #2c3e50;
+        margin: 15px 0 5px;
+    }
+
+    .login-header p {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+    }
+
+    .logo {
+        height: 60px;
+        width: auto;
+    }
+
+    /* Form Styles */
+    .form-group {
+        position: relative;
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #2c3e50;
+        font-weight: 500;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 12px 15px 12px 40px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+    }
+
+    .form-group input:focus {
+        border-color: #3498db;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    }
+
+    .form-group i {
+        position: absolute;
+        left: 15px;
+        top: 40px;
+        color: #7f8c8d;
+    }
+
+    /* Button Styles */
+    .login-btn {
+        width: 100%;
+        padding: 12px;
+        background-color: #3498db;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .login-btn:hover {
+        background-color: #2980b9;
+    }
+
+    .login-btn i {
+        margin-right: 8px;
+    }
+
+    /* Footer Links */
+    .login-footer {
+        margin-top: 20px;
+        text-align: center;
+        font-size: 0.9rem;
+    }
+
+    .login-footer a {
+        color: #3498db;
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+
+    .login-footer a:hover {
+        color: #2980b9;
+        text-decoration: underline;
+    }
+
+    .separator {
+        margin: 0 10px;
+        color: #bdc3c7;
+    }
+</style>
 {% endblock %}

@@ -1,10 +1,177 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>Register</h2>
-<p>Select your user type:</p>
-<ul>
-    <li><a href="{{ url_for('register_customer') }}">Register as Customer</a></li>
-    <li><a href="{{ url_for('register_agent') }}">Register as Booking Agent</a></li>
-    <li><a href="{{ url_for('register_staff') }}">Register as Airline Staff</a></li>
-</ul>
+<div class="register-selection">
+    <div class="register-header">
+        <h2>Create Your Account</h2>
+        <p>Select your user type to begin registration</p>
+    </div>
+    
+    <div class="register-options">
+        <div class="register-card customer-card">
+            <h3>Customer Account</h3>
+            <p>Register as a customer to book flights and manage your travel</p>
+            <a href="{{ url_for('register_customer') }}" class="register-btn">Register as Customer</a>
+        </div>
+        
+        <div class="register-card agent-card">
+            <h3>Booking Agent</h3>
+            <p>Register as a booking agent to manage client reservations</p>
+            <a href="{{ url_for('register_agent') }}" class="register-btn">Register as Agent</a>
+        </div>
+        
+        <div class="register-card staff-card">
+            <h3>Airline Staff</h3>
+            <p>Register as airline staff to access management systems</p>
+            <a href="{{ url_for('register_staff') }}" class="register-btn">Register as Staff</a>
+        </div>
+    </div>
+    
+    <div class="login-section">
+        <h3>Already have an account?</h3>
+        <p>Sign in to access your account and manage your bookings</p>
+        <a href="{{ url_for('login') }}" class="login-btn">Login to Existing Account</a>
+    </div>
+</div>
+
+
+<style>
+    .register-selection {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+        text-align: center;
+    }
+    
+    .register-header {
+        margin-bottom: 2rem;
+    }
+    
+    .register-header h2 {
+        font-size: 2rem;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+    
+    .register-header p {
+        font-size: 1.1rem;
+        color: #7f8c8d;
+    }
+    
+    .register-options {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+        margin-bottom: 3rem;
+    }
+    
+    .register-card {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        border: 1px solid #e0e0e0;
+        text-align: center;
+    }
+    
+    .register-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .register-card h3 {
+        color: #2c3e50;
+        margin-top: 0;
+        margin-bottom: 1rem;
+    }
+    
+    .register-card p {
+        color: #7f8c8d;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .register-btn {
+        display: inline-block;
+        padding: 0.8rem 1.5rem;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: 500;
+        transition: background-color 0.3s;
+    }
+    
+    .customer-card:hover {
+        border-color: #2ecc71;
+    }
+    
+    .customer-card .register-btn {
+        background-color: #2ecc71;
+    }
+    
+    .customer-card .register-btn:hover {
+        background-color: #27ae60;
+    }
+    
+    .agent-card:hover {
+        border-color: #e67e22;
+    }
+    
+    .agent-card .register-btn {
+        background-color: #e67e22;
+    }
+    
+    .agent-card .register-btn:hover {
+        background-color: #d35400;
+    }
+    
+    .staff-card:hover {
+        border-color: #9b59b6;
+    }
+    
+    .staff-card .register-btn {
+        background-color: #9b59b6;
+    }
+    
+    .staff-card .register-btn:hover {
+        background-color: #8e44ad;
+    }
+    
+    .login-section {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 2rem;
+        margin-top: 2rem;
+        border: 1px dashed #bdc3c7;
+    }
+    
+    .login-section h3 {
+        color: #2c3e50;
+        margin-top: 0;
+        margin-bottom: 1rem;
+    }
+    
+    .login-section p {
+        color: #7f8c8d;
+        margin-bottom: 1.5rem;
+    }
+    
+    .login-btn {
+        display: inline-block;
+        padding: 0.8rem 1.5rem;
+        background-color: #3498db;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .login-btn:hover {
+        background-color: #2980b9;
+        transform: translateY(-2px);
+    }
+</style>
+
 {% endblock %}
