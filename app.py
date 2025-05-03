@@ -35,7 +35,22 @@ def home():
         # 查询该顾客的机票信息
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("CALL customer_get_upcoming_flights(%s);", (customer_email,))
+        cursor.execute("""
+            SELECT 
+                Ticket.ticket_id, 
+                Flight.airline_name, 
+                Flight.flight_num, 
+                Flight.departure_airport, 
+                Flight.arrival_airport, 
+                Flight.departure_time, 
+                Flight.arrival_time, 
+                Flight.status, 
+                Flight.price
+            FROM Purchases
+            JOIN Ticket ON Purchases.ticket_id = Ticket.ticket_id
+            JOIN Flight ON Ticket.airline_name = Flight.airline_name AND Ticket.flight_num = Flight.flight_num
+            WHERE Purchases.customer_email = %s and Flight.status = 'Upcoming'
+        """, (customer_email,))
         tickets = cursor.fetchall()
         cursor.close()
         conn.close()
