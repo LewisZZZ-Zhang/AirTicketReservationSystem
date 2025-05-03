@@ -63,14 +63,18 @@ def login_customer():
         cursor.close()
         conn.close()
 
-        if user and user['password'] == password:  # 如果密码是明文存储
-            session['username'] = email
-            session['user_type'] = 'customer'
-            flash('Login successful. Welcome,' + session['username'] + '!')
-            return redirect(url_for('home'))
+        if user:
+            if user['password'] == password:  # 如果密码是明文存储
+                session['username'] = email
+                session['user_type'] = 'customer'
+                flash('Login successful. Welcome,' + session['username'] + '!')
+                return redirect(url_for('home'))
+            else:
+                flash('Invalid login credentials.')
+                return redirect(url_for('login_customer'))
         else:
-            flash('Invalid login credentials.')
-            return redirect(url_for('login_customer'))
+            flash('No account found with this email. Please register first.')
+            return redirect(url_for('register_customer'))
 
     return render_template('login_customer.html')
 
@@ -798,7 +802,7 @@ def change_airplane():
                 conn.commit()
                 flash('Airplane added successfully!')
             except mysql.connector.Error as err:
-                if err.errno == 1062:  # Duplicate entry error
+                if (err.errno == 1062):  # Duplicate entry error
                     flash(f"Error: Airplane ID {airplane_id} already exists.")
                 else:
                     flash(f"Error: {err}")
@@ -1228,16 +1232,68 @@ def change_agent():
 
 
 #Operator Functions
-@app.route('/staff/change_flight_status')
+@app.route('/staff/change_flight_status', methods=['GET', 'POST'])
 def change_flight_status():
     if 'username' not in session.keys() or 'Operator' not in session['user_type']:
-        flash('Unauthorized Access! You are not authorized to change flights status.')
+        flash('Unauthorized Access! You are not authorized to change flight statuses.')
         return redirect(url_for('staff_home'))
-    
-    # TODO: Implement change status   
-    return "Change Status of Flights page (to be implemented)"
 
+    username = session['username']
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
 
+    # Get the airline the staff belongs to
+    cursor.execute("SELECT airline_name FROM Airline_Staff WHERE username = %s", (username,))
+    staff = cursor.fetchone()
+    if not staff:
+        flash('Staff not found.')
+        cursor.close()
+        conn.close()
+        return redirect(url_for('staff_home'))
+    airline_name = staff['airline_name']
+
+    if request.method == 'POST':
+        flight_num = request.form['flight_num']
+        new_status = request.form['new_status']
+
+        # Validate the new status
+        if new_status not in ['Upcoming', 'In Progress', 'Delayed', 'Completed']:
+            flash('Invalid status.')
+            cursor.close()
+            conn.close()
+            return redirect(url_for('change_flight_status'))
+
+        # Check if the flight belongs to the airline
+        cursor.execute(
+            "SELECT * FROM Flight WHERE airline_name = %s AND flight_num = %s",
+            (airline_name, flight_num)
+        )
+        flight = cursor.fetchone()
+        if not flight:
+            flash('Flight not found or does not belong to your airline.')
+        else:
+            try:
+                # Update the flight status
+                cursor.execute(
+                    "UPDATE Flight SET status = %s WHERE airline_name = %s AND flight_num = %s",
+                    (new_status, airline_name, flight_num)
+                )
+                conn.commit()
+                flash('Flight status updated successfully!')
+            except mysql.connector.Error as err:
+                flash(f"Error: {err}")
+
+    # Fetch all flights for the airline
+    cursor.execute(
+        "SELECT flight_num, departure_airport, arrival_airport, departure_time, arrival_time, status "
+        "FROM Flight WHERE airline_name = %s ORDER BY flight_num ASC",
+        (airline_name,)
+    )
+    flights = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    return render_template('staff_change_flight_status.html', flights=flights)
 
 
 # Agent Functions
