@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container staff-theme" style="max-width:900px;">
+    <h2>Ticket Sales Report</h2>
+    <form method="POST" class="filter-bar" style="margin-bottom:2rem;">
+        <div class="form-group">
+            <label for="start_date">Start Date:</label>
+            <input type="date" id="start_date" name="start_date" value="{{ start_date }}">
+        </div>
+        <div class="form-group">
+            <label for="end_date">End Date:</label>
+            <input type="date" id="end_date" name="end_date" value="{{ end_date }}">
+        </div>
+        <button type="submit" class="cta-button">Filter</button>
+    </form>
+    <ul>
+        <li><b>Total tickets sold (selected range):</b> {{ total_tickets }}</li>
+        <li><b>Tickets sold in last month:</b> {{ last_month_tickets }}</li>
+        <li><b>Tickets sold in last year:</b> {{ last_year_tickets }}</li>
+    </ul>
+    <h3>Tickets Sold Per Month (Past Year)</h3>
+    <canvas id="ticketsBarChart" width="800" height="350"></canvas>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx = document.getElementById('ticketsBarChart').getContext('2d');
+const chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: {{ months|tojson }},
+        datasets: [{
+            label: 'Tickets Sold',
+            data: {{ tickets_per_month|tojson }},
+            backgroundColor: '#2196F3'
+        }]
+    },
+    options: {
+        scales: {
+            y: { beginAtZero: true }
+        }
+    }
+});
+</script>
+{% endblock %}

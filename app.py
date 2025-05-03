@@ -1046,6 +1046,164 @@ def staff_view_frequent_customers():
         customer_flights=customer_flights
     )
 
+
+@app.route('/staff/view_reports', methods=['GET', 'POST'])
+def staff_view_reports():
+    if 'username' not in session or session['user_type'] != 'staff':
+        flash('Please log in as airline staff to view reports.')
+        return redirect(url_for('login_staff'))
+
+    username = session['username']
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # 获取staff所属航空公司
+    cursor.execute("SELECT airline_name FROM Airline_Staff WHERE username = %s", (username,))
+    staff = cursor.fetchone()
+    if not staff:
+        flash('Staff not found.')
+        cursor.close()
+        conn.close()
+        return redirect(url_for('staff_home'))
+    airline_name = staff['airline_name']
+
+    # 获取筛选条件
+    today = datetime.today()
+    default_start = (today - timedelta(days=30)).strftime('%Y-%m-%d')
+    default_end = today.strftime('%Y-%m-%d')
+    start_date = request.form.get('start_date', default_start)
+    end_date = request.form.get('end_date', default_end)
+
+    # 总票数（自定义区间）
+    cursor.execute("""
+        SELECT COUNT(*) AS total_tickets
+        FROM Purchases
+        JOIN Ticket ON Purchases.ticket_id = Ticket.ticket_id
+        WHERE Ticket.airline_name = %s
+          AND DATE(Purchases.purchase_date) BETWEEN %s AND %s
+    """, (airline_name, start_date, end_date))
+    total_tickets = cursor.fetchone()['total_tickets']
+
+    # 上月票数
+    cursor.execute("""
+        SELECT COUNT(*) AS last_month_tickets
+        FROM Purchases
+        JOIN Ticket ON Purchases.ticket_id = Ticket.ticket_id
+        WHERE Ticket.airline_name = %s
+          AND Purchases.purchase_date >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)
+    """, (airline_name,))
+    last_month_tickets = cursor.fetchone()['last_month_tickets']
+
+    # 上年票数
+    cursor.execute("""
+        SELECT COUNT(*) AS last_year_tickets
+        FROM Purchases
+        JOIN Ticket ON Purchases.ticket_id = Ticket.ticket_id
+        WHERE Ticket.airline_name = %s
+          AND Purchases.purchase_date >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
+    """, (airline_name,))
+    last_year_tickets = cursor.fetchone()['last_year_tickets']
+
+    # 按月统计自定义区间每月票数
+    cursor.execute("""
+        SELECT DATE_FORMAT(Purchases.purchase_date, '%Y-%m') AS month, COUNT(*) AS tickets_sold
+        FROM Purchases
+        JOIN Ticket ON Purchases.ticket_id = Ticket.ticket_id
+        WHERE Ticket.airline_name = %s
+          AND Purchases.purchase_date BETWEEN %s AND %s
+        GROUP BY month
+        ORDER BY month
+    """, (airline_name, start_date, end_date))
+    monthly_data = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    # 构造柱状图数据（补全所有月份）
+    months = []
+    tickets_per_month = []
+    # 计算起止月
+    start = datetime.strptime(start_date, '%Y-%m-%d').replace(day=1)
+    end = datetime.strptime(end_date, '%Y-%m-%d').replace(day=1)
+    current = start
+    while current <= end:
+        m = current.strftime('%Y-%m')
+        months.append(m)
+        found = next((item['tickets_sold'] for item in monthly_data if item['month'] == m), 0)
+        tickets_per_month.append(int(found) if found else 0)
+        # 下个月
+        if current.month == 12:
+            current = current.replace(year=current.year+1, month=1)
+        else:
+            current = current.replace(month=current.month+1)
+
+    return render_template(
+        'staff_view_reports.html',
+        total_tickets=total_tickets,
+        last_month_tickets=last_month_tickets,
+        last_year_tickets=last_year_tickets,
+        start_date=start_date,
+        end_date=end_date,
+        months=months,
+        tickets_per_month=tickets_per_month
+    )
+
+@app.route('/staff/view_revenue_comparison')
+def staff_view_revenue_comparison():
+    if 'username' not in session or session['user_type'] != 'staff':
+        flash('Please log in as airline staff to view revenue comparison.')
+        return redirect(url_for('login_staff'))
+
+    username = session['username']
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # 获取staff所属航空公司
+    cursor.execute("SELECT airline_name FROM Airline_Staff WHERE username = %s", (username,))
+    staff = cursor.fetchone()
+    if not staff:
+        flash('Staff not found.')
+        cursor.close()
+        conn.close()
+        return redirect(url_for('staff_home'))
+    airline_name = staff['airline_name']
+
+    # 过去一个月
+    cursor.execute("""
+        SELECT
+            SUM(CASE WHEN Purchases.booking_agent_id IS NULL THEN Flight.price ELSE 0 END) AS direct_revenue,
+            SUM(CASE WHEN Purchases.booking_agent_id IS NOT NULL THEN Flight.price ELSE 0 END) AS indirect_revenue
+        FROM Purchases
+        JOIN Ticket ON Purchases.ticket_id = Ticket.ticket_id
+        JOIN Flight ON Ticket.airline_name = Flight.airline_name AND Ticket.flight_num = Flight.flight_num
+        WHERE Ticket.airline_name = %s
+          AND Purchases.purchase_date >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)
+    """, (airline_name,))
+    month_data = cursor.fetchone()
+
+    # 过去一年
+    cursor.execute("""
+        SELECT
+            SUM(CASE WHEN Purchases.booking_agent_id IS NULL THEN Flight.price ELSE 0 END) AS direct_revenue,
+            SUM(CASE WHEN Purchases.booking_agent_id IS NOT NULL THEN Flight.price ELSE 0 END) AS indirect_revenue
+        FROM Purchases
+        JOIN Ticket ON Purchases.ticket_id = Ticket.ticket_id
+        JOIN Flight ON Ticket.airline_name = Flight.airline_name AND Ticket.flight_num = Flight.flight_num
+        WHERE Ticket.airline_name = %s
+          AND Purchases.purchase_date >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
+    """, (airline_name,))
+    year_data = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    return render_template(
+        'staff_view_revenue_comparison.html',
+        month_data=month_data,
+        year_data=year_data
+    )
+
+
 #4/27 agent
 @app.route('/agent/home')
 def agent_home():

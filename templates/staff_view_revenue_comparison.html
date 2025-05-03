@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container staff-theme" style="max-width:800px;">
+    <h2>Revenue Comparison</h2>
+    <div style="display:flex; gap:2rem; flex-wrap:wrap;">
+        <div style="flex:1; min-width:320px;">
+            <h3>Last Month</h3>
+            <canvas id="pieMonth" width="320" height="320"></canvas>
+        </div>
+        <div style="flex:1; min-width:320px;">
+            <h3>Last Year</h3>
+            <canvas id="pieYear" width="320" height="320"></canvas>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const pieMonth = new Chart(document.getElementById('pieMonth'), {
+    type: 'pie',
+    data: {
+        labels: ['Direct Sales', 'Indirect Sales'],
+        datasets: [{
+            data: [{{ month_data.direct_revenue or 0 }}, {{ month_data.indirect_revenue or 0 }}],
+            backgroundColor: ['#1976D2', '#FF9800']
+        }]
+    }
+});
+const pieYear = new Chart(document.getElementById('pieYear'), {
+    type: 'pie',
+    data: {
+        labels: ['Direct Sales', 'Indirect Sales'],
+        datasets: [{
+            data: [{{ year_data.direct_revenue or 0 }}, {{ year_data.indirect_revenue or 0 }}],
+            backgroundColor: ['#1976D2', '#FF9800']
+        }]
+    }
+});
+</script>
+{% endblock %}
