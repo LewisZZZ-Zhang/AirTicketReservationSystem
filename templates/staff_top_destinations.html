@@ -1,0 +1,113 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <h2>Top Destinations for {{ airline_name }}</h2>
+    
+    <div class="top-destinations-section">
+        <div class="top-destinations-card">
+            <h3>Top 3 Destinations (Last 3 Months)</h3>
+            {% if top_3month %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Airport</th>
+                            <th>City</th>
+                            <th>Tickets Sold</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dest in top_3month %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ dest.airport_name }}</td>
+                            <td>{{ dest.airport_city }}</td>
+                            <td>{{ dest.ticket_count }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No destination data available for the last 3 months.</p>
+            {% endif %}
+        </div>
+
+        <div class="top-destinations-card">
+            <h3>Top 3 Destinations (Last Year)</h3>
+            {% if top_year %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Airport</th>
+                            <th>City</th>
+                            <th>Tickets Sold</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dest in top_year %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ dest.airport_name }}</td>
+                            <td>{{ dest.airport_city }}</td>
+                            <td>{{ dest.ticket_count }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No destination data available for the last year.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .top-destinations-section {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+    
+    .top-destinations-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    
+    .top-destinations-card h3 {
+        margin-top: 0;
+        color: var(--primary-blue);
+        border-bottom: 1px solid #eee;
+        padding-bottom: 0.5rem;
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+    }
+    
+    th {
+        background-color: var(--primary-blue);
+        color: white;
+        padding: 12px;
+        text-align: left;
+    }
+    
+    td {
+        padding: 10px 12px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    
+    tr:last-child td {
+        border-bottom: none;
+    }
+</style>
+{% endblock %}

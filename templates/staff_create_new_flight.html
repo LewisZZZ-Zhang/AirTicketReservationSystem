@@ -1,37 +1,149 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class="container">
-    <h2>Create New Flight</h2>
-    <form method="POST">
-        <div class="form-group">
-            <label for="flight_num">Flight Number:</label>
-            <input type="text" id="flight_num" name="flight_num" required>
-        </div>
-        <div class="form-group">
-            <label for="departure_airport">Departure Airport:</label>
-            <input type="text" id="departure_airport" name="departure_airport" required>
-        </div>
-        <div class="form-group">
-            <label for="departure_time">Departure Time:</label>
-            <input type="datetime-local" id="departure_time" name="departure_time" required>
-        </div>
-        <div class="form-group">
-            <label for="arrival_airport">Arrival Airport:</label>
-            <input type="text" id="arrival_airport" name="arrival_airport" required>
-        </div>
-        <div class="form-group">
-            <label for="arrival_time">Arrival Time:</label>
-            <input type="datetime-local" id="arrival_time" name="arrival_time" required>
-        </div>
-        <div class="form-group">
-            <label for="price">Price:</label>
-            <input type="number" id="price" name="price" required>
-        </div>
-        <div class="form-group">
-            <label for="airplane_id">Airplane ID:</label>
-            <input type="number" id="airplane_id" name="airplane_id" required>
-        </div>
-        <button type="submit" class="cta-button">Create Flight</button>
-    </form>
+<div class="form-container">
+  <h2 class="form-header">Create New Flight</h2>
+  
+  <form method="POST" class="form-grid">
+    <div class="form-group full-width">
+      <label for="flight_num" class="required-field">Flight Number</label>
+      <input type="text" id="flight_num" name="flight_num" class="form-control" placeholder="Enter flight number" required>
+    </div>
+
+    <div class="form-section">Flight Details</div>
+
+    <div class="form-group">
+      <label for="departure_airport" class="required-field">Departure Airport</label>
+      <input type="text" id="departure_airport" name="departure_airport" class="form-control" placeholder="Airport code" required>
+    </div>
+
+    <div class="form-group">
+      <label for="arrival_airport" class="required-field">Arrival Airport</label>
+      <input type="text" id="arrival_airport" name="arrival_airport" class="form-control" placeholder="Airport code" required>
+    </div>
+
+    <div class="form-group">
+      <label for="departure_time" class="required-field">Departure Time</label>
+      <input type="datetime-local" id="departure_time" name="departure_time" class="form-control" required>
+    </div>
+
+    <div class="form-group">
+      <label for="arrival_time" class="required-field">Arrival Time</label>
+      <input type="datetime-local" id="arrival_time" name="arrival_time" class="form-control" required>
+    </div>
+
+    <div class="form-section">Flight Configuration</div>
+
+    <div class="form-group">
+      <label for="price" class="required-field">Price ($)</label>
+      <input type="number" id="price" name="price" class="form-control" placeholder="0.00" min="0" step="0.01" required>
+    </div>
+
+    <div class="form-group">
+      <label for="airplane_id" class="required-field">Airplane ID</label>
+      <input type="number" id="airplane_id" name="airplane_id" class="form-control" placeholder="Enter airplane ID" required>
+    </div>
+
+    <button type="submit" class="submit-btn">Create Flight</button>
+  </form>
 </div>
+
+
+<style>
+    .form-container {
+      max-width: 700px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      border: 1px solid #e0e0e0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+  
+    .form-header {
+      color: #2c3e50;
+      margin-bottom: 2rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid #3498db;
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+  
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+  
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+  
+    .form-group.full-width {
+      grid-column: span 2;
+    }
+  
+    .form-group label {
+      display: block;
+      margin-bottom: 0.6rem;
+      font-weight: 500;
+      color: #2c3e50;
+      font-size: 0.95rem;
+    }
+  
+    .form-control {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      border: 1px solid #d1d9e6;
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background-color: #f8fafc;
+    }
+  
+    .form-control:focus {
+      border-color: #3498db;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+      background-color: white;
+    }
+  
+    .required-field::after {
+      content: " *";
+      color: #e74c3c;
+    }
+  
+    .submit-btn {
+      grid-column: span 2;
+      width: 100%;
+      padding: 0.9rem;
+      background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 1rem;
+      box-shadow: 0 2px 6px rgba(52, 152, 219, 0.3);
+    }
+  
+    .submit-btn:hover {
+      background: linear-gradient(135deg, #2980b9 0%, #1a252f 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(52, 152, 219, 0.4);
+    }
+  
+    .form-section {
+      grid-column: span 2;
+      margin: 1.5rem 0 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #eee;
+      color: #3498db;
+      font-weight: 500;
+      font-size: 1.1rem;
+    }
+  </style>
+  
 {% endblock %}

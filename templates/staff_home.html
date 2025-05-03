@@ -1,41 +1,175 @@
 {% extends "layout.html" %}
 {% block content %}
+<style>
+  .staff-dashboard {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 2rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  }
+
+  .dashboard-section {
+    margin-bottom: 3rem;
+  }
+
+  .section-header {
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #3498db;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  .function-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .function-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid #e0e0e0;
+    text-align: center;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .function-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
+    border-color: #3498db;
+  }
+
+  .function-icon {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 1rem;
+    background-color: #f0f8ff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: #3498db;
+  }
+
+  .function-card.staff {
+    border-top: 4px solid #3498db;
+  }
+
+  .function-card.admin {
+    border-top: 4px solid #e74c3c;
+  }
+
+  .function-card.operator {
+    border-top: 4px solid #2ecc71;
+  }
+
+  .function-link {
+    color: #2c3e50;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .function-link:hover {
+    color: #3498db;
+  }
+
+  .function-description {
+    color: #7f8c8d;
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+
+  /* 使用CSS伪元素创建简单图标 */
+  .icon-flight::before {
+    content: "✈";
+  }
+  .icon-agent::before {
+    content: "👔";
+  }
+  .icon-users::before {
+    content: "👥";
+  }
+  .icon-ticket::before {
+    content: "🎫";
+  }
+  .icon-chart::before {
+    content: "📈";
+  }
+  .icon-map::before {
+    content: "📍";
+  }
+  .icon-plus::before {
+    content: "+";
+    font-weight: bold;
+  }
+  .icon-airplane::before {
+    content: "🛩";
+  }
+  .icon-pin::before {
+    content: "📌";
+  }
+  .icon-shield::before {
+    content: "🛡";
+  }
+  .icon-edit::before {
+    content: "✏";
+  }
+  .icon-exchange::before {
+    content: "🔄";
+  }
+</style>
+
 <div class="staff-dashboard">
   <div class="dashboard-section">
     <h2 class="section-header">Staff Dashboard</h2>
     <div class="function-grid">
       <div class="function-card staff">
-        <i class="fas fa-plane-departure"></i>
+        <div class="function-icon icon-flight"></div>
         <a href="{{ url_for('view_my_flights') }}" class="function-link">Upcoming Flights</a>
         <div class="function-description">View and manage upcoming flights</div>
       </div>
       
       <div class="function-card staff">
-        <i class="fas fa-user-tie"></i>
+        <div class="function-icon icon-agent"></div>
         <a href="{{ url_for('view_agents') }}" class="function-link">Top Agents</a>
         <div class="function-description">View star booking agents</div>
       </div>
       
       <div class="function-card staff">
-        <i class="fas fa-users"></i>
+        <div class="function-icon icon-users"></div>
         <a href="{{ url_for('view_frequent_customers') }}" class="function-link">Frequent Customers</a>
         <div class="function-description">View most frequent flyers</div>
       </div>
       
       <div class="function-card staff">
-        <i class="fas fa-ticket-alt"></i>
+        <div class="function-icon icon-ticket"></div>
         <a href="{{ url_for('view_ticket_sales') }}" class="function-link">Ticket Sales</a>
         <div class="function-description">View sales reports</div>
       </div>
       
       <div class="function-card staff">
-        <i class="fas fa-chart-line"></i>
+        <div class="function-icon icon-chart"></div>
         <a href="{{ url_for('view_earning_analysis') }}" class="function-link">Earnings Analysis</a>
         <div class="function-description">Revenue and performance metrics</div>
       </div>
       
       <div class="function-card staff">
-        <i class="fas fa-map-marked-alt"></i>
+        <div class="function-icon icon-map"></div>
         <a href="{{ url_for('view_top_destinations') }}" class="function-link">Top Destinations</a>
         <div class="function-description">Popular flight destinations</div>
       </div>
@@ -47,31 +181,31 @@
     <h2 class="section-header">Administration</h2>
     <div class="function-grid">
       <div class="function-card admin">
-        <i class="fas fa-plus-circle"></i>
+        <div class="function-icon icon-plus"></div>
         <a href="{{ url_for('create_flight') }}" class="function-link">Create Flight</a>
         <div class="function-description">Add new flight schedule</div>
       </div>
       
       <div class="function-card admin">
-        <i class="fas fa-plane"></i>
+        <div class="function-icon icon-airplane"></div>
         <a href="{{ url_for('change_airplane') }}" class="function-link">Airplane Management</a>
         <div class="function-description">Manage aircraft fleet</div>
       </div>
       
       <div class="function-card admin">
-        <i class="fas fa-map-pin"></i>
+        <div class="function-icon icon-pin"></div>
         <a href="{{ url_for('airport_management') }}" class="function-link">Airport Management</a>
         <div class="function-description">Manage airport data</div>
       </div>
       
       <div class="function-card admin">
-        <i class="fas fa-user-shield"></i>
+        <div class="function-icon icon-shield"></div>
         <a href="{{ url_for('manage_permission') }}" class="function-link">Permissions</a>
         <div class="function-description">Manage staff permissions</div>
       </div>
       
       <div class="function-card admin">
-        <i class="fas fa-user-edit"></i>
+        <div class="function-icon icon-edit"></div>
         <a href="{{ url_for('change_agent') }}" class="function-link">Agent Management</a>
         <div class="function-description">Add/remove booking agents</div>
       </div>
@@ -84,7 +218,7 @@
     <h2 class="section-header">Flight Operations</h2>
     <div class="function-grid">
       <div class="function-card operator">
-        <i class="fas fa-exchange-alt"></i>
+        <div class="function-icon icon-exchange"></div>
         <a href="{{ url_for('change_flight_status') }}" class="function-link">Flight Status</a>
         <div class="function-description">Update flight status</div>
       </div>
@@ -92,91 +226,4 @@
   </div>
   {% endif %}
 </div>
-
-<!-- Font Awesome for icons -->
-<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-
-<style>
-    .staff-dashboard {
-      max-width: 1000px;
-      margin: 2rem auto;
-      padding: 2rem;
-    }
-  
-    .dashboard-section {
-      margin-bottom: 3rem;
-    }
-  
-    .section-header {
-      color: #2c3e50;
-      margin-bottom: 1.5rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 2px solid #3498db;
-      font-size: 1.5rem;
-      font-weight: 600;
-    }
-  
-    .function-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 1.5rem;
-    }
-  
-    .function-card {
-      background: white;
-      border-radius: 8px;
-      padding: 1.5rem;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s ease;
-      border: 1px solid #e0e0e0;
-      text-align: center;
-      min-height: 120px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
-  
-    .function-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-      border-color: #3498db;
-    }
-  
-    .function-card i {
-      font-size: 2rem;
-      margin-bottom: 1rem;
-      color: #3498db;
-    }
-  
-    .function-card.staff {
-      border-top: 4px solid #3498db;
-    }
-  
-    .function-card.admin {
-      border-top: 4px solid #e74c3c;
-    }
-  
-    .function-card.operator {
-      border-top: 4px solid #2ecc71;
-    }
-  
-    .function-link {
-      color: #2c3e50;
-      text-decoration: none;
-      font-weight: 500;
-      font-size: 1.1rem;
-    }
-  
-    .function-link:hover {
-      color: #3498db;
-    }
-  
-    .function-description {
-      color: #7f8c8d;
-      font-size: 0.9rem;
-      margin-top: 0.5rem;
-    }
-  </style>
-  
 {% endblock %}

@@ -1,0 +1,141 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <h2>Top 5 Booking Agents for {{ airline_name }}</h2>
+    
+    <div class="top-agents-section">
+        <div class="top-agents-card">
+            <h3> By Ticket Sales - Past Month</h3>
+            {% if top_monthly_sales %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Agent ID</th>
+                            <th>Email</th>
+                            <th>Tickets Sold</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for agent in top_monthly_sales %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ agent.booking_agent_id }}</td>
+                            <td>{{ agent.email }}</td>
+                            <td>{{ agent.ticket_count }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No ticket sales data available for the past month.</p>
+            {% endif %}
+        </div>
+
+        <div class="top-agents-card">
+            <h3> By Ticket Sales - Past Year</h3>
+            {% if top_yearly_sales %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Agent ID</th>
+                            <th>Email</th>
+                            <th>Tickets Sold</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for agent in top_yearly_sales %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ agent.booking_agent_id }}</td>
+                            <td>{{ agent.email }}</td>
+                            <td>{{ agent.ticket_count }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No ticket sales data available for the past year.</p>
+            {% endif %}
+        </div>
+
+        <div class="top-agents-card">
+            <h3>By Commission - Past Year</h3>
+            {% if top_commission %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Agent ID</th>
+                            <th>Email</th>
+                            <th>Commission</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for agent in top_commission %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ agent.booking_agent_id }}</td>
+                            <td>{{ agent.email }}</td>
+                            <td>${{ "%.2f"|format(agent.commission) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No commission data available for the past year.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .top-agents-section {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+    
+    .top-agents-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    
+    .top-agents-card h3 {
+        margin-top: 0;
+        color: var(--primary-blue);
+        border-bottom: 1px solid #eee;
+        padding-bottom: 0.5rem;
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+    }
+    
+    th {
+        background-color: var(--primary-blue);
+        color: white;
+        padding: 12px;
+        text-align: left;
+    }
+    
+    td {
+        padding: 10px 12px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    
+    tr:last-child td {
+        border-bottom: none;
+    }
+</style>
+{% endblock %}

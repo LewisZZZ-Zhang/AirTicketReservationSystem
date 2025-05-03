@@ -584,7 +584,12 @@ def view_my_flights():
     cursor.callproc('GetStaffAirlineInfo', (username,))
     for result in cursor.stored_results():
         staff = result.fetchone()
-        airline_name = staff['airline_name'] if staff else None
+        if not staff:
+            flash('You are not associated with any airline.')
+            cursor.close()
+            conn.close()
+            return redirect(url_for('staff_home'))
+        airline_name = staff['airline_name']
 
     # 默认时间范围：未来30天
     today = datetime.today().date()
@@ -636,9 +641,89 @@ def view_my_flights():
 @app.route('/staff/top_agents')
 def view_agents():
     if 'username' not in session.keys() or 'staff' not in session['user_type']:
-        flash('Please log in as airline staff to view flights.')
+        flash('Please log in as airline staff to view this page.')
         return redirect(url_for('login_staff'))
-    return "View top 5 booking agents. (to be implemented)"
+
+    username = session['username']
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Get staff's airline
+    cursor.callproc('GetStaffAirlineInfo', (username,))
+    for result in cursor.stored_results():
+        staff = result.fetchone()
+        if not staff:
+            flash('You are not associated with any airline.')
+            cursor.close()
+            conn.close()
+            return redirect(url_for('staff_home'))
+        airline_name = staff['airline_name']
+    
+    current_date = datetime.now().date()
+    
+    try:
+        # Top 5 agents by ticket sales (past month)
+        last_month = current_date - timedelta(days=30)
+        cursor.execute("""
+            SELECT ba.email, ba.booking_agent_id, COUNT(p.ticket_id) as ticket_count
+            FROM Booking_Agent ba
+            JOIN Purchases p ON ba.booking_agent_id = p.booking_agent_id
+            JOIN Ticket t ON p.ticket_id = t.ticket_id
+            JOIN Flight f ON t.flight_num = f.flight_num AND t.airline_name = f.airline_name
+            WHERE f.airline_name = %s 
+            AND p.purchase_date >= %s
+            GROUP BY ba.email, ba.booking_agent_id
+            ORDER BY ticket_count DESC
+            LIMIT 5
+        """, (airline_name, last_month))
+        top_monthly_sales = cursor.fetchall()
+
+        # Top 5 agents by ticket sales (past year)
+        last_year = current_date - timedelta(days=365)
+        cursor.execute("""
+            SELECT ba.email, ba.booking_agent_id, COUNT(p.ticket_id) as ticket_count
+            FROM Booking_Agent ba
+            JOIN Purchases p ON ba.booking_agent_id = p.booking_agent_id
+            JOIN Ticket t ON p.ticket_id = t.ticket_id
+            JOIN Flight f ON t.flight_num = f.flight_num AND t.airline_name = f.airline_name
+            WHERE f.airline_name = %s 
+            AND p.purchase_date >= %s
+            GROUP BY ba.email, ba.booking_agent_id
+            ORDER BY ticket_count DESC
+            LIMIT 5
+        """, (airline_name, last_year))
+        top_yearly_sales = cursor.fetchall()
+
+        # Top 5 agents by commission (past year)
+        cursor.execute("""
+            SELECT ba.email, ba.booking_agent_id, 
+                   SUM(f.price * 0.1) as commission  # Assuming 10% commission
+            FROM Booking_Agent ba
+            JOIN Purchases p ON ba.booking_agent_id = p.booking_agent_id
+            JOIN Ticket t ON p.ticket_id = t.ticket_id
+            JOIN Flight f ON t.flight_num = f.flight_num AND t.airline_name = f.airline_name
+            WHERE f.airline_name = %s 
+            AND p.purchase_date >= %s
+            GROUP BY ba.email, ba.booking_agent_id
+            ORDER BY commission DESC
+            LIMIT 5
+        """, (airline_name, last_year))
+        top_commission = cursor.fetchall()
+
+    except mysql.connector.Error as err:
+        flash(f"Error retrieving agent data: {err}")
+        top_monthly_sales = []
+        top_yearly_sales = []
+        top_commission = []
+    finally:
+        cursor.close()
+        conn.close()
+
+    return render_template('staff_top_agents.html',
+                         top_monthly_sales=top_monthly_sales,
+                         top_yearly_sales=top_yearly_sales,
+                         top_commission=top_commission,
+                         airline_name=airline_name)
 
 
 @app.route('/staff/frequent_customers')
@@ -671,10 +756,70 @@ def view_earning_analysis():
 @app.route('/staff/top_destinations')
 def view_top_destinations():
     if 'username' not in session.keys() or 'staff' not in session['user_type']:
-        flash('Please log in as airline staff to view flights.')
+        flash('Please log in as airline staff to view this page.')
         return redirect(url_for('login_staff'))
-    # TODO
-    return "View top destinations. (to be implemented)"
+
+    username = session['username']
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Get staff's airline
+    cursor.callproc('GetStaffAirlineInfo', (username,))
+    for result in cursor.stored_results():
+        staff = result.fetchone()
+        if not staff:
+            flash('You are not associated with any airline.')
+            cursor.close()
+            conn.close()
+            return redirect(url_for('staff_home'))
+        airline_name = staff['airline_name']
+
+    airline_name = staff['airline_name']
+    current_date = datetime.now().date()
+    
+    try:
+        # Top 3 destinations (last 3 months)
+        three_months_ago = current_date - timedelta(days=90)
+        cursor.execute("""
+            SELECT a.airport_name, a.airport_city, COUNT(*) as ticket_count
+            FROM Flight f
+            JOIN Ticket t ON f.flight_num = t.flight_num AND f.airline_name = t.airline_name
+            JOIN Airport a ON f.arrival_airport = a.airport_name
+            WHERE f.airline_name = %s 
+            AND f.arrival_time >= %s
+            GROUP BY a.airport_name, a.airport_city
+            ORDER BY ticket_count DESC
+            LIMIT 3
+        """, (airline_name, three_months_ago))
+        top_3month = cursor.fetchall()
+
+        # Top 3 destinations (last year)
+        one_year_ago = current_date - timedelta(days=365)
+        cursor.execute("""
+            SELECT a.airport_name, a.airport_city, COUNT(*) as ticket_count
+            FROM Flight f
+            JOIN Ticket t ON f.flight_num = t.flight_num AND f.airline_name = t.airline_name
+            JOIN Airport a ON f.arrival_airport = a.airport_name
+            WHERE f.airline_name = %s 
+            AND f.arrival_time >= %s
+            GROUP BY a.airport_name, a.airport_city
+            ORDER BY ticket_count DESC
+            LIMIT 3
+        """, (airline_name, one_year_ago))
+        top_year = cursor.fetchall()
+
+    except mysql.connector.Error as err:
+        flash(f"Error retrieving destination data: {err}")
+        top_3month = []
+        top_year = []
+    finally:
+        cursor.close()
+        conn.close()
+
+    return render_template('staff_top_destinations.html',
+                         top_3month=top_3month,
+                         top_year=top_year,
+                         airline_name=airline_name)
 
 
 # Admin Functions
@@ -692,11 +837,25 @@ def create_flight():
     cursor.callproc('GetStaffAirlineInfo', (username,))
     for result in cursor.stored_results():
         staff = result.fetchone()
-        airline_name = staff['airline_name'] if staff else None
+        if not staff:
+            flash('You are not associated with any airline.')
+            cursor.close()
+            conn.close()
+            return redirect(url_for('staff_home'))
+        airline_name = staff['airline_name']
 
     airline_name = staff['airline_name']
 
     if request.method == 'POST':
+        # Doublecheck for Admin permission when altering the table
+        cursor.execute("SELECT 1 FROM Permission WHERE username = %s AND permission_type = 'Admin'",(username,))
+        has_admin = cursor.fetchone()
+        if not has_admin:
+            cursor.close()
+            conn.close()
+            flash('You do not have permission to create flights.')
+            return redirect(url_for('staff_home'))
+
         # Get flight details from the form
         flight_num = request.form['flight_num']
         departure_airport = request.form['departure_airport']
@@ -782,7 +941,12 @@ def change_airplane():
     cursor.callproc('GetStaffAirlineInfo', (username,))
     for result in cursor.stored_results():
         staff = result.fetchone()
-        airline_name = staff['airline_name'] if staff else None
+        if not staff:
+            flash('You are not associated with any airline.')
+            cursor.close()
+            conn.close()
+            return redirect(url_for('staff_home'))
+        airline_name = staff['airline_name']
 
     if request.method == 'POST':
         # Doublecheck for Admin permission when altering the table
@@ -884,7 +1048,12 @@ def airport_management():
     cursor.callproc('GetStaffAirlineInfo', (username,))
     for result in cursor.stored_results():
         staff = result.fetchone()
-        airline_name = staff['airline_name'] if staff else None
+        if not staff:
+            flash('You are not associated with any airline.')
+            cursor.close()
+            conn.close()
+            return redirect(url_for('staff_home'))
+        airline_name = staff['airline_name']
 
     search_results = None
 
@@ -1143,7 +1312,12 @@ def change_agent():
     cursor.callproc('GetStaffAirlineInfo', (username,))
     for result in cursor.stored_results():
         staff = result.fetchone()
-        airline_name = staff['airline_name'] if staff else None
+        if not staff:
+            flash('You are not associated with any airline.')
+            cursor.close()
+            conn.close()
+            return redirect(url_for('staff_home'))
+        airline_name = staff['airline_name']
 
     if request.method == 'POST':
         # Doublecheck for Admin permission when altering the table
@@ -1264,9 +1438,23 @@ def change_flight_status():
     cursor.callproc('GetStaffAirlineInfo', (username,))
     for result in cursor.stored_results():
         staff = result.fetchone()
-        airline_name = staff['airline_name'] if staff else None
+        if not staff:
+            flash('You are not associated with any airline.')
+            cursor.close()
+            conn.close()
+            return redirect(url_for('staff_home'))
+        airline_name = staff['airline_name']
 
     if request.method == 'POST':
+        # Doublecheck for Operator permission when altering the table
+        cursor.execute("SELECT 1 FROM Permission WHERE username = %s AND permission_type = 'Operator'",(username,))
+        has_admin = cursor.fetchone()
+        if not has_admin:
+            cursor.close()
+            conn.close()
+            flash('You do not have permission to change flight status.')
+            return redirect(url_for('staff_home'))
+
         flight_num = request.form['flight_num']
         new_status = request.form['new_status']
 
