@@ -127,3 +127,11 @@ INSERT INTO `purchases` (`ticket_id`, `customer_email`, `booking_agent_id`, `pur
   (8, 'tonystark@example.com', NULL, '2025-04-22'),
   (10, 'tonystark@example.com', 1,    '2025-04-22');
 
+-- 5/3 加密
+ALTER TABLE Customer MODIFY password VARCHAR(32);
+ALTER TABLE Booking_Agent MODIFY password VARCHAR(32);
+ALTER TABLE Airline_Staff MODIFY password VARCHAR(32);
+
+UPDATE Customer SET password = MD5(password);
+UPDATE Booking_Agent SET password = MD5(password);
+UPDATE Airline_Staff SET password = MD5(password);

@@ -74,12 +74,15 @@ def login_customer():
 
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM Customer WHERE email = %s", (email,))
+        cursor.execute("""
+            SELECT * FROM Customer 
+            WHERE email = %s AND password = MD5(%s)
+        """, (email, password))
         user = cursor.fetchone()
         cursor.close()
         conn.close()
 
-        if user and user['password'] == password:  # 如果密码是明文存储
+        if user:
             session['username'] = email
             session['user_type'] = 'customer'
             flash('Customer login successful!')
@@ -99,12 +102,15 @@ def login_agent():
 
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM Booking_Agent WHERE email = %s", (email,))
+        cursor.execute("""
+            SELECT * FROM Booking_Agent
+            WHERE email = %s AND password = MD5(%s)
+        """, (email, password))
         user = cursor.fetchone()
         cursor.close()
         conn.close()
 
-        if user and user['password'] == password:  # 如果密码是明文存储
+        if user: 
             session['username'] = email
             session['user_type'] = 'agent'
             flash('Booking Agent login successful!')
@@ -124,12 +130,15 @@ def login_staff():
 
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM Airline_Staff WHERE username = %s", (username,))
+        cursor.execute("""
+            SELECT * FROM Airline_Staff 
+            WHERE username = %s AND password = MD5(%s)
+        """, (username, password))
         user = cursor.fetchone()
         cursor.close()
         conn.close()
 
-        if user and user['password'] == password:  # 如果密码是明文存储
+        if user: 
             session['username'] = username
             session['user_type'] = 'staff'
             flash('Airline Staff login successful!')
@@ -157,7 +166,7 @@ def register_agent():
         try:
             cursor.execute("""
                 INSERT INTO Booking_Agent (email, password, booking_agent_id)
-                VALUES (%s, %s, %s)
+                VALUES (%s, MD5(%s), %s)
             """, (email, password, booking_agent_id))
 
             conn.commit()
@@ -188,7 +197,7 @@ def register_staff():
         try:
             cursor.execute("""
                 INSERT INTO Airline_Staff (username, password, first_name, last_name, date_of_birth, airline_name)
-                VALUES (%s, %s, %s, %s, %s, %s)
+                VALUES (%s, MD5(%s), %s, %s, %s, %s)
             """, (username, password, first_name, last_name, date_of_birth, airline_name))
 
             conn.commit()
@@ -228,7 +237,7 @@ def register_customer():
                     street, city, state, phone_number, passport_number,
                     passport_expiration, passport_country
                 )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                VALUES (%s, %s,MD5(%s), %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """, (name, email, password, dob, building_number, street, city, state,
                   phone_number, passport_number, passport_expiration, passport_country))
 
