@@ -76,7 +76,14 @@ def login_customer():
             flash('No account found with this email. Please register first.')
             return redirect(url_for('register_customer'))
 
-    return render_template('login_customer.html')
+    return render_template(
+        'login_generic.html',
+        user_type="Customer",
+        form_action=url_for('login_customer'),
+        input_label="Email",
+        input_type="email",
+        input_name="email"
+    )
 
 
 @app.route('/login/agent', methods=['GET', 'POST'])
@@ -101,7 +108,14 @@ def login_agent():
             flash('Invalid login credentials.')
             return redirect(url_for('login_agent'))
 
-    return render_template('login_agent.html')
+    return render_template(
+        'login_generic.html',
+        user_type="Booking Agent",
+        form_action=url_for('login_agent'),
+        input_label="Email",
+        input_type="email",
+        input_name="email"
+    )
 
 
 @app.route('/login/staff', methods=['GET', 'POST'])
@@ -136,7 +150,14 @@ def login_staff():
             flash('Invalid login credentials.')
             return redirect(url_for('login_staff'))
 
-    return render_template('login_staff.html')
+    return render_template(
+        'login_generic.html',
+        user_type="Airline Staff",
+        form_action=url_for('login_staff'),
+        input_label="Username",
+        input_type="text",
+        input_name="username"
+    )
 
 @app.route('/register')
 def register():
