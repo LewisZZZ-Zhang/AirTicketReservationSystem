@@ -1,4 +1,5 @@
 -- 这个是一些可以直接调用的 view 和 procedure
+
 -- Procedures
 -- 1. Upcoming tickets of a specific customer
 DELIMITER //
@@ -25,9 +26,6 @@ DELIMITER ;
 
 
 -- Views
-
-
-
 -- SQL Commands
 -- 查看每个用户的所有机票
 SELECT 

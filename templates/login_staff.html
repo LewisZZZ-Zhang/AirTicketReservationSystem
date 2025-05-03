@@ -1,9 +1,0 @@
-{% extends "layout.html" %}
-{% block content %}
-<h2>Airline Staff Login</h2>
-<form action="{{ url_for('login_staff') }}" method="POST">
-    Username: <input type="text" name="username" required><br>
-    Password: <input type="password" name="password" required><br>
-    <input type="submit" value="Login">
-</form>
-{% endblock %}

@@ -1,10 +1,12 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>Login</h2>
-<p>Select your login type:</p>
-<ul>
-    <li><a href="{{ url_for('login_customer') }}">Customer Login</a></li>
-    <li><a href="{{ url_for('login_agent') }}">Booking Agent Login</a></li>
-    <li><a href="{{ url_for('login_staff') }}">Airline Staff Login</a></li>
-</ul>
+<div class="container" style="max-width: 400px; margin: 2rem auto; padding: 1rem; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+  <h2 style="text-align: center; margin-bottom: 1.5rem;">Login</h2>
+  <p style="text-align: center; margin-bottom: 1rem;">Select your login type</p>
+  <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+    <li><a href="{{ url_for('login_customer') }}" class="btn btn-primary" style="text-align: center;">Customer Login</a></li>
+    <li><a href="{{ url_for('login_agent') }}" class="btn btn-primary" style="text-align: center;">Booking Agent Login</a></li>
+    <li><a href="{{ url_for('login_staff') }}" class="btn btn-primary" style="text-align: center;">Airline Staff Login</a></li>
+  </ul>
+</div>
 {% endblock %}
