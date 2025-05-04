@@ -135,3 +135,112 @@ ALTER TABLE Airline_Staff MODIFY password VARCHAR(32);
 UPDATE Customer SET password = MD5(password);
 UPDATE Booking_Agent SET password = MD5(password);
 UPDATE Airline_Staff SET password = MD5(password);
+
+--5/4 new data
+-- New airlines
+INSERT INTO `airline` (`airline_name`) VALUES
+  ('Qatar Airways'),
+  ('Singapore Airlines'),
+  ('Lufthansa');
+
+
+-- New airline staff
+INSERT INTO `airline_staff` (`username`, `password`, `first_name`, `last_name`, `date_of_birth`, `airline_name`) VALUES
+  ('qatar_admin', MD5('qatar123'), 'Alice', 'Johnson', '1980-01-15', 'Qatar Airways'),
+  ('singapore_admin', MD5('singapore123'), 'Bob', 'Smith', '1985-03-22', 'Singapore Airlines'),
+  ('lufthansa_admin', MD5('lufthansa123'), 'Charlie', 'Brown', '1990-07-10', 'Lufthansa');
+
+
+-- Permissions for new airline staff
+INSERT INTO `permission` (`username`, `permission_type`) VALUES
+  ('qatar_admin', 'Admin'),
+  ('qatar_admin', 'Operator'),
+  ('singapore_admin', 'Admin'),
+  ('singapore_admin', 'Operator'),
+  ('lufthansa_admin', 'Admin'),
+  ('lufthansa_admin', 'Operator');
+
+
+-- New airplanes
+INSERT INTO `airplane` (`airline_name`, `airplane_id`, `seats`) VALUES
+  ('Qatar Airways', 4, 300),
+  ('Singapore Airlines', 5, 350),
+  ('Lufthansa', 6, 280);
+
+
+-- New airports
+INSERT INTO `airport` (`airport_name`, `airport_city`) VALUES
+  ('DOH', 'Doha'),
+  ('SIN', 'Singapore'),
+  ('FRA', 'Frankfurt');
+
+
+-- New flights
+INSERT INTO `flight` (
+  `airline_name`, `flight_num`, `departure_airport`, `departure_time`,
+  `arrival_airport`, `arrival_time`, `price`, `status`, `airplane_id`
+) VALUES
+  ('Qatar Airways', 3001, 'DOH', '2025-07-01 08:00:00', 'JFK', '2025-07-01 16:00:00', 1200, 'Upcoming', 4),
+  ('Singapore Airlines', 4001, 'SIN', '2025-07-05 10:00:00', 'LHR', '2025-07-05 18:00:00', 1100, 'Upcoming', 5),
+  ('Lufthansa', 5001, 'FRA', '2025-07-10 12:00:00', 'ORD', '2025-07-10 16:00:00', 950, 'Upcoming', 6);
+INSERT INTO `flight` (
+  `airline_name`, `flight_num`, `departure_airport`, `departure_time`,
+  `arrival_airport`, `arrival_time`, `price`, `status`, `airplane_id`
+) VALUES
+  ('Qatar Airways', 3002, 'DOH', '2025-07-10 09:00:00', 'LHR', '2025-07-10 15:00:00', 1000, 'Upcoming', 4),
+  ('Qatar Airways', 3003, 'LHR', '2025-07-15 11:00:00', 'DOH', '2025-07-15 17:00:00', 950, 'Upcoming', 4),
+  ('Singapore Airlines', 4002, 'SIN', '2025-07-20 08:00:00', 'ORD', '2025-07-20 18:00:00', 1200, 'Upcoming', 5),
+  ('Singapore Airlines', 4003, 'ORD', '2025-07-25 10:00:00', 'SIN', '2025-07-25 20:00:00', 1150, 'Upcoming', 5),
+  ('Lufthansa', 5002, 'FRA', '2025-08-01 06:00:00', 'JFK', '2025-08-01 12:00:00', 1300, 'Upcoming', 6),
+  ('Lufthansa', 5003, 'JFK', '2025-08-05 14:00:00', 'FRA', '2025-08-05 20:00:00', 1250, 'Upcoming', 6);
+
+
+-- New tickets
+INSERT INTO `ticket` (`ticket_id`, `airline_name`, `flight_num`) VALUES
+  (11, 'Qatar Airways', 3001),
+  (12, 'Singapore Airlines', 4001),
+  (13, 'Lufthansa', 5001);
+INSERT INTO `ticket` (`ticket_id`, `airline_name`, `flight_num`) VALUES
+  (14, 'Qatar Airways', 3002),
+  (15, 'Qatar Airways', 3003),
+  (16, 'Singapore Airlines', 4002),
+  (17, 'Singapore Airlines', 4003),
+  (18, 'Lufthansa', 5002),
+  (19, 'Lufthansa', 5003);
+
+
+-- New customers
+INSERT INTO `customer` (
+  `email`, `name`, `password`, `building_number`, `street`, `city`, `state`, `phone_number`,
+  `passport_number`, `passport_expiration`, `passport_country`, `date_of_birth`
+) VALUES
+  ('brucewayne@example.com', 'Bruce Wayne', MD5('batman123'), '1007', 'Wayne Manor', 'Gotham', 'NJ', 9876543210, 'P98765432', '2035-01-01', 'USA', '1980-02-19'),
+  ('dianaprince@example.com', 'Diana Prince', MD5('wonderwoman123'), '300', 'Amazon St', 'Themyscira', 'NA', 1231231234, 'P12312312', '2030-05-15', 'GRC', '1990-03-22');
+
+
+-- New booking agents
+INSERT INTO `booking_agent` (`email`, `password`, `booking_agent_id`) VALUES
+  ('agent2@example.com', MD5('agentpass2'), 2),
+  ('agent3@example.com', MD5('agentpass3'), 3);
+
+
+-- New purchases
+INSERT INTO `purchases` (`ticket_id`, `customer_email`, `booking_agent_id`, `purchase_date`) VALUES
+  (11, 'brucewayne@example.com', NULL, '2025-06-15'),
+  (12, 'dianaprince@example.com', 2, '2025-06-16'),
+  (13, 'brucewayne@example.com', 3, '2025-06-17');
+INSERT INTO `purchases` (`ticket_id`, `customer_email`, `booking_agent_id`, `purchase_date`) VALUES
+  (14, 'brucewayne@example.com', NULL, '2025-07-01'),
+  (15, 'dianaprince@example.com', 2, '2025-07-02'),
+  (16, 'brucewayne@example.com', 3, '2025-07-03'),
+  (17, 'dianaprince@example.com', NULL, '2025-07-04'),
+  (18, 'brucewayne@example.com', 2, '2025-07-05'),
+  (19, 'dianaprince@example.com', 3, '2025-07-06');
+
+
+-- Booking agents working for airlines
+INSERT INTO `booking_agent_work_for` (`email`, `airline_name`) VALUES
+  ('agent2@example.com', 'Qatar Airways'),
+  ('agent2@example.com', 'Singapore Airlines'),
+  ('agent3@example.com', 'Lufthansa'),
+  ('agent3@example.com', 'Emirates');
