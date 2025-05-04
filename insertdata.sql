@@ -136,7 +136,7 @@ UPDATE Customer SET password = MD5(password);
 UPDATE Booking_Agent SET password = MD5(password);
 UPDATE Airline_Staff SET password = MD5(password);
 
---5/4 new data
+-- 5/4 new data
 -- New airlines
 INSERT INTO `airline` (`airline_name`) VALUES
   ('Qatar Airways'),
