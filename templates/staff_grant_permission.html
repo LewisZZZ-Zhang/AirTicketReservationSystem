@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container staff-theme" style="max-width:700px;">
+    <h2>Grant Permissions to Staff</h2>
+    <form method="POST" style="margin-bottom:2rem;">
+        <div class="form-group">
+            <label for="target_username">Select Staff:</label>
+            <select name="target_username" id="target_username" required>
+                <option value="">-- Select --</option>
+                {% for s in other_staffs %}
+                <option value="{{ s.username }}">{{ s.username }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="permission_type">Permission Type:</label>
+            <select name="permission_type" id="permission_type" required>
+                <option value="">-- Select --</option>
+                {% for p in permission_types %}
+                <option value="{{ p }}">{{ p }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="cta-button">Grant Permission</button>
+    </form>
+    <h3>All Staff and Their Permissions</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Permissions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in staff_permissions %}
+            <tr>
+                <td>{{ s.username }}</td>
+                <td>{{ s.permissions or 'None' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

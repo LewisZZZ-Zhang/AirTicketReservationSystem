@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container staff-theme" style="max-width:700px;">
+    <h2>Add Booking Agent to Airline: {{ airline_name }}</h2>
+    <form method="POST" style="margin-bottom:2rem;">
+        <div class="form-group">
+            <label for="agent_email">Booking Agent Email:</label>
+            <input type="email" id="agent_email" name="agent_email" required>
+        </div>
+        <button type="submit" class="cta-button">Add Booking Agent</button>
+    </form>
+    <h3>All Booking Agents for {{ airline_name }}</h3>
+    <ul>
+        {% for agent in agents %}
+        <li>{{ agent.email }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

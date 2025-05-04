@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container staff-theme" style="max-width:700px;">
+    <h2>Top Destinations</h2>
+    <div style="display:flex; gap:2rem; flex-wrap:wrap;">
+        <div style="flex:1; min-width:300px;">
+            <h3>Last 3 Months</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Arrival Airport</th>
+                        <th>City</th>
+                        <th>Flights Arrived</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in top3_last3months %}
+                    <tr>
+                        <td>{{ d.arrival_airport }}</td>
+                        <td>{{ d.airport_city }}</td>
+                        <td>{{ d.flights_count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div style="flex:1; min-width:300px;">
+            <h3>Last Year</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Arrival Airport</th>
+                        <th>City</th>
+                        <th>Flights Arrived</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in top3_lastyear %}
+                    <tr>
+                        <td>{{ d.arrival_airport }}</td>
+                        <td>{{ d.airport_city }}</td>
+                        <td>{{ d.flights_count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

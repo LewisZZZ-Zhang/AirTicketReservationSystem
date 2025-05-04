@@ -252,11 +252,11 @@ def register_customer():
 
     return render_template('register_customer.html')
 
-@app.route('/logout')
-def logout():
-    session.clear()
-    flash('Logged out successfully!')
-    return redirect(url_for('home'))
+# @app.route('/logout')
+# def logout():
+#     session.clear()
+#     flash('Logged out successfully!')
+#     return redirect(url_for('home'))
 
 
 @app.route('/search_flights', methods=['GET','POST'])
@@ -1203,6 +1203,216 @@ def staff_view_revenue_comparison():
         year_data=year_data
     )
 
+@app.route('/staff/view_top_destinations')
+def staff_view_top_destinations():
+    if 'username' not in session or session['user_type'] != 'staff':
+        flash('Please log in as airline staff to view this page.')
+        return redirect(url_for('login_staff'))
+
+    username = session['username']
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # 获取staff所属航空公司
+    cursor.execute("SELECT airline_name FROM Airline_Staff WHERE username = %s", (username,))
+    staff = cursor.fetchone()
+    if not staff:
+        flash('Staff not found.')
+        cursor.close()
+        conn.close()
+        return redirect(url_for('staff_home'))
+    airline_name = staff['airline_name']
+
+    # Top 3 destinations in last 3 months
+    cursor.execute("""
+        SELECT f.arrival_airport, ap.airport_city, COUNT(*) AS flights_count
+        FROM Flight f
+        JOIN Airport ap ON f.arrival_airport = ap.airport_name
+        WHERE f.airline_name = %s
+          AND f.arrival_time >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH)
+        GROUP BY f.arrival_airport, ap.airport_city
+        ORDER BY flights_count DESC
+        LIMIT 3
+    """, (airline_name,))
+    top3_last3months = cursor.fetchall()
+
+    # Top 3 destinations in last year
+    cursor.execute("""
+        SELECT f.arrival_airport, ap.airport_city, COUNT(*) AS flights_count
+        FROM Flight f
+        JOIN Airport ap ON f.arrival_airport = ap.airport_name
+        WHERE f.airline_name = %s
+          AND f.arrival_time >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
+        GROUP BY f.arrival_airport, ap.airport_city
+        ORDER BY flights_count DESC
+        LIMIT 3
+    """, (airline_name,))
+    top3_lastyear = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template(
+        'staff_view_top_destinations.html',
+        top3_last3months=top3_last3months,
+        top3_lastyear=top3_lastyear
+    )
+
+@app.route('/staff/grant_permission', methods=['GET', 'POST'])
+def staff_grant_permission():
+    # 只有有Admin权限的staff才能操作
+    if 'username' not in session or session['user_type'] != 'staff':
+        flash('Please log in as airline staff to grant permissions.')
+        return redirect(url_for('login_staff'))
+
+    username = session['username']
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # 检查是否有Admin权限
+    cursor.execute(
+        "SELECT 1 FROM Permission WHERE username = %s AND permission_type = 'Admin'",
+        (username,)
+    )
+    has_admin = cursor.fetchone()
+    if not has_admin:
+        cursor.close()
+        conn.close()
+        flash('You do not have admin permission to grant permissions.')
+        return redirect(url_for('staff_home'))
+
+    # 获取该员工所属航空公司
+    cursor.execute("SELECT airline_name FROM Airline_Staff WHERE username = %s", (username,))
+    staff = cursor.fetchone()
+    if not staff:
+        cursor.close()
+        conn.close()
+        flash('Staff not found.')
+        return redirect(url_for('staff_home'))
+    airline_name = staff['airline_name']
+
+    # 获取同航空公司其他staff列表
+    cursor.execute("""
+        SELECT username FROM Airline_Staff
+        WHERE airline_name = %s AND username != %s
+    """, (airline_name, username))
+    other_staffs = cursor.fetchall()
+
+    # 支持的权限类型
+    permission_types = ['Admin', 'Operator']
+
+    if request.method == 'POST':
+        target_username = request.form.get('target_username')
+        permission_type = request.form.get('permission_type')
+
+        # 检查目标staff是否属于同一航空公司
+        cursor.execute("""
+            SELECT 1 FROM Airline_Staff WHERE username = %s AND airline_name = %s
+        """, (target_username, airline_name))
+        if not cursor.fetchone():
+            flash('Target staff not found or not in your airline.')
+        elif permission_type not in permission_types:
+            flash('Invalid permission type.')
+        else:
+            try:
+                cursor.execute("""
+                    INSERT IGNORE INTO Permission (username, permission_type)
+                    VALUES (%s, %s)
+                """, (target_username, permission_type))
+                conn.commit()
+                flash(f"Granted {permission_type} permission to {target_username}.")
+            except mysql.connector.Error as err:
+                flash(f"Error: {err}")
+
+    # 查询所有staff及其权限
+    cursor.execute("""
+        SELECT s.username, GROUP_CONCAT(p.permission_type) AS permissions
+        FROM Airline_Staff s
+        LEFT JOIN Permission p ON s.username = p.username
+        WHERE s.airline_name = %s
+        GROUP BY s.username
+        ORDER BY s.username
+    """, (airline_name,))
+    staff_permissions = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template(
+        'staff_grant_permission.html',
+        other_staffs=other_staffs,
+        permission_types=permission_types,
+        staff_permissions=staff_permissions
+    )
+
+
+@app.route('/staff/add_booking_agent', methods=['GET', 'POST'])
+def staff_add_booking_agent():
+    # 只有有Admin权限的staff才能操作
+    if 'username' not in session or session['user_type'] != 'staff':
+        flash('Please log in as airline staff to add booking agents.')
+        return redirect(url_for('login_staff'))
+
+    username = session['username']
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # 检查是否有Admin权限
+    cursor.execute(
+        "SELECT 1 FROM Permission WHERE username = %s AND permission_type = 'Admin'",
+        (username,)
+    )
+    has_admin = cursor.fetchone()
+    if not has_admin:
+        cursor.close()
+        conn.close()
+        flash('You do not have admin permission to add booking agents.')
+        return redirect(url_for('staff_home'))
+
+    # 获取该员工所属航空公司
+    cursor.execute("SELECT airline_name FROM Airline_Staff WHERE username = %s", (username,))
+    staff = cursor.fetchone()
+    if not staff:
+        cursor.close()
+        conn.close()
+        flash('Staff not found.')
+        return redirect(url_for('staff_home'))
+    airline_name = staff['airline_name']
+
+    if request.method == 'POST':
+        agent_email = request.form.get('agent_email')
+        # 检查该邮箱是否为已注册的booking agent
+        cursor.execute("SELECT 1 FROM Booking_Agent WHERE email = %s", (agent_email,))
+        if not cursor.fetchone():
+            flash('This email is not registered as a booking agent.')
+        else:
+            try:
+                cursor.execute("""
+                    INSERT IGNORE INTO Booking_Agent_Work_For (email, airline_name)
+                    VALUES (%s, %s)
+                """, (agent_email, airline_name))
+                conn.commit()
+                flash(f"Booking agent {agent_email} added to airline {airline_name}.")
+            except mysql.connector.Error as err:
+                flash(f"Error: {err}")
+
+    # 查询该航空公司所有代理
+    cursor.execute("""
+        SELECT bawf.email
+        FROM Booking_Agent_Work_For bawf
+        WHERE bawf.airline_name = %s
+        ORDER BY bawf.email
+    """, (airline_name,))
+    agents = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template(
+        'staff_add_booking_agent.html',
+        airline_name=airline_name,
+        agents=agents
+    )
 
 #4/27 agent
 @app.route('/agent/home')
@@ -1510,6 +1720,13 @@ def agent_view_top_customers():
     return render_template('agent_view_top_customers.html', 
                            top_customers_tickets=top_customers_tickets, 
                            top_customers_commission=top_customers_commission)
+
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    flash('Logged out successfully!')
+    return render_template('goodbye.html')
 
 
 if __name__ == '__main__':

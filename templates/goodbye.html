@@ -1,0 +1,8 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container" style="max-width: 500px; text-align: center; margin-top: 4rem;">
+    <h2>Goodbye!</h2>
+    <p>You have been logged out.</p>
+    <a href="{{ url_for('home') }}" class="cta-button" style="margin-top:2rem;">Back to Home</a>
+</div>
+{% endblock %}
