@@ -1,5 +1,4 @@
 -- 这个是一些可以直接调用的 view 和 procedure
-
 -- Procedures
 -- 1. Upcoming tickets of a specific customer
 DELIMITER //
@@ -28,14 +27,9 @@ DELIMITER ;
 -- 2. Get the staff's airline name
 DELIMITER //
 
-CREATE PROCEDURE GetStaffAirlineName(
-    IN p_username VARCHAR(50),
-    OUT p_airline_name VARCHAR(50)
-)
+CREATE PROCEDURE GetStaffAirlineInfo(IN p_username VARCHAR(50))
 BEGIN
-    SELECT airline_name INTO p_airline_name
-    FROM Airline_Staff
-    WHERE username = p_username;
+    SELECT airline_name FROM Airline_Staff WHERE username = p_username;
 END //
 
 DELIMITER ;
@@ -43,6 +37,9 @@ DELIMITER ;
 
 
 -- Views
+
+
+
 -- SQL Commands
 -- 查看每个用户的所有机票
 SELECT 
