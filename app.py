@@ -726,13 +726,77 @@ def view_agents():
                          airline_name=airline_name)
 
 
-@app.route('/staff/frequent_customers')
+@app.route('/staff/frequent_customers', methods=['GET', 'POST'])
 def view_frequent_customers():
     if 'username' not in session.keys() or 'staff' not in session['user_type']:
         flash('Please log in as airline staff to view flights.')
         return redirect(url_for('login_staff'))
-    # TODO
-    return "View frequent customers. (to be implemented)"
+    
+    username = session['username']
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Get the airline the staff belongs to
+    cursor.callproc('GetStaffAirlineInfo', (username,))
+    for result in cursor.stored_results():
+        staff = result.fetchone()
+        if not staff:
+            flash('You are not associated with any airline.')
+            cursor.close()
+            conn.close()
+            return redirect(url_for('staff_home'))
+        airline_name = staff['airline_name']
+
+    frequent_customer = None
+    customer_flights = []
+    selected_customer_email = None
+
+    try:
+        # Query the most frequent customer in the last year
+        cursor.execute("""
+            SELECT 
+                Purchases.customer_email, 
+                COUNT(*) AS flight_count
+            FROM Purchases
+            JOIN Ticket ON Purchases.ticket_id = Ticket.ticket_id
+            JOIN Flight ON Ticket.airline_name = Flight.airline_name AND Ticket.flight_num = Flight.flight_num
+            WHERE Flight.airline_name = %s
+              AND Purchases.purchase_date >= DATE_SUB(NOW(), INTERVAL 1 YEAR)
+            GROUP BY Purchases.customer_email
+            ORDER BY flight_count DESC
+            LIMIT 1
+        """, (airline_name,))
+        frequent_customer = cursor.fetchone()
+
+        # If a specific customer is selected, fetch their flight history
+        selected_customer_email = request.form.get('customer_email')
+        if selected_customer_email:
+            cursor.execute("""
+                SELECT 
+                    Flight.flight_num, Flight.departure_airport, Flight.arrival_airport, 
+                    Flight.departure_time, Flight.arrival_time, Flight.status, Flight.price
+                FROM Purchases
+                JOIN Ticket ON Purchases.ticket_id = Ticket.ticket_id
+                JOIN Flight ON Ticket.airline_name = Flight.airline_name AND Ticket.flight_num = Flight.flight_num
+                WHERE Purchases.customer_email = %s
+                  AND Flight.airline_name = %s
+                ORDER BY Flight.departure_time
+            """, (selected_customer_email, airline_name))
+            customer_flights = cursor.fetchall()
+
+    except mysql.connector.Error as err:
+        flash(f"Error retrieving data: {err}")
+    finally:
+        cursor.close()
+        conn.close()
+
+    return render_template(
+        'staff_frequent_customer.html',
+        frequent_customer=frequent_customer,
+        customer_flights=customer_flights,
+        selected_customer_email=selected_customer_email,
+        airline_name=airline_name
+    )
 
 
 @app.route('/staff/ticket_sales')

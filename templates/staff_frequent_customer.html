@@ -1,0 +1,70 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <h2 style="text-align: center;">Frequent Customer</h2>
+    <h3 style="text-align: center;">Most Frequent Customer in the Last Year</h3>
+    {% if frequent_customer %}
+    <table class="table table-striped" style = "text-align: center;">
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>Flights Taken</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ frequent_customer.customer_email }}</td>
+                <td>{{ frequent_customer.flight_count }}</td>
+            </tr>
+        </tbody>
+    </table>
+    {% else %}
+    <p>No frequent customer data available.</p>
+    {% endif %}
+
+    <hr>
+
+    <h3>View Flights Taken by a Customer</h3>
+    <form method="POST">
+        <div class="form-group">
+            <label for="customer_email">Customer Email:</label>
+            <input type="email" id="customer_email" name="customer_email" class="form-control" placeholder="Enter customer email" required>
+        </div>
+        <button type="submit" class="btn btn-primary">View Flights</button>
+    </form>
+
+    {% if selected_customer_email %}
+    <h4>Flights Taken by {{ selected_customer_email }}</h4>
+    {% if customer_flights %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Flight Number</th>
+                <th>Departure Airport</th>
+                <th>Arrival Airport</th>
+                <th>Departure Time</th>
+                <th>Arrival Time</th>
+                <th>Status</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for flight in customer_flights %}
+            <tr>
+                <td>{{ flight.flight_num }}</td>
+                <td>{{ flight.departure_airport }}</td>
+                <td>{{ flight.arrival_airport }}</td>
+                <td>{{ flight.departure_time }}</td>
+                <td>{{ flight.arrival_time }}</td>
+                <td>{{ flight.status }}</td>
+                <td>¥{{ flight.price }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No flights found for this customer.</p>
+    {% endif %}
+    {% endif %}
+</div>
+{% endblock %}
