@@ -808,13 +808,128 @@ def view_ticket_sales():
     return "View ticket sales. (to be implemented)"
 
 
-@app.route('/staff/earnings')
+@app.route('/staff/earnings', methods=['GET', 'POST'])
 def view_earning_analysis():
     if 'username' not in session.keys() or 'staff' not in session['user_type']:
         flash('Please log in as airline staff to view flights.')
         return redirect(url_for('login_staff'))
-    # TODO  
-    return "View earning analysis. (to be implemented)"
+    
+    username = session['username']
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Get the airline the staff belongs to
+    cursor.callproc('GetStaffAirlineInfo', (username,))
+    for result in cursor.stored_results():
+        staff = result.fetchone()
+        if not staff:
+            flash('You are not associated with any airline.')
+            cursor.close()
+            conn.close()
+            return redirect(url_for('staff_home'))
+        airline_name = staff['airline_name']
+
+    current_date = datetime.now().date()
+    
+    # Initialize variables
+    monthly_direct = 0
+    monthly_indirect = 0
+    yearly_direct = 0
+    yearly_indirect = 0
+    recent_direct = []
+    recent_indirect = []
+
+    try:
+        # Calculate monthly revenue (last 30 days)
+        last_month = current_date - timedelta(days=30)
+        cursor.execute("""
+            SELECT 
+                SUM(CASE WHEN p.booking_agent_id IS NULL THEN f.price ELSE 0 END) as direct,
+                SUM(CASE WHEN p.booking_agent_id IS NOT NULL THEN f.price ELSE 0 END) as indirect
+            FROM Ticket t
+            JOIN Purchases p ON t.ticket_id = p.ticket_id
+            JOIN Flight f on t.flight_num = f.flight_num
+            WHERE t.airline_name = %s 
+            AND p.purchase_date >= %s
+        """, (airline_name, last_month))
+        monthly_result = cursor.fetchone()
+        monthly_direct = monthly_result['direct'] or 0
+        monthly_indirect = monthly_result['indirect'] or 0
+
+        # Calculate yearly revenue (last 365 days)
+        last_year = current_date - timedelta(days=365)
+        cursor.execute("""
+            SELECT 
+                SUM(CASE WHEN p.booking_agent_id IS NULL THEN f.price ELSE 0 END) as direct,
+                SUM(CASE WHEN p.booking_agent_id IS NOT NULL THEN f.price ELSE 0 END) as indirect
+            FROM Ticket t
+            JOIN Purchases p ON t.ticket_id = p.ticket_id
+            JOIN Flight f on t.flight_num = f.flight_num
+            WHERE t.airline_name = %s 
+            AND p.purchase_date >= %s
+        """, (airline_name, last_year))
+        yearly_result = cursor.fetchone()
+        yearly_direct = yearly_result['direct'] or 0
+        yearly_indirect = yearly_result['indirect'] or 0
+
+        # Get recent direct sales (last 10)
+        cursor.execute("""
+            SELECT t.ticket_id, f.price, p.purchase_date, p.customer_email
+            FROM Ticket t
+            JOIN Purchases p ON t.ticket_id = p.ticket_id
+            JOIN Flight f on t.flight_num = f.flight_num
+            WHERE t.airline_name = %s 
+            AND p.booking_agent_id IS NULL
+            ORDER BY p.purchase_date DESC
+            LIMIT 10
+        """, (airline_name,))
+        recent_direct = cursor.fetchall()
+
+        # Get recent indirect sales (last 10)
+        cursor.execute("""
+            SELECT t.ticket_id, f.price, p.purchase_date, p.customer_email, 
+                   ba.email as agent_email, ba.booking_agent_id
+            FROM Ticket t
+            JOIN Purchases p ON t.ticket_id = p.ticket_id
+            JOIN Booking_Agent ba ON p.booking_agent_id = ba.booking_agent_id
+            JOIN Flight f on t.flight_num = f.flight_num
+            WHERE t.airline_name = %s 
+            AND p.booking_agent_id IS NOT NULL
+            ORDER BY p.purchase_date DESC
+            LIMIT 10
+        """, (airline_name,))
+        recent_indirect = cursor.fetchall()
+
+    except mysql.connector.Error as err:
+        flash(f"Error retrieving earnings data: {err}")
+    finally:
+        cursor.close()
+        conn.close()
+
+    # Calculate totals and percentages for charts
+    monthly_total = monthly_direct + monthly_indirect
+    yearly_total = yearly_direct + yearly_indirect
+
+    monthly_data = {
+        'direct': monthly_direct,
+        'indirect': monthly_indirect,
+        'direct_percent': round((monthly_direct/monthly_total)*100, 2) if monthly_total > 0 else 0,
+        'indirect_percent': round((monthly_indirect/monthly_total)*100, 2) if monthly_total > 0 else 0
+    }
+
+    yearly_data = {
+        'direct': yearly_direct,
+        'indirect': yearly_indirect,
+        'direct_percent': round((yearly_direct/yearly_total)*100, 2) if yearly_total > 0 else 0,
+        'indirect_percent': round((yearly_indirect/yearly_total)*100, 2) if yearly_total > 0 else 0
+    }
+
+    return render_template('staff_earnings_analysis.html',
+                         monthly_data=monthly_data,
+                         yearly_data=yearly_data,
+                         recent_direct=recent_direct,
+                         recent_indirect=recent_indirect,
+                         airline_name=airline_name)
 
 
 @app.route('/staff/top_destinations')

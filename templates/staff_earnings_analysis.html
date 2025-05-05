@@ -1,0 +1,317 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <h2>Earnings Analysis for {{ airline_name }}</h2>
+    
+    <div class="revenue-section">
+        <div class="revenue-card">
+            <h3>Revenue Breakdown (Last Month)</h3>
+            <div class="chart-container">
+                <canvas id="monthlyChart"></canvas>
+            </div>
+            <div class="revenue-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Direct Sales:</span>
+                    <span class="stat-value">¥{{ "%.2f"|format(monthly_data.direct) }}</span>
+                    <span class="stat-percent">{{ monthly_data.direct_percent }}%</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Indirect Sales:</span>
+                    <span class="stat-value">¥{{ "%.2f"|format(monthly_data.indirect) }}</span>
+                    <span class="stat-percent">{{ monthly_data.indirect_percent }}%</span>
+                </div>
+                <div class="stat-total">
+                    <span class="stat-label">Total Revenue:</span>
+                    <span class="stat-value">¥{{ "%.2f"|format(monthly_data.direct + monthly_data.indirect) }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="revenue-card">
+            <h3>Revenue Breakdown (Last Year)</h3>
+            <div class="chart-container">
+                <canvas id="yearlyChart"></canvas>
+            </div>
+            <div class="revenue-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Direct Sales:</span>
+                    <span class="stat-value">¥{{ "%.2f"|format(yearly_data.direct) }}</span>
+                    <span class="stat-percent">{{ yearly_data.direct_percent }}%</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Indirect Sales:</span>
+                    <span class="stat-value">¥{{ "%.2f"|format(yearly_data.indirect) }}</span>
+                    <span class="stat-percent">{{ yearly_data.indirect_percent }}%</span>
+                </div>
+                <div class="stat-total">
+                    <span class="stat-label">Total Revenue:</span>
+                    <span class="stat-value">¥{{ "%.2f"|format(yearly_data.direct + yearly_data.indirect) }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="recent-sales-section">
+        <div class="recent-sales-card">
+            <h3>Recent Direct Sales (Customers)</h3>
+            {% if recent_direct %}
+            <table class="sales-table">
+                <thead>
+                    <tr>
+                        <th>Ticket ID</th>
+                        <th>Customer Email</th>
+                        <th>Purchase Date</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sale in recent_direct %}
+                    <tr>
+                        <td>{{ sale.ticket_id }}</td>
+                        <td>{{ sale.customer_email }}</td>
+                        <td>{{ sale.purchase_date }}</td>
+                        <td>¥{{ "%.2f"|format(sale.price) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="no-data">No recent direct sales found.</p>
+            {% endif %}
+        </div>
+
+        <div class="recent-sales-card">
+            <h3>Recent Indirect Sales (Agents)</h3>
+            {% if recent_indirect %}
+            <table class="sales-table">
+                <thead>
+                    <tr>
+                        <th>Ticket ID</th>
+                        <th>Customer Email</th>
+                        <th>Agent</th>
+                        <th>Purchase Date</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sale in recent_indirect %}
+                    <tr>
+                        <td>{{ sale.ticket_id }}</td>
+                        <td>{{ sale.customer_email }}</td>
+                        <td>{{ sale.agent_email }} (ID: {{ sale.booking_agent_id }})</td>
+                        <td>{{ sale.purchase_date }}</td>
+                        <td>¥{{ "%.2f"|format(sale.price) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="no-data">No recent indirect sales found.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Monthly Chart
+    const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+    const monthlyChart = new Chart(monthlyCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Direct Sales', 'Indirect Sales'],
+            datasets: [{
+                data: [{{ monthly_data.direct }}, {{ monthly_data.indirect }}],
+                backgroundColor: ['#4CAF50', '#2196F3'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            label += '¥' + context.raw.toFixed(2);
+                            label += ' (' + context.parsed + '%)';
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Yearly Chart
+    const yearlyCtx = document.getElementById('yearlyChart').getContext('2d');
+    const yearlyChart = new Chart(yearlyCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Direct Sales', 'Indirect Sales'],
+            datasets: [{
+                data: [{{ yearly_data.direct }}, {{ yearly_data.indirect }}],
+                backgroundColor: ['#4CAF50', '#2196F3'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            label += '¥' + context.raw.toFixed(2);
+                            label += ' (' + context.parsed + '%)';
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+<style>
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    h2 {
+        text-align: center;
+        color: var(--primary-blue);
+        margin-bottom: 30px;
+    }
+    
+    .revenue-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .revenue-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 20px;
+    }
+    
+    .revenue-card h3 {
+        margin-top: 0;
+        color: var(--primary-blue);
+        text-align: center;
+    }
+    
+    .chart-container {
+        height: 250px;
+        margin: 0 auto;
+        position: relative;
+    }
+    
+    .revenue-stats {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+    }
+    
+    .stat-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .stat-total {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 15px;
+        font-weight: bold;
+        color: var(--primary-blue);
+    }
+    
+    .stat-label {
+        font-weight: 500;
+    }
+    
+    .stat-percent {
+        color: #666;
+    }
+    
+    .recent-sales-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    
+    .recent-sales-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 20px;
+    }
+    
+    .recent-sales-card h3 {
+        margin-top: 0;
+        color: var(--primary-blue);
+        text-align: center;
+    }
+    
+    .sales-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .sales-table th {
+        background-color: var(--primary-blue);
+        color: white;
+        padding: 12px;
+        text-align: left;
+    }
+    
+    .sales-table td {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .sales-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    
+    .no-data {
+        text-align: center;
+        color: #666;
+        padding: 20px;
+    }
+    
+    @media (max-width: 768px) {
+        .revenue-section,
+        .recent-sales-section {
+            grid-template-columns: 1fr;
+        }
+        
+        .chart-container {
+            height: 200px;
+        }
+    }
+</style>
+{% endblock %}
