@@ -302,10 +302,10 @@ tr:last-child td {
     width: auto !important;
 }
 
-/* Staff red theme */
+/* Staff theme */
 .staff-theme {
-    --primary-blue: #e53935;
-    --secondary-blue: #b71c1c;
+    --primary-blue: #2196F3; /* Blue */
+    --secondary-blue: #1976D2; /* Darker blue */
 }
 
 .staff-btn-grid {

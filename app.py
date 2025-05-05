@@ -799,13 +799,81 @@ def view_frequent_customers():
     )
 
 
-@app.route('/staff/ticket_sales')
+@app.route('/staff/ticket_sales', methods=['GET', 'POST'])
 def view_ticket_sales():
     if 'username' not in session.keys() or 'staff' not in session['user_type']:
-        flash('Please log in as airline staff to view flights.')
+        flash('Please log in as airline staff to view ticket sales.')
         return redirect(url_for('login_staff'))
-    # TODO
-    return "View ticket sales. (to be implemented)"
+
+    username = session['username']
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Get the airline the staff belongs to
+    cursor.callproc('GetStaffAirlineInfo', (username,))
+    for result in cursor.stored_results():
+        staff = result.fetchone()
+        if not staff:
+            flash('You are not associated with any airline.')
+            cursor.close()
+            conn.close()
+            return redirect(url_for('staff_home'))
+        airline_name = staff['airline_name']
+
+    # Default date range: last month
+    today = datetime.today()
+    default_start = (today - timedelta(days=30)).strftime('%Y-%m-%d')
+    default_end = today.strftime('%Y-%m-%d')
+
+    start_date = request.form.get('start_date', default_start)
+    end_date = request.form.get('end_date', default_end)
+
+    try:
+        # Query total tickets sold in the given date range
+        cursor.execute("""
+            SELECT COUNT(*) AS total_tickets, SUM(Flight.price) AS total_revenue
+            FROM Purchases
+            JOIN Ticket ON Purchases.ticket_id = Ticket.ticket_id
+            JOIN Flight ON Ticket.airline_name = Flight.airline_name AND Ticket.flight_num = Flight.flight_num
+            WHERE Ticket.airline_name = %s
+              AND DATE(Purchases.purchase_date) BETWEEN %s AND %s
+        """, (airline_name, start_date, end_date))
+        summary = cursor.fetchone()
+
+        # Query month-wise ticket sales
+        cursor.execute("""
+            SELECT DATE_FORMAT(Purchases.purchase_date, '%Y-%m') AS month, COUNT(*) AS tickets_sold
+            FROM Purchases
+            JOIN Ticket ON Purchases.ticket_id = Ticket.ticket_id
+            JOIN Flight ON Ticket.airline_name = Flight.airline_name AND Ticket.flight_num = Flight.flight_num
+            WHERE Ticket.airline_name = %s
+              AND DATE(Purchases.purchase_date) BETWEEN %s AND %s
+            GROUP BY month
+            ORDER BY month
+        """, (airline_name, start_date, end_date))
+        monthly_data = cursor.fetchall()
+
+    except mysql.connector.Error as err:
+        flash(f"Error retrieving ticket sales data: {err}")
+        summary = {'total_tickets': 0, 'total_revenue': 0}
+        monthly_data = []
+    finally:
+        cursor.close()
+        conn.close()
+
+    # Prepare data for the bar chart
+    months = [data['month'] for data in monthly_data]
+    tickets_sold = [data['tickets_sold'] for data in monthly_data]
+
+    return render_template(
+        'staff_ticket_sales.html',
+        airline_name=airline_name,
+        summary=summary,
+        months=months,
+        tickets_sold=tickets_sold,
+        start_date=start_date,
+        end_date=end_date
+    )
 
 
 @app.route('/staff/earnings', methods=['GET', 'POST'])

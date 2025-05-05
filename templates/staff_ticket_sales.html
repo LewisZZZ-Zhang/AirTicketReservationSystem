@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+{% block content %}
+<div style="max-width: 900px; margin: 2rem auto;">
+    <h2 style="text-align: center; color: #333;">Ticket Sales Report for {{ airline_name }}</h2>
+
+    <!-- Date Selection Form -->
+    <form method="POST" action="{{ url_for('view_ticket_sales') }}" style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; margin-bottom: 2rem;">
+        <div style="flex: 1; min-width: 200px;">
+            <label for="start_date" style="font-weight: bold; margin-bottom: 0.5rem; display: block;">Start Date:</label>
+            <input type="date" id="start_date" name="start_date" value="{{ start_date }}" style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 5px;">
+        </div>
+        <div style="flex: 1; min-width: 200px;">
+            <label for="end_date" style="font-weight: bold; margin-bottom: 0.5rem; display: block;">End Date:</label>
+            <input type="date" id="end_date" name="end_date" value="{{ end_date }}" style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 5px;">
+        </div>
+        <div style="flex: 1; min-width: 150px; display: flex; align-items: flex-end;">
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.7rem;">Filter</button>
+        </div>
+    </form>
+
+    <!-- Summary Section -->
+    <div class="summary-section" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="margin-bottom: 1rem; color: #1976D2;">Summary</h3>
+        <p style="margin: 0.5rem 0; font-size: 1.1rem;">Total Tickets Sold: <strong>{{ summary.total_tickets or 0 }}</strong></p>
+        <p style="margin: 0.5rem 0; font-size: 1.1rem;">Total Revenue: <strong>¥{{ "%.2f"|format(summary.total_revenue or 0) }}</strong></p>
+    </div>
+
+    <!-- Chart Section -->
+    <div class="chart-section" style="text-align: center; margin-top: 2rem;">
+        <h3 style="margin-bottom: 1.5rem; color: #333;">Month-wise Tickets Sold</h3>
+        <canvas id="ticketSalesChart" style="max-width: 100%;"></canvas>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('ticketSalesChart').getContext('2d');
+    const ticketSalesChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ months|tojson }},
+            datasets: [{
+                label: 'Tickets Sold',
+                data: {{ tickets_sold|tojson }},
+                backgroundColor: 'rgba(76, 175, 80, 0.2)', // Light green
+                borderColor: '#4CAF50', // Green
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
