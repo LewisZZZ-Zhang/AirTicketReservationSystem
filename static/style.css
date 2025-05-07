@@ -305,7 +305,7 @@ body {
 /* 在 style.css 最后添加或覆盖 */
 main.container {
     min-height: 100vh; /* 让内容区至少占满整个视口高度 */
-    background: rgba(255, 255, 255, 0.5); /* 半透明白色 */
+    background: rgba(255, 255, 255, 0.7); /* 半透明白色 */
     backdrop-filter: blur(12px);           /* 磨砂模糊效果 */
     -webkit-backdrop-filter: blur(12px);   /* 兼容Safari */
     border-radius: 18px;
