@@ -305,7 +305,7 @@ body {
 /* 在 style.css 最后添加或覆盖 */
 main.container {
     min-height: 100vh; /* 让内容区至少占满整个视口高度 */
-    background: rgba(255, 255, 255, 0.65); /* 半透明白色 */
+    background: rgba(255, 255, 255, 0.8); /* 半透明白色 */
     backdrop-filter: blur(12px);           /* 磨砂模糊效果 */
     -webkit-backdrop-filter: blur(12px);   /* 兼容Safari */
     border-radius: 18px;
@@ -324,3 +324,63 @@ main.container {
         margin-top: 1.2rem;
     }
 }
+
+
+/* 登录类型按钮美化 */
+.login-type-grid {
+    display: flex;
+    justify-content: center;
+    gap: 2.5rem;
+    margin: 3rem 0 2rem 0;
+    flex-wrap: wrap;
+}
+.login-type-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 180px;
+    min-height: 80px;
+    padding: 1.2rem 2.2rem;
+    border-radius: 16px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+    transition: transform 0.18s, box-shadow 0.18s, background 0.18s;
+    background: #f5f9ff;
+    color: var(--primary-blue);
+    border: 2px solid var(--primary-blue);
+    text-align: center;
+    letter-spacing: 0.5px;
+}
+.login-type-btn:hover {
+    transform: translateY(-4px) scale(1.04);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.13);
+    background: var(--primary-blue);
+    color: #fff;
+}
+.login-type-btn.customer {
+    border-color: #2196F3;
+    color: #2196F3;
+}
+.login-type-btn.customer:hover {
+    background: #2196F3;
+    color: #fff;
+}
+.login-type-btn.agent {
+    border-color: #43a047;
+    color: #43a047;
+}
+.login-type-btn.agent:hover {
+    background: #43a047;
+    color: #fff;
+}
+.login-type-btn.staff {
+    border-color: #e53935;
+    color: #e53935;
+}
+.login-type-btn.staff:hover {
+    background: #e53935;
+    color: #fff;
+}
+
