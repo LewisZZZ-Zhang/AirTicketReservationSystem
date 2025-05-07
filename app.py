@@ -1,21 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 import mysql.connector
 from datetime import datetime, timedelta
-import uuid
+import hashlib
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # 用于会话加密
-# 每次启动时生成一个新的版本号；重启后版本号变了，所有旧 session 都会被清除
-# app.config['SESSION_VERSION'] = str(uuid.uuid4())
+app.secret_key = 'your_secret_key'  
 
-# @app.before_request
-# def invalidate_old_sessions():
-#     if session.get('session_version') != app.config['SESSION_VERSION']:
-#         session.clear()
-#         # 将新的版本号写入 session，以后请求才会跳过清除
-#         session['session_version'] = app.config['SESSION_VERSION']
-
-# 数据库连接配置
 db_config = {
     'host': 'localhost',
     'user': 'root',
@@ -23,7 +13,7 @@ db_config = {
     'database': 'flight_ticket_system'
 }
 
-# 获取数据库连接
+# Connect to Database
 def get_db_connection():
     return mysql.connector.connect(**db_config)
 
@@ -32,7 +22,7 @@ def home():
     if 'username' in session and session['user_type'] == 'customer':
         customer_email = session['username']
 
-        # 查询该顾客的机票信息
+        # Check for customer's ticktes
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
         cursor.execute("CALL customer_get_upcoming_flights(%s);", (customer_email,))
@@ -40,10 +30,9 @@ def home():
         cursor.close()
         conn.close()
 
-        # 渲染主页并显示机票信息
         return render_template('index.html', tickets=tickets)
 
-    # 如果用户未登录或不是顾客，显示默认主页
+    # If the user isn't logged in as a customer, show default display
     return render_template('index.html', tickets=None)
 
 @app.route('/login')
@@ -55,26 +44,34 @@ def login_customer():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
+        #password = hashlib.md5(password.encode()).hexdigest()
 
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM Customer WHERE email = %s", (email,))
+        cursor.execute("SELECT * FROM Customer WHERE email = %s AND password = %s", (email,password))
         user = cursor.fetchone()
-        cursor.close()
-        conn.close()
 
         if user:
-            if user['password'] == password:  # 如果密码是明文存储
                 session['username'] = email
                 session['user_type'] = 'customer'
                 flash('Login successful. Welcome,' + session['username'] + '!')
+                cursor.close()
+                conn.close()
                 return redirect(url_for('home'))
-            else:
-                flash('Invalid login credentials.')
-                return redirect(url_for('login_customer'))
         else:
-            flash('No account found with this email. Please register first.')
-            return redirect(url_for('register_customer'))
+            cursor.execute("SELECT * FROM Customer WHERE email = %s", (email,))
+            user = cursor.fetchone()
+            cursor.close()
+            conn.close()
+            if user: 
+                flash('Password Incorrect! Please Try Again.')
+                return redirect(url_for('login_customer'))
+            else:
+                flash('No account found with this email. Please register first.')
+                return redirect(url_for('register_customer'))
+        
+        
+        
 
     return render_template(
         'login_generic.html',
@@ -91,22 +88,32 @@ def login_agent():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
+        #password = hashlib.md5(password.encode()).hexdigest()
 
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM Booking_Agent WHERE email = %s", (email,))
+        cursor.execute("SELECT * FROM Booking_Agent WHERE email = %s AND password = %s", (email, password))
         user = cursor.fetchone()
-        cursor.close()
-        conn.close()
-
-        if user and user['password'] == password:  # 如果密码是明文存储
+        
+        if user:
+            cursor.close()
+            conn.close()
             session['username'] = email
             session['user_type'] = 'agent'
             flash('Login successful. Welcome,' + session['username'] + '!')
             return redirect(url_for('agent_home'))
         else:
-            flash('Invalid login credentials.')
-            return redirect(url_for('login_agent'))
+            cursor.execute("SELECT * FROM Booking_Agent WHERE email = %s", (email,))
+            user = cursor.fetchone()
+            cursor.close()
+            conn.close()
+            if user:
+                flash('Password Incorrect! Please Try Again.')
+                return redirect(url_for('login_agent'))
+            else:
+                flash('No account found with this email. Please register first.')
+                return redirect(url_for('register_agent'))
+
 
     return render_template(
         'login_generic.html',
@@ -123,15 +130,17 @@ def login_staff():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        #password = hashlib.md5(password.encode()).hexdigest()
 
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM Airline_Staff WHERE username = %s", (username,))
+        cursor.execute("SELECT * FROM Airline_Staff WHERE username = %s and password = %s", (username, password))
         user = cursor.fetchone()
-        cursor.close()
-        conn.close()
+        
 
-        if user and user['password'] == password:  # 如果密码是明文存储
+        if user:
+            cursor.close()
+            conn.close()
             session['username'] = username
             authorization = 'staff'
             conn = get_db_connection()
@@ -142,13 +151,23 @@ def login_staff():
             conn.close()
             for p in permissions:
                 authorization += (',' + p['permission_type'])
-            #print(authorization) #Displays how authorization loos like
+            #print(authorization) 
+            # Displays how authorization loos like
             session['user_type'] = authorization
             flash('Login successful. Welcome,' + session['username'] + '!')
             return redirect(url_for('staff_home'))
         else:
-            flash('Invalid login credentials.')
-            return redirect(url_for('login_staff'))
+            cursor.execute("SELECT * FROM Airline_Staff WHERE username = %s", (username,))
+            user = cursor.fetchone()
+            cursor.close()
+            conn.close()
+            if user:
+                flash('Password Incorrect! Please Try Again.')
+                return redirect(url_for('login_staff'))
+            else:
+                flash('No account found with this username. Please register first.')
+                return redirect(url_for('register_staff'))
+
 
     return render_template(
         'login_generic.html',
