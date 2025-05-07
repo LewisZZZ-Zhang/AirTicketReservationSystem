@@ -311,7 +311,7 @@ def search_flights():
     date = request.form.get('date', '').strip()
     # print(from_location,to_location,date)
 
-    query = "SELECT * FROM Flight WHERE 1=1"  # Basinc Query
+    query = "SELECT * FROM Flight WHERE 1=1"  # Basic Query
     params = []
 
     # Add Search Scopes
@@ -327,7 +327,7 @@ def search_flights():
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute(query, params)  
+    cursor.execute(query, params)
     flights = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -402,7 +402,7 @@ def check_status():
     departure_date = request.form.get('departure_date', '').strip()
     arrival_date = request.form.get('arrival_date', '').strip()
 
-    query = "SELECT * FROM Flight WHERE 1=1"  
+    query = "SELECT * FROM Flight WHERE 1=1"
     params = []
 
     if flight_num:
@@ -417,7 +417,7 @@ def check_status():
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute(query, params)  
+    cursor.execute(query, params)
     status_results = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -467,7 +467,7 @@ def view_all_tickets():
     """
     params = [customer_email]
 
-
+    # 动态添加筛选条件
     if start_date:
         query += " AND DATE(Flight.departure_time) >= %s"
         params.append(start_date)
@@ -481,7 +481,7 @@ def view_all_tickets():
         query += " AND (Flight.arrival_airport = %s OR Flight.arrival_city = %s)"
         params.extend([to_location, to_location])
 
-    # Order by status by default
+    # 默认按 status 排序
     query += """
         ORDER BY 
             FIELD(Flight.status, 'Upcoming', 'Delayed', 'In progress'),
@@ -507,10 +507,12 @@ def spending():
 
     customer_email = session['username']
 
+    # 默认起止时间：最近半年
     today = datetime.today()
     default_start = (today - timedelta(days=180)).replace(day=1)
     default_end = today
 
+    # 获取用户选择的起止年月
     start_month = request.form.get('start_month')
     end_month = request.form.get('end_month')
 
@@ -520,13 +522,14 @@ def spending():
         start_date = default_start
 
     if end_month:
+        # 取该月最后一天
         end_date = datetime.strptime(end_month, '%Y-%m')
         next_month = (end_date.replace(day=28) + timedelta(days=4)).replace(day=1)
         end_date = next_month - timedelta(days=1)
     else:
         end_date = default_end
 
-    # Check for spending during the last 6 months
+    # 查询半年内总花销
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
@@ -540,7 +543,7 @@ def spending():
     """, (customer_email, start_date.strftime('%Y-%m-%d'), end_date.strftime('%Y-%m-%d')))
     total_spent = cursor.fetchone()['total_spent'] or 0
 
-    # Check for spending per month
+    # 查询每月花销
     cursor.execute("""
         SELECT DATE_FORMAT(Purchases.purchase_date, '%Y-%m') AS month, SUM(Flight.price) AS monthly_spent
         FROM Purchases
@@ -558,18 +561,17 @@ def spending():
     cursor.close()
     conn.close()
 
-    # Construct the data for the Bar Chart
-    # Here we should also complete the months without consumption
+    # 构造柱状图数据
     months = []
     monthly_spent = []
-
+    # 补全没有消费的月份
     current = start_date
     while current <= end_date:
         m = current.strftime('%Y-%m')
         months.append(m)
         found = next((item['monthly_spent'] for item in monthly_data if item['month'] == m), 0)
         monthly_spent.append(float(found) if found else 0)
-        # Next Month
+        # 下个月
         if current.month == 12:
             current = current.replace(year=current.year+1, month=1)
         else:
@@ -607,7 +609,7 @@ def view_my_flights():
     username = session['username']
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    # Get Staff's Airline 
+    # 获取员工所属航空公司
     cursor.callproc('GetStaffAirlineInfo', (username,))
     for result in cursor.stored_results():
         staff = result.fetchone()
@@ -618,11 +620,12 @@ def view_my_flights():
             return redirect(url_for('staff_home'))
         airline_name = staff['airline_name']
 
+    # 默认时间范围：未来30天
     today = datetime.today().date()
     default_start = today
     default_end = today + timedelta(days=30)
 
-
+    # 获取筛选条件
     start_date = request.form.get('start_date', default_start.strftime('%Y-%m-%d'))
     end_date = request.form.get('end_date', default_end.strftime('%Y-%m-%d'))
     from_location = request.form.get('from_location', '').strip()
@@ -1837,7 +1840,7 @@ def agent_view_flights():
     return render_template('agent_view_flights.html', flights=flights)
 
 
-
+# 这里有点问题，前端要新弄一个html给agent
 # Purchase tickets: Booking agent chooses a flight and purchases tickets for other customers giving 
 # customer information. You may find it easier to implement this along with a use case to search for 
 # flights. Notice that as described in the previous assignments, the booking agent may only purchase tickets from 
@@ -1850,7 +1853,7 @@ def agent_view_flights():
 #         return redirect(url_for('login_agent'))
 
 #     agent_email = session['username']
-#     customer_email = request.form['customer_email'] 
+#     customer_email = request.form['customer_email']  这里有点问题，前端要新弄一个html给agent
 #     airline_name = request.form['airline_name']       
 #     flight_num = request.form['flight_num']  
 
@@ -1913,7 +1916,7 @@ def agent_view_flights():
 
 #     return redirect(url_for('search_flights'))
 
-# Agent Functions
+#4/29 测试一下改过的purchase
 @app.route('/agent/purchase_ticket', methods=['GET', 'POST'])
 def agent_purchase_ticket():
     if 'username' not in session.keys() or session['user_type'] != 'agent':
@@ -2080,4 +2083,5 @@ def agent_view_top_customers():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(debug=True)
+    # app.run(host='0.0.0.0', port=5000, debug=True)
