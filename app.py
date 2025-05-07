@@ -20,7 +20,7 @@ db_config = {
     'host': 'localhost',
     'user': 'root',
     'password': '',
-    'database': 'airticketreservationsystem'
+    'database': 'flight_ticket_system'
 }
 
 # 获取数据库连接
