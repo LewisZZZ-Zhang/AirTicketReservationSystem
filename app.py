@@ -863,10 +863,66 @@ def add_airplane():
 
     return render_template('staff_add_airplane.html', airline_name=airline_name, airplanes=airplanes)
 
-@app.route('/staff/add_airport')
+@app.route('/staff/add_airport', methods=['GET', 'POST'])
 def add_airport():
-    # TODO: Implement add airport
-    return "Add New Airport page (to be implemented)"
+    # 权限检查：必须为staff且有Admin权限
+    if 'username' not in session or session['user_type'] != 'staff':
+        flash('Please log in as airline staff to add airports.')
+        return redirect(url_for('login_staff'))
+
+    username = session['username']
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # 检查是否有Admin权限
+    cursor.execute(
+        "SELECT 1 FROM Permission WHERE username = %s AND permission_type = 'Admin'",
+        (username,)
+    )
+    has_admin = cursor.fetchone()
+    if not has_admin:
+        cursor.close()
+        conn.close()
+        flash('You do not have permission to add airports.')
+        return redirect(url_for('staff_home'))
+
+    # 获取该员工所属航空公司
+    cursor.execute("SELECT airline_name FROM Airline_Staff WHERE username = %s", (username,))
+    staff = cursor.fetchone()
+    if not staff:
+        cursor.close()
+        conn.close()
+        flash('Staff not found.')
+        return redirect(url_for('staff_home'))
+    airline_name = staff['airline_name']
+
+    if request.method == 'POST':
+        airport_name = request.form.get('airport_name', '').strip()
+        airport_city = request.form.get('airport_city', '').strip()
+        if not airport_name or not airport_city:
+            flash('Airport name and city are required.')
+        else:
+            try:
+                cursor.execute(
+                    "INSERT INTO Airport (airport_name, airport_city) VALUES (%s, %s)",
+                    (airport_name, airport_city)
+                )
+                conn.commit()
+                flash(f"Airport '{airport_name}' added successfully!")
+            except mysql.connector.Error as err:
+                flash(f"Error: {err}")
+
+    # 查询所有机场，方便展示
+    cursor.execute("SELECT airport_name, airport_city FROM Airport ORDER BY airport_name")
+    airports = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    return render_template(
+        'staff_add_airport.html',
+        airline_name=airline_name,
+        airports=airports
+    )
 
 @app.route('/staff/view_booking_agents', methods=['GET', 'POST'])
 def staff_view_booking_agents():
