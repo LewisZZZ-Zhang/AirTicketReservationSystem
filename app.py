@@ -44,7 +44,7 @@ def login_customer():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        #password = hashlib.md5(password.encode()).hexdigest()
+        password = hashlib.md5(password.encode()).hexdigest()
 
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
@@ -52,12 +52,12 @@ def login_customer():
         user = cursor.fetchone()
 
         if user:
-                session['username'] = email
-                session['user_type'] = 'customer'
-                flash('Login successful. Welcome,' + session['username'] + '!')
-                cursor.close()
-                conn.close()
-                return redirect(url_for('home'))
+            session['username'] = email
+            session['user_type'] = 'customer'
+            flash('Login successful. Welcome,' + session['username'] + '!')
+            cursor.close()
+            conn.close()
+            return redirect(url_for('home'))
         else:
             cursor.execute("SELECT * FROM Customer WHERE email = %s", (email,))
             user = cursor.fetchone()
@@ -88,7 +88,7 @@ def login_agent():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        #password = hashlib.md5(password.encode()).hexdigest()
+        password = hashlib.md5(password.encode()).hexdigest()
 
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
@@ -130,7 +130,7 @@ def login_staff():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        #password = hashlib.md5(password.encode()).hexdigest()
+        password = hashlib.md5(password.encode()).hexdigest()
 
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
@@ -182,63 +182,6 @@ def login_staff():
 def register():
     return render_template('register.html')
 
-@app.route('/register/agent', methods=['GET', 'POST'])
-def register_agent():
-    if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
-        booking_agent_id = request.form['booking_agent_id']
-
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        try:
-            cursor.execute("""
-                INSERT INTO Booking_Agent (email, password, booking_agent_id)
-                VALUES (%s, %s, %s)
-            """, (email, password, booking_agent_id))
-
-            conn.commit()
-            flash('Booking Agent registered successfully!')
-            return redirect(url_for('login'))
-        except mysql.connector.Error as err:
-            flash(f"Error: {err}")
-        finally:
-            cursor.close()
-            conn.close()
-
-    return render_template('register_agent.html')
-
-
-@app.route('/register/staff', methods=['GET', 'POST'])
-def register_staff():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        first_name = request.form['first_name']
-        last_name = request.form['last_name']
-        date_of_birth = request.form['date_of_birth']
-        airline_name = request.form['airline_name']
-
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        try:
-            cursor.execute("""
-                INSERT INTO Airline_Staff (username, password, first_name, last_name, date_of_birth, airline_name)
-                VALUES (%s, %s, %s, %s, %s, %s)
-            """, (username, password, first_name, last_name, date_of_birth, airline_name))
-
-            conn.commit()
-            flash('Airline Staff registered successfully!')
-            return redirect(url_for('login'))
-        except mysql.connector.Error as err:
-            flash(f"Error: {err}")
-        finally:
-            cursor.close()
-            conn.close()
-
-    return render_template('register_staff.html')
 
 @app.route('/register/customer', methods=['GET', 'POST'])
 def register_customer():
@@ -246,6 +189,7 @@ def register_customer():
         name = request.form['name']
         email = request.form['email']
         password = request.form['password']
+        password = hashlib.md5(password.encode()).hexdigest()
         dob = request.form['date_of_birth']
         passport_number = request.form['passport_number']
         passport_expiration = request.form['passport_expiration']
@@ -272,7 +216,9 @@ def register_customer():
 
             conn.commit()
             flash('Customer registered successfully!')
-            return redirect(url_for('login'))
+            session['username'] = email
+            session['user_type'] = 'customer'
+            return redirect(url_for('home'))
         except mysql.connector.Error as err:
             flash(f"Error: {err}")
         finally:
@@ -280,6 +226,73 @@ def register_customer():
             conn.close()
 
     return render_template('register_customer.html')
+
+
+@app.route('/register/agent', methods=['GET', 'POST'])
+def register_agent():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        password = hashlib.md5(password.encode()).hexdigest()
+        booking_agent_id = request.form['booking_agent_id']
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute("""
+                INSERT INTO Booking_Agent (email, password, booking_agent_id)
+                VALUES (%s, %s, %s)
+            """, (email, password, booking_agent_id))
+
+            conn.commit()
+            flash('Booking Agent registered successfully!')
+            session['username'] = email
+            session['user_type'] = 'agent'
+            return redirect(url_for('agent_home'))
+        except mysql.connector.Error as err:
+            flash(f"Error: {err}")
+        finally:
+            cursor.close()
+            conn.close()
+
+    return render_template('register_agent.html')
+
+
+@app.route('/register/staff', methods=['GET', 'POST'])
+def register_staff():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        password = hashlib.md5(password.encode()).hexdigest()
+        first_name = request.form['first_name']
+        last_name = request.form['last_name']
+        date_of_birth = request.form['date_of_birth']
+        airline_name = request.form['airline_name']
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute("""
+                INSERT INTO Airline_Staff (username, password, first_name, last_name, date_of_birth, airline_name)
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """, (username, password, first_name, last_name, date_of_birth, airline_name))
+
+            conn.commit()
+            flash('Airline Staff registered successfully!')
+            session['username'] = username
+            session['user_type'] = 'staff'
+            return redirect(url_for('login'))
+        except mysql.connector.Error as err:
+            flash(f"Error: {err}")
+        finally:
+            cursor.close()
+            conn.close()
+
+    return render_template('register_staff.html')
+
+
 
 @app.route('/logout')
 def logout():

@@ -38,6 +38,9 @@ END //
 DELIMITER ;
 
 
+-- Triggers
+
+
 
 -- Views
 

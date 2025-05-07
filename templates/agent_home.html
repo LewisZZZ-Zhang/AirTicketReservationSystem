@@ -1,13 +1,140 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class="container">
-    <h2>Booking Agent Dashboard</h2>
-    <div class="cta-buttons" style="margin-bottom:2rem;">
-        <a class="cta-button" href="{{ url_for('agent_view_flights') }}">View My Flights</a>
-        <a class="cta-button" href="{{ url_for('search_flights') }}">这个url要改Search for Flights</a>
-        <a class="cta-button" href="{{ url_for('agent_view_commission') }}">View My Commission</a>
-        <a class="cta-button" href="{{ url_for('agent_view_top_customers') }}">View Top Customers</a>
-        <a class="cta-button" href="{{ url_for('agent_purchase_ticket') }}">Purchase Ticket</a>
+    <div class="dashboard-header">
+        <h2 class="dashboard-title">Booking Agent Dashboard</h2>
+        <p class="dashboard-subtitle">Welcome back! Manage your bookings and commissions</p>
+    </div>
+    
+    <div class="dashboard-grid">
+        <a href="{{ url_for('agent_view_flights') }}" class="dashboard-card">
+            <div class="card-icon">
+                <i class="fas fa-plane"></i>
+            </div>
+            <h3>My Flights</h3>
+            <p>View all flights you've booked for customers</p>
+        </a>
+        
+        <a href="{{ url_for('search_flights') }}" class="dashboard-card">
+            <div class="card-icon">
+                <i class="fas fa-search"></i>
+            </div>
+            <h3>Search Flights</h3>
+            <p>Find available flights for customers</p>
+        </a>
+        
+        <a href="{{ url_for('agent_view_commission') }}" class="dashboard-card highlight">
+            <div class="card-icon">
+                <i class="fas fa-money-bill-wave"></i>
+            </div>
+            <h3>My Commission</h3>
+            <p>View your earnings and commission history</p>
+        </a>
+        
+        <a href="{{ url_for('agent_view_top_customers') }}" class="dashboard-card">
+            <div class="card-icon">
+                <i class="fas fa-star"></i>
+            </div>
+            <h3>Top Customers</h3>
+            <p>See your most frequent customers</p>
+        </a>
+        
+        <a href="{{ url_for('agent_purchase_ticket') }}" class="dashboard-card">
+            <div class="card-icon">
+                <i class="fas fa-ticket-alt"></i>
+            </div>
+            <h3>Purchase Ticket</h3>
+            <p>Book a new flight for a customer</p>
+        </a>
     </div>
 </div>
+
+<style>
+    /* Dashboard Header */
+    .dashboard-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    
+    .dashboard-title {
+        color: var(--primary-blue);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .dashboard-subtitle {
+        color: #666;
+        font-size: 1.1rem;
+        margin: 0;
+    }
+    
+    /* Dashboard Grid Layout */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    /* Dashboard Cards */
+    .dashboard-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 1.5rem;
+        text-align: center;
+        text-decoration: none;
+        color: inherit;
+        transition: transform 0.2s, box-shadow 0.2s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    }
+    
+    .dashboard-card.highlight {
+        border: 2px solid var(--primary-blue);
+    }
+    
+    .card-icon {
+        width: 60px;
+        height: 60px;
+        background-color: var(--primary-blue);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+    }
+    
+    .dashboard-card h3 {
+        margin: 0 0 0.5rem 0;
+        color: var(--primary-blue);
+    }
+    
+    .dashboard-card p {
+        color: #666;
+        margin: 0;
+        font-size: 0.9rem;
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .dashboard-header {
+            margin-bottom: 2rem;
+        }
+    }
+</style>
+
+<!-- Include Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 {% endblock %}
