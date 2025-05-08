@@ -1780,6 +1780,7 @@ def agent_home():
     if 'username' not in session.keys() or session['user_type'] != 'agent':
         flash('Please log in as a booking agent to view this page.')
         return redirect(url_for('login_agent'))
+
     return render_template('agent_home.html')
 
 

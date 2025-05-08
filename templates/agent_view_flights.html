@@ -1,54 +1,217 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class="container">
-    <h2>My Flights</h2>
-    <form method="POST" class="search-form filter-bar" style="display: flex; align-items: flex-end; gap: 1.5rem; max-width: 900px; margin-bottom: 2rem;">
-        <div class="form-group" style="flex-direction: column; align-items: flex-start; margin: 0;">
-            <label for="start_date" style="margin-bottom: 0.3rem;">Start Date:</label>
-            <input type="date" id="start_date" name="start_date" value="{{ request.form.get('start_date', '') }}">
-        </div>
-        <div class="form-group" style="flex-direction: column; align-items: flex-start; margin: 0;">
-            <label for="end_date" style="margin-bottom: 0.3rem;">End Date:</label>
-            <input type="date" id="end_date" name="end_date" value="{{ request.form.get('end_date', '') }}">
-        </div>
-        <div class="form-group" style="flex-direction: column; align-items: flex-start; margin: 0;">
-            <label for="from_location" style="margin-bottom: 0.3rem;">From:</label>
-            <input type="text" id="from_location" name="from_location" value="{{ request.form.get('from_location', '') }}">
-        </div>
-        <div class="form-group" style="flex-direction: column; align-items: flex-start; margin: 0;">
-            <label for="to_location" style="margin-bottom: 0.3rem;">To:</label>
-            <input type="text" id="to_location" name="to_location" value="{{ request.form.get('to_location', '') }}">
-        </div>
-        <button type="submit" class="cta-button" style="margin: 0;">Filter</button>
-    </form>
-    </form>
-    <table>
-        <thead>
-            <tr>
-                <th>Airline</th>
-                <th>Flight Number</th>
-                <th>Departure</th>
-                <th>Arrival</th>
-                <th>Departure Time</th>
-                <th>Arrival Time</th>
-                <th>Status</th>
-                <th>Price</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for flight in flights %}
-            <tr>
-                <td>{{ flight.airline_name }}</td>
-                <td>{{ flight.flight_num }}</td>
-                <td>{{ flight.departure_airport }}</td>
-                <td>{{ flight.arrival_airport }}</td>
-                <td>{{ flight.departure_time }}</td>
-                <td>{{ flight.arrival_time }}</td>
-                <td>{{ flight.status }}</td>
-                <td>{{ flight.price }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="flights-header">
+        <h2>My Flights</h2>
+        <form method="POST" class="flight-filter-bar">
+            <div class="filter-group">
+                <label for="start_date">Start Date</label>
+                <input type="date" id="start_date" name="start_date" value="{{ request.form.get('start_date', '') }}">
+            </div>
+            <div class="filter-group">
+                <label for="end_date">End Date</label>
+                <input type="date" id="end_date" name="end_date" value="{{ request.form.get('end_date', '') }}">
+            </div>
+            <div class="filter-group">
+                <label for="from_location">From</label>
+                <input type="text" id="from_location" name="from_location" placeholder="City or Airport" value="{{ request.form.get('from_location', '') }}">
+            </div>
+            <div class="filter-group">
+                <label for="to_location">To</label>
+                <input type="text" id="to_location" name="to_location" placeholder="City or Airport" value="{{ request.form.get('to_location', '') }}">
+            </div>
+            <button type="submit" class="cta-button">Filter</button>
+        </form>
+    </div>
+    <div class="table-wrapper">
+        <table class="flights-table">
+            <thead>
+                <tr>
+                    <th>Airline</th>
+                    <th>Flight #</th>
+                    <th>Departure</th>
+                    <th>Arrival</th>
+                    <th>Departure Time</th>
+                    <th>Arrival Time</th>
+                    <th>Status</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for flight in flights %}
+                <tr>
+                    <td>{{ flight.airline_name }}</td>
+                    <td>{{ flight.flight_num }}</td>
+                    <td>{{ flight.departure_airport }}</td>
+                    <td>{{ flight.arrival_airport }}</td>
+                    <td>{{ flight.departure_time }}</td>
+                    <td>{{ flight.arrival_time }}</td>
+                    <td>
+                        <span class="status-badge status-{{ flight.status|lower|replace(' ', '-') }}">
+                            {{ flight.status }}
+                        </span>
+                    </td>
+                    <td>¥{{ flight.price }}</td>
+                </tr>
+                {% endfor %}
+                {% if flights|length == 0 %}
+                <tr>
+                    <td colspan="8" class="no-results">No results found.</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
 </div>
+
+<style>
+    :root {
+        --primary-blue: #154ecb;
+        --table-head-bg: #f7fafd;
+        --table-border: #e2e8f0;
+        --table-row-alt: #f5f9ff;
+        --status-on-time: #4caf50;
+        --status-delayed: #ff9800;
+        --status-cancelled: #e53935;
+    }
+    .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+    .flights-header {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
+    }
+    .flights-header h2 {
+        color: var(--primary-blue);
+        font-weight: 700;
+        margin-bottom: 0.3rem;
+    }
+    /* Filter bar styling */
+    .flight-filter-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.2rem;
+        align-items: flex-end;
+        background: #fff;
+        padding: 1.2rem 1rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 16px rgba(33, 118, 255, 0.05);
+    }
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        min-width: 130px;
+        flex: 1 1 160px;
+    }
+    .filter-group label {
+        font-size: 0.95rem;
+        color: #444;
+        margin-bottom: 0.3rem;
+        font-weight: 500;
+    }
+    .filter-group input {
+        border: 1px solid #dde3ea;
+        border-radius: 5px;
+        padding: 0.4rem 0.7rem;
+        font-size: 1rem;
+        background: #f7fafd;
+        transition: border 0.2s;
+        outline: none;
+    }
+    .filter-group input:focus {
+        border: 1.5px solid var(--primary-blue);
+        background: #fff;
+    }
+    .cta-button {
+        background: var(--primary-blue);
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        padding: 0.7rem 1.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .cta-button:hover {
+        background: #0505c0;
+    }
+    /* Table styling */
+    .table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 16px rgba(33, 118, 255, 0.05);
+        padding: 0.5rem;
+    }
+    .flights-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 800px;
+        font-size: 1rem;
+    }
+    .flights-table thead {
+        background: var(--table-head-bg);
+    }
+    .flights-table th, .flights-table td {
+        border-bottom: 1px solid var(--table-border);
+        padding: 0.7rem 0.8rem;
+        text-align: center;
+        font-weight: 500;
+    }
+    .flights-table th {
+        color: var(--primary-blue);
+        font-size: 1.05rem;
+        letter-spacing: 0.02em;
+    }
+    .flights-table tbody tr:nth-child(even) {
+        background: var(--table-row-alt);
+    }
+    .flights-table td {
+        color: #333;
+        font-weight: 400;
+    }
+    .flights-table .no-results {
+        text-align: center;
+        color: #999;
+        font-style: italic;
+        padding: 1.5rem 0;
+    }
+    /* 状态徽章 */
+    .status-badge {
+        display: inline-block;
+        padding: 0.25em 0.8em;
+        border-radius: 999px;
+        font-size: 0.95em;
+        font-weight: 500;
+        color: #fff;
+        background: #888;
+    }
+    .status-on-time { background: var(--status-on-time); }
+    .status-delayed { background: var(--status-delayed); }
+    .status-cancelled { background: var(--status-cancelled); }
+    /* Responsive */
+    @media (max-width: 900px) {
+        .flights-table { min-width: 600px; }
+        .flight-filter-bar { gap: 0.7rem; }
+    }
+    @media (max-width: 700px) {
+        .flight-filter-bar {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.8rem;
+        }
+        .filter-group {
+            min-width: unset;
+        }
+        .table-wrapper {
+            padding: 0.2rem;
+        }
+    }
+</style>
 {% endblock %}

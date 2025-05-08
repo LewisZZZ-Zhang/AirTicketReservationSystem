@@ -2,49 +2,223 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Air Ticket Reservation System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Airline Ticket System</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
     <div class="top-nav">
         <div class="nav-container">
-          <a href="{{ url_for('home') }}" class="nav-brand">
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="nav-logo">
-            Air Ticket Reservation System
-          </a>
-          <nav class="nav-links">
-            {% if session.get('user_type') %}
-                {% if session.get('user_type') == 'customer' %}
-                    <a href="{{ url_for('spending') }}">My Spendings </a>
-                    <a href="{{ url_for('spending') }}">{{ session.get('username') }}</a>
-                {% elif 'staff' in session.get('user_type', '') %}
-                    <a href="{{ url_for('staff_home') }}">Airline Work Pannel</a>
-                    <a href="{{ url_for('staff_home') }}"><b>{{ session.get('username') }}</b></a>
-                {% elif session.get('user_type') == 'agent' %}
-                    <a href="{{ url_for('agent_home') }}">Agent's Pannel</a>
-                    <a href="{{ url_for('agent_home') }}">{{ session.get('username') }}</a>
+            <a href="{{ url_for('home') }}" class="nav-brand">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="nav-logo">
+                <span class="brand-text">Airline Ticket System</span>
+            </a>
+            <nav class="nav-links">
+                {% if session.get('user_type') %}
+                    <div class="user-nav-group">
+                        {% if session.get('user_type') == 'customer' %}
+                            <a href="{{ url_for('spending') }}" class="nav-button">
+                                <i class="fas fa-chart-line"></i> My Spendings
+                            </a>
+                        {% elif 'staff' in session.get('user_type', '') %}
+                            <a href="{{ url_for('staff_home') }}" class="nav-button">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a>
+                        {% elif session.get('user_type') == 'agent' %}
+                            <a href="{{ url_for('agent_home') }}" class="nav-button">
+                                <i class="fas fa-briefcase"></i> Agent Panel
+                            </a>
+                        {% endif %}
+                        <div class="user-profile">
+                            <span class="username">
+                                <i class="fas fa-user-circle"></i> {{ session.get('username') }}
+                            </span>
+                            <a href="{{ url_for('logout') }}" class="logout-button">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="guest-nav-group">
+                        <a href="{{ url_for('login') }}" class="nav-button">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                        <a href="{{ url_for('register') }}" class="nav-button">
+                            <i class="fas fa-user-plus"></i> Register
+                        </a>
+                    </div>
                 {% endif %}
-                <a href="{{ url_for('logout') }}">Logout</a>
-            {% else %}
-                <a href="{{ url_for('login') }}">Login</a>
-                <a href="{{ url_for('register') }}">Register</a>
-            {% endif %}
-        </nav>
             </nav>
         </div>
     </div>
     
     <main class="container">
         {% with messages = get_flashed_messages() %}
-          {% if messages %}
-            <ul class="flashes">
-              {% for message in messages %}
-                <li>{{ message }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
+            {% if messages %}
+                <div class="flashes">
+                    {% for message in messages %}
+                        <div class="flash-message">
+                            <i class="fas fa-info-circle"></i> {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
         {% endwith %}
         {% block content %}{% endblock %}
     </main>
+
+    <style>
+      /* Enhanced Navigation */
+      .top-nav {
+          background: linear-gradient(135deg, #19178d, #347dd1);
+          padding: 0.8rem 0;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          position: sticky;
+          top: 0;
+          z-index: 1000;
+      }
+
+      .nav-container {
+          max-width: 1200px;
+          margin: 0 auto;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 0 2rem;
+      }
+
+      .nav-brand {
+          display: flex;
+          align-items: center;
+          color: white;
+          font-size: 1.3rem;
+          font-weight: 600;
+          text-decoration: none;
+      }
+
+      .brand-text {
+          margin-left: 10px;
+      }
+
+      .nav-logo {
+          height: 36px;
+          width: auto;
+      }
+
+      .nav-links {
+          display: flex;
+          align-items: center;
+      }
+
+      .user-nav-group, .guest-nav-group {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+      }
+
+      .nav-button {
+          color: rgba(255, 255, 255, 0.9);
+          text-decoration: none;
+          padding: 0.5rem 1rem;
+          border-radius: 4px;
+          transition: background-color 0.2s;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+      }
+
+      .nav-button:hover {
+          background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      .nav-button.primary {
+          background-color: rgba(255, 255, 255, 0.2);
+      }
+
+      .nav-button.primary:hover {
+          background-color: rgba(255, 255, 255, 0.3);
+      }
+
+      .user-profile {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+      }
+
+      .username {
+          color: white;
+          font-weight: 500;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+      }
+
+      .logout-button {
+          color: white;
+          text-decoration: none;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.5rem;
+          border-radius: 4px;
+      }
+
+      .logout-button:hover {
+          background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      /* Flash Messages */
+      .flashes {
+          margin: 1rem 0;
+      }
+
+      .flash-message {
+          padding: 0.8rem 1rem;
+          background-color: #e3f2fd;
+          color: #1976d2;
+          border-radius: 4px;
+          margin-bottom: 0.5rem;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+      }
+
+      /* Container */
+      .container {
+          max-width: 1200px;
+          margin: 2rem auto;
+          padding: 0 2rem;
+      }
+
+      /* Responsive Adjustments */
+      @media (max-width: 768px) {
+          .nav-container {
+              flex-direction: column;
+              padding: 1rem;
+          }
+
+          .nav-brand {
+              margin-bottom: 1rem;
+          }
+
+          .user-nav-group, .guest-nav-group {
+              flex-direction: column;
+              width: 100%;
+              gap: 0.5rem;
+          }
+
+          .nav-button {
+              width: 100%;
+              justify-content: center;
+          }
+
+          .user-profile {
+              flex-direction: column;
+              width: 100%;
+              margin-top: 0.5rem;
+          }
+      }
+  </style>
 </body>
 </html>
