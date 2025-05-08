@@ -1,9 +1,17 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>Airline Staff Login</h2>
-<form action="{{ url_for('login_staff') }}" method="POST">
-    Username: <input type="text" name="username" required><br>
-    Password: <input type="password" name="password" required><br>
-    <input type="submit" value="Login">
-</form>
+<div class="container" style="max-width: 400px; margin: 2rem auto; padding: 1rem; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); background: rgba(255,255,255,0.95);">
+  <h2 style="text-align: center; margin-bottom: 1.5rem; color: #e53935;">Airline Staff Login</h2>
+  <form action="{{ url_for('login_staff') }}" method="POST" style="display: flex; flex-direction: column; gap: 1rem;">
+    <div class="form-group">
+      <label for="username" style="margin-bottom: 0.3rem;">Username</label>
+      <input type="text" id="username" name="username" required class="form-control" style="width: 100%; padding: 0.5rem;">
+    </div>
+    <div class="form-group">
+      <label for="password" style="margin-bottom: 0.3rem;">Password</label>
+      <input type="password" id="password" name="password" required class="form-control" style="width: 100%; padding: 0.5rem;">
+    </div>
+    <button type="submit" class="cta-button" style="padding: 0.6rem 1.2rem; align-self: center; background: #e53935;">Login</button>
+  </form>
+</div>
 {% endblock %}

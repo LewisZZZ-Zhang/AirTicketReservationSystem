@@ -293,6 +293,102 @@ def search_flights():
     # print("result:",flights)
     return render_template('search_flights.html', flights=flights, from_location=from_location, to_location=to_location, date=date)
 
+# @app.route('/purchase_ticket', methods=['POST'])
+# def purchase_ticket():
+#     if 'username' not in session or session['user_type'] != 'customer':
+#         flash('Please log in to purchase tickets.')
+#         return redirect(url_for('login'))
+
+#     customer_email = session['username']
+#     airline_name = request.form['airline_name']
+#     flight_num = request.form['flight_num']
+
+#     conn = get_db_connection()
+#     cursor = conn.cursor()
+
+#     try:
+#         # 检查是否还有可用票
+#         cursor.execute("""
+#             SELECT 
+#                 a.seats - IFNULL(COUNT(p.ticket_id), 0) AS remaining_seats
+#             FROM flight f
+#             JOIN airplane a 
+#                 ON f.airline_name = a.airline_name AND f.airplane_id = a.airplane_id
+#             LEFT JOIN ticket t 
+#                 ON f.airline_name = t.airline_name AND f.flight_num = t.flight_num
+#             LEFT JOIN purchases p 
+#                 ON t.ticket_id = p.ticket_id
+#             WHERE f.airline_name = %s AND f.flight_num = %s
+#             GROUP BY a.seats;
+#         """, (airline_name, flight_num))
+#         result = cursor.fetchone()
+#         # print(flight_num, result)
+#         if result and result[0] > 0:
+#             print("OK to purchase")
+#             cursor.execute("SELECT MAX(ticket_id) FROM ticket")
+#             max_id = cursor.fetchone()[0] or 0
+#             new_ticket_id = max_id + 1
+
+#             # 插入新的 ticket
+#             cursor.execute("""
+#                 INSERT INTO ticket (ticket_id, airline_name, flight_num)
+#                 VALUES (%s, %s, %s)
+#             """, (new_ticket_id, airline_name, flight_num))
+
+#             # 插入购票记录
+#             cursor.execute("""
+#                 INSERT INTO Purchases (ticket_id, customer_email, purchase_date)
+#                 VALUES (%s, %s, %s)
+#             """, (new_ticket_id, customer_email, datetime.now().strftime('%Y-%m-%d')))
+#             conn.commit()
+#             flash('Ticket purchased successfully!')
+#         else:
+#             flash('No available tickets for this flight. **Error1**')
+#     except mysql.connector.Error as err:
+#         flash(f"Error: {err}")
+#     finally:
+#         cursor.close()
+#         conn.close()
+
+#     return redirect(url_for('search_flights'))
+
+# DELIMITER //
+# CREATE PROCEDURE PurchaseTicket(
+#     IN p_airline_name VARCHAR(255),
+#     IN p_flight_num VARCHAR(255),
+#     IN p_customer_email VARCHAR(255),
+#     OUT p_result VARCHAR(255)
+# )
+# BEGIN
+#     DECLARE remaining INT DEFAULT 0;
+#     DECLARE new_ticket_id INT DEFAULT 0;
+
+#     -- 检查剩余座位
+#     SELECT a.seats - IFNULL(COUNT(p.ticket_id), 0)
+#       INTO remaining
+#       FROM Flight f
+#       JOIN Airplane a ON f.airline_name = a.airline_name AND f.airplane_id = a.airplane_id
+#       LEFT JOIN Ticket t ON f.airline_name = t.airline_name AND f.flight_num = t.flight_num
+#       LEFT JOIN Purchases p ON t.ticket_id = p.ticket_id
+#      WHERE f.airline_name = p_airline_name AND f.flight_num = p_flight_num
+#      GROUP BY a.seats;
+
+#     IF remaining > 0 THEN
+#         -- 新 ticket_id
+#         SELECT IFNULL(MAX(ticket_id), 0) + 1 INTO new_ticket_id FROM Ticket;
+#         -- 插入 Ticket
+#         INSERT INTO Ticket(ticket_id, airline_name, flight_num)
+#         VALUES (new_ticket_id, p_airline_name, p_flight_num);
+#         -- 插入 Purchases
+#         INSERT INTO Purchases(ticket_id, customer_email, purchase_date)
+#         VALUES (new_ticket_id, p_customer_email, CURDATE());
+#         SET p_result = 'success';
+#     ELSE
+#         SET p_result = 'no_ticket';
+#     END IF;
+# END //
+# DELIMITER ;
+
 @app.route('/purchase_ticket', methods=['POST'])
 def purchase_ticket():
     if 'username' not in session or session['user_type'] != 'customer':
@@ -307,43 +403,20 @@ def purchase_ticket():
     cursor = conn.cursor()
 
     try:
-        # 检查是否还有可用票
-        cursor.execute("""
-            SELECT 
-                a.seats - IFNULL(COUNT(p.ticket_id), 0) AS remaining_seats
-            FROM flight f
-            JOIN airplane a 
-                ON f.airline_name = a.airline_name AND f.airplane_id = a.airplane_id
-            LEFT JOIN ticket t 
-                ON f.airline_name = t.airline_name AND f.flight_num = t.flight_num
-            LEFT JOIN purchases p 
-                ON t.ticket_id = p.ticket_id
-            WHERE f.airline_name = %s AND f.flight_num = %s
-            GROUP BY a.seats;
-        """, (airline_name, flight_num))
-        result = cursor.fetchone()
-        # print(flight_num, result)
-        if result and result[0] > 0:
-            print("OK to purchase")
-            cursor.execute("SELECT MAX(ticket_id) FROM ticket")
-            max_id = cursor.fetchone()[0] or 0
-            new_ticket_id = max_id + 1
+        # 调用存储过程
+        result = ""
+        args = (airline_name, flight_num, customer_email, result)
+        result_args = cursor.callproc('PurchaseTicket', args)
+        # 存储过程的OUT参数在result_args的最后一个
+        purchase_result = result_args[-1]
 
-            # 插入新的 ticket
-            cursor.execute("""
-                INSERT INTO ticket (ticket_id, airline_name, flight_num)
-                VALUES (%s, %s, %s)
-            """, (new_ticket_id, airline_name, flight_num))
-
-            # 插入购票记录
-            cursor.execute("""
-                INSERT INTO Purchases (ticket_id, customer_email, purchase_date)
-                VALUES (%s, %s, %s)
-            """, (new_ticket_id, customer_email, datetime.now().strftime('%Y-%m-%d')))
-            conn.commit()
+        if purchase_result == 'success':
             flash('Ticket purchased successfully!')
+        elif purchase_result == 'no_ticket':
+            flash('No available tickets for this flight.')
         else:
-            flash('No available tickets for this flight. **Error1**')
+            flash('Unknown error occurred.')
+        conn.commit()
     except mysql.connector.Error as err:
         flash(f"Error: {err}")
     finally:
@@ -351,7 +424,6 @@ def purchase_ticket():
         conn.close()
 
     return redirect(url_for('search_flights'))
-
 
 @app.route('/check_status', methods=['GET','POST'])
 def check_status():
@@ -863,10 +935,66 @@ def add_airplane():
 
     return render_template('staff_add_airplane.html', airline_name=airline_name, airplanes=airplanes)
 
-@app.route('/staff/add_airport')
+@app.route('/staff/add_airport', methods=['GET', 'POST'])
 def add_airport():
-    # TODO: Implement add airport
-    return "Add New Airport page (to be implemented)"
+    # 权限检查：必须为staff且有Admin权限
+    if 'username' not in session or session['user_type'] != 'staff':
+        flash('Please log in as airline staff to add airports.')
+        return redirect(url_for('login_staff'))
+
+    username = session['username']
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # 检查是否有Admin权限
+    cursor.execute(
+        "SELECT 1 FROM Permission WHERE username = %s AND permission_type = 'Admin'",
+        (username,)
+    )
+    has_admin = cursor.fetchone()
+    if not has_admin:
+        cursor.close()
+        conn.close()
+        flash('You do not have permission to add airports.')
+        return redirect(url_for('staff_home'))
+
+    # 获取该员工所属航空公司
+    cursor.execute("SELECT airline_name FROM Airline_Staff WHERE username = %s", (username,))
+    staff = cursor.fetchone()
+    if not staff:
+        cursor.close()
+        conn.close()
+        flash('Staff not found.')
+        return redirect(url_for('staff_home'))
+    airline_name = staff['airline_name']
+
+    if request.method == 'POST':
+        airport_name = request.form.get('airport_name', '').strip()
+        airport_city = request.form.get('airport_city', '').strip()
+        if not airport_name or not airport_city:
+            flash('Airport name and city are required.')
+        else:
+            try:
+                cursor.execute(
+                    "INSERT INTO Airport (airport_name, airport_city) VALUES (%s, %s)",
+                    (airport_name, airport_city)
+                )
+                conn.commit()
+                flash(f"Airport '{airport_name}' added successfully!")
+            except mysql.connector.Error as err:
+                flash(f"Error: {err}")
+
+    # 查询所有机场，方便展示
+    cursor.execute("SELECT airport_name, airport_city FROM Airport ORDER BY airport_name")
+    airports = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    return render_template(
+        'staff_add_airport.html',
+        airline_name=airline_name,
+        airports=airports
+    )
 
 @app.route('/staff/view_booking_agents', methods=['GET', 'POST'])
 def staff_view_booking_agents():
