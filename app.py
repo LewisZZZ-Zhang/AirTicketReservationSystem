@@ -1917,7 +1917,7 @@ def agent_view_flights():
 
 #     return redirect(url_for('search_flights'))
 
-#4/29 测试一下改过的purchase
+
 @app.route('/agent/purchase_ticket', methods=['GET', 'POST'])
 def agent_purchase_ticket():
     if 'username' not in session.keys() or session['user_type'] != 'agent':
