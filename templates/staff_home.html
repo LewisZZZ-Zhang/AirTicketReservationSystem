@@ -1,20 +1,20 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class="container staff-theme" style="max-width: 900px;">
-    <h2>Airline Staff Homepage</h2>
+    <h2><i class="fa-solid fa-user-tie"></i> Airline Staff Homepage</h2>
     <div class="staff-btn-grid">
-        <a href="{{ url_for('view_my_flights') }}" class="staff-btn">View My Flights</a>
-        <a href="{{ url_for('create_flight') }}" class="staff-btn">Create New Flight</a>
-        <a href="{{ url_for('change_flight_status') }}" class="staff-btn">Change Status of Flights</a>
-        <a href="{{ url_for('add_airplane') }}" class="staff-btn">Add Airplane</a>
-        <a href="{{ url_for('add_airport') }}" class="staff-btn">Add New Airport</a>
-        <a href="{{ url_for('staff_view_booking_agents') }}" class="staff-btn">View Booking Agents</a>
-        <a href="{{ url_for('staff_view_frequent_customers') }}" class="staff-btn">View Frequent Customers</a>
-        <a href="{{ url_for('staff_view_reports') }}" class="staff-btn">view reports</a>
-        <a href="{{ url_for('staff_view_revenue_comparison') }}" class="staff-btn">Revenue Comparison</a>
-        <a href="{{ url_for('staff_view_top_destinations') }}" class="staff-btn">Top Destinations</a>
-        <a href="{{ url_for('staff_grant_permission') }}" class="staff-btn">Grant Permission</a>
-        <a href="{{ url_for('staff_add_booking_agent') }}" class="staff-btn">Add Booking Agent</a>
+        <a href="{{ url_for('view_my_flights') }}" class="staff-btn"><i class="fa-solid fa-plane"></i> View My Flights</a>
+        <a href="{{ url_for('create_flight') }}" class="staff-btn"><i class="fa-solid fa-plus"></i> Create New Flight</a>
+        <a href="{{ url_for('change_flight_status') }}" class="staff-btn"><i class="fa-solid fa-arrows-rotate"></i> Change Status of Flights</a>
+        <a href="{{ url_for('add_airplane') }}" class="staff-btn"><i class="fa-solid fa-jet-fighter"></i> Add Airplane</a>
+        <a href="{{ url_for('add_airport') }}" class="staff-btn"><i class="fa-solid fa-building"></i> Add New Airport</a>
+        <a href="{{ url_for('staff_view_booking_agents') }}" class="staff-btn"><i class="fa-solid fa-user-secret"></i> View Booking Agents</a>
+        <a href="{{ url_for('staff_view_frequent_customers') }}" class="staff-btn"><i class="fa-solid fa-users"></i> View Frequent Customers</a>
+        <a href="{{ url_for('staff_view_reports') }}" class="staff-btn"><i class="fa-solid fa-chart-column"></i> View Reports</a>
+        <a href="{{ url_for('staff_view_revenue_comparison') }}" class="staff-btn"><i class="fa-solid fa-scale-balanced"></i> Revenue Comparison</a>
+        <a href="{{ url_for('staff_view_top_destinations') }}" class="staff-btn"><i class="fa-solid fa-location-dot"></i> Top Destinations</a>
+        <a href="{{ url_for('staff_grant_permission') }}" class="staff-btn"><i class="fa-solid fa-user-shield"></i> Grant Permission</a>
+        <a href="{{ url_for('staff_add_booking_agent') }}" class="staff-btn"><i class="fa-solid fa-user-plus"></i> Add Booking Agent</a>
     </div>
 </div>
 {% endblock %}

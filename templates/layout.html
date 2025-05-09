@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <title>Air Ticket Reservation System</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
     <div class="top-nav">
@@ -13,23 +15,22 @@
             Air Ticket Reservation System
           </a>
           <nav class="nav-links">
-            <a href="{{ url_for('home') }}">Home</a>
+            <a href="{{ url_for('home') }}"><i class="fa-regular fa-compass"></i> Home</a>
             {% if session.get('user_type') %}
                 {% if session.get('user_type') == 'customer' %}
-                    <a href="{{ url_for('user_home') }}">MyAccount</a>
+                    <a href="{{ url_for('user_home') }}"><i class="fa-regular fa-address-card"></i> MyAccount</a>
                 {% elif session.get('user_type') == 'staff' %}
-                    <a href="{{ url_for('staff_home') }}">StaffHomepage</a>
+                    <a href="{{ url_for('staff_home') }}"><i class="fa-regular fa-id-badge"></i> StaffHomepage</a>
                 {% elif session.get('user_type') == 'agent' %}
-                    <a href="{{ url_for('agent_home') }}">AgentHomepage</a>
+                    <a href="{{ url_for('agent_home') }}"><i class="fa-regular fa-user"></i> AgentHomepage</a>
                 {% endif %}
-                <span class="welcome-message">Welcome, {{ session.get('username') }}!</span>
-                <a href="{{ url_for('logout') }}">Logout</a>
+                <span class="welcome-message"><i class="fa-regular fa-face-smile"></i> Welcome, {{ session.get('username') }}!</span>
+                <a href="{{ url_for('logout') }}"><i class="fa-regular fa-circle-xmark"></i> Logout</a>
             {% else %}
-                <a href="{{ url_for('login') }}">Login</a>
-                <a href="{{ url_for('register') }}">Register</a>
+                <a href="{{ url_for('login') }}"><i class="fa-regular fa-circle-right"></i> Login</a>
+                <a href="{{ url_for('register') }}"><i class="fa-regular fa-pen-to-square"></i> Register</a>
             {% endif %}
-        </nav>
-            </nav>
+          </nav>
         </div>
     </div>
     
