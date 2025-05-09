@@ -1,13 +1,37 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>Register as Airline Staff</h2>
-<form action="{{ url_for('register_staff') }}" method="POST">
-    Username: <input type="text" name="username" required><br>
-    Password: <input type="password" name="password" required><br>
-    First Name: <input type="text" name="first_name" required><br>
-    Last Name: <input type="text" name="last_name" required><br>
-    Date of Birth: <input type="date" name="date_of_birth" required><br>
-    Airline Name: <input type="text" name="airline_name" required><br>
-    <input type="submit" value="Register">
-</form>
+<div class="form-container" style="max-width: 420px; margin: 2rem auto; background: #f8fafc; padding: 2.5rem 2rem; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.07);">
+    <h2 style="text-align:center; color:#d32f2f; margin-bottom:1.5rem;">
+        <i class="fa-solid fa-user-tie" style="color:#d32f2f;"></i> Register as Airline Staff
+    </h2>
+    <form action="{{ url_for('register_staff') }}" method="POST" style="display: flex; flex-direction: column; gap: 1.1rem;">
+        <label style="font-weight:600; color:#1a237e;">
+            <i class="fa-solid fa-user"></i> Username:
+            <input type="text" name="username" required style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #b0bec5; margin-top:0.3rem;">
+        </label>
+        <label style="font-weight:600; color:#1a237e;">
+            <i class="fa-solid fa-lock"></i> Password:
+            <input type="password" name="password" required style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #b0bec5; margin-top:0.3rem;">
+        </label>
+        <label style="font-weight:600; color:#1a237e;">
+            <i class="fa-solid fa-signature"></i> First Name:
+            <input type="text" name="first_name" required style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #b0bec5; margin-top:0.3rem;">
+        </label>
+        <label style="font-weight:600; color:#1a237e;">
+            <i class="fa-solid fa-signature"></i> Last Name:
+            <input type="text" name="last_name" required style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #b0bec5; margin-top:0.3rem;">
+        </label>
+        <label style="font-weight:600; color:#1a237e;">
+            <i class="fa-regular fa-calendar-days"></i> Date of Birth:
+            <input type="date" name="date_of_birth" required style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #b0bec5; margin-top:0.3rem;">
+        </label>
+        <label style="font-weight:600; color:#1a237e;">
+            <i class="fa-solid fa-plane"></i> Airline Name:
+            <input type="text" name="airline_name" required style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #b0bec5; margin-top:0.3rem;">
+        </label>
+        <button type="submit" style="margin-top:1rem; background:#d32f2f; color:white; border:none; border-radius:8px; padding:0.9rem 0; font-size:1.1rem; font-weight:600; cursor:pointer; transition:background 0.2s;">
+            <i class="fa-solid fa-user-plus" style="color:white;"></i> Register
+        </button>
+    </form>
+</div>
 {% endblock %}

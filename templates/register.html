@@ -1,10 +1,27 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>Register</h2>
-<p>Select your user type:</p>
-<ul>
-    <li><a href="{{ url_for('register_customer') }}">Register as Customer</a></li>
-    <li><a href="{{ url_for('register_agent') }}">Register as Booking Agent</a></li>
-    <li><a href="{{ url_for('register_staff') }}">Register as Airline Staff</a></li>
-</ul>
+<h2 style="text-align:center;"><i class="fa-solid fa-user-plus"></i> Register</h2>
+<p style="text-align:center;">Select your user type:</p>
+<div class="login-type-grid" style="display: flex; justify-content: center; gap: 2rem; margin-top: 2rem;">
+    <a href="{{ url_for('register_customer') }}" class="login-type-btn customer" style="display: flex; flex-direction: column; align-items: center; padding: 2rem 1.5rem; border-radius: 12px; background: #f0f4fa; box-shadow: 0 2px 8px rgba(0,0,0,0.07); text-decoration: none; color: #1a237e; font-size: 1.1rem; transition: box-shadow 0.2s;">
+        <i class="fa-solid fa-user fa-2x" style="margin-bottom: 0.7rem; color: #1976d2;"></i>
+        <span>Register as Customer</span>
+    </a>
+    <a href="{{ url_for('register_agent') }}" class="login-type-btn agent" style="display: flex; flex-direction: column; align-items: center; padding: 2rem 1.5rem; border-radius: 12px; background: #f0f4fa; box-shadow: 0 2px 8px rgba(0,0,0,0.07); text-decoration: none; color: #1a237e; font-size: 1.1rem; transition: box-shadow 0.2s;">
+        <i class="fa-solid fa-user-secret fa-2x" style="margin-bottom: 0.7rem; color: #388e3c;"></i>
+        <span>Register as Booking Agent</span>
+    </a>
+    <a href="{{ url_for('register_staff') }}" class="login-type-btn staff" style="display: flex; flex-direction: column; align-items: center; padding: 2rem 1.5rem; border-radius: 12px; background: #f0f4fa; box-shadow: 0 2px 8px rgba(0,0,0,0.07); text-decoration: none; color: #1a237e; font-size: 1.1rem; transition: box-shadow 0.2s;">
+        <i class="fa-solid fa-user-tie fa-2x" style="margin-bottom: 0.7rem; color: #d32f2f;"></i>
+        <span>Register as Airline Staff</span>
+    </a>
+</div>
+<style>
+.login-type-btn:hover {
+    box-shadow: 0 4px 16px rgba(25, 118, 210, 0.15);
+    background: #e3eafc;
+    color: #0d47a1;
+    text-decoration: none;
+}
+</style>
 {% endblock %}

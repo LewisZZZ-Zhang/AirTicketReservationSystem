@@ -1,10 +1,25 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>Register as Booking Agent</h2>
-<form action="{{ url_for('register_agent') }}" method="POST">
-    Email: <input type="email" name="email" required><br>
-    Password: <input type="password" name="password" required><br>
-    Booking Agent ID: <input type="text" name="booking_agent_id" required><br>
-    <input type="submit" value="Register">
-</form>
+<div class="form-container" style="max-width: 400px; margin: 2rem auto; background: #f8fafc; padding: 2.5rem 2rem; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.07);">
+    <h2 style="text-align:center; color:#388e3c; margin-bottom:1.5rem;">
+        <i class="fa-solid fa-user-secret" style="color:#388e3c;"></i> Register as Booking Agent
+    </h2>
+    <form action="{{ url_for('register_agent') }}" method="POST" style="display: flex; flex-direction: column; gap: 1.2rem;">
+        <label style="font-weight:600; color:#1a237e;">
+            <i class="fa-regular fa-envelope"></i> Email:
+            <input type="email" name="email" required style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #b0bec5; margin-top:0.3rem;">
+        </label>
+        <label style="font-weight:600; color:#1a237e;">
+            <i class="fa-solid fa-lock"></i> Password:
+            <input type="password" name="password" required style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #b0bec5; margin-top:0.3rem;">
+        </label>
+        <label style="font-weight:600; color:#1a237e;">
+            <i class="fa-solid fa-id-badge"></i> Booking Agent ID:
+            <input type="text" name="booking_agent_id" required style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #b0bec5; margin-top:0.3rem;">
+        </label>
+        <button type="submit" style="margin-top:1rem; background:#388e3c; color:white; border:none; border-radius:8px; padding:0.9rem 0; font-size:1.1rem; font-weight:600; cursor:pointer; transition:background 0.2s;">
+            <i class="fa-solid fa-user-plus" style="color:white;"></i> Register
+        </button>
+    </form>
+</div>
 {% endblock %}

@@ -1,19 +1,61 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>Register as Customer</h2>
-<form action="{{ url_for('register_customer') }}" method="POST">
-    Name: <input type="text" name="name" required><br>
-    Email: <input type="email" name="email" required><br>
-    Password: <input type="password" name="password" required><br>
-    Building Number: <input type="text" name="building_number"><br>
-    Street: <input type="text" name="street"><br>
-    City: <input type="text" name="city"><br>
-    State: <input type="text" name="state"><br>
-    Phone Number: <input type="text" name="phone_number"><br>
-    Passport Number: <input type="text" name="passport_number"><br>
-    Passport Expiration: <input type="date" name="passport_expiration"><br>
-    Passport Country: <input type="text" name="passport_country"><br>
-    Date of Birth: <input type="date" name="date_of_birth" required><br>
-    <input type="submit" value="Register">
-</form>
+<div class="form-container" style="max-width: 480px; margin: 2rem auto; background: #f8fafc; padding: 2.5rem 2rem; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.07);">
+    <h2 style="text-align:center; color:#1976d2; margin-bottom:1.5rem;">
+        <i class="fa-solid fa-user"></i> Register as Customer
+    </h2>
+    <form action="{{ url_for('register_customer') }}" method="POST" style="display: flex; flex-direction: column; gap: 1.1rem;">
+        <label style="font-weight:600; color:#1a237e;">
+            <i class="fa-solid fa-signature"></i> Name:
+            <input type="text" name="name" required style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #b0bec5; margin-top:0.3rem;">
+        </label>
+        <label style="font-weight:600; color:#1a237e;">
+            <i class="fa-regular fa-envelope"></i> Email:
+            <input type="email" name="email" required style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #b0bec5; margin-top:0.3rem;">
+        </label>
+        <label style="font-weight:600; color:#1a237e;">
+            <i class="fa-solid fa-lock"></i> Password:
+            <input type="password" name="password" required style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #b0bec5; margin-top:0.3rem;">
+        </label>
+        <label style="font-weight:600; color:#1a237e;">
+            <i class="fa-solid fa-building"></i> Building Number:
+            <input type="text" name="building_number" style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #b0bec5; margin-top:0.3rem;">
+        </label>
+        <label style="font-weight:600; color:#1a237e;">
+            <i class="fa-solid fa-road"></i> Street:
+            <input type="text" name="street" style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #b0bec5; margin-top:0.3rem;">
+        </label>
+        <label style="font-weight:600; color:#1a237e;">
+            <i class="fa-solid fa-city"></i> City:
+            <input type="text" name="city" style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #b0bec5; margin-top:0.3rem;">
+        </label>
+        <label style="font-weight:600; color:#1a237e;">
+            <i class="fa-solid fa-location-dot"></i> State:
+            <input type="text" name="state" style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #b0bec5; margin-top:0.3rem;">
+        </label>
+        <label style="font-weight:600; color:#1a237e;">
+            <i class="fa-solid fa-phone"></i> Phone Number:
+            <input type="text" name="phone_number" style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #b0bec5; margin-top:0.3rem;">
+        </label>
+        <label style="font-weight:600; color:#1a237e;">
+            <i class="fa-solid fa-passport"></i> Passport Number:
+            <input type="text" name="passport_number" style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #b0bec5; margin-top:0.3rem;">
+        </label>
+        <label style="font-weight:600; color:#1a237e;">
+            <i class="fa-regular fa-calendar-days"></i> Passport Expiration:
+            <input type="date" name="passport_expiration" style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #b0bec5; margin-top:0.3rem;">
+        </label>
+        <label style="font-weight:600; color:#1a237e;">
+            <i class="fa-solid fa-flag"></i> Passport Country:
+            <input type="text" name="passport_country" style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #b0bec5; margin-top:0.3rem;">
+        </label>
+        <label style="font-weight:600; color:#1a237e;">
+            <i class="fa-solid fa-cake-candles"></i> Date of Birth:
+            <input type="date" name="date_of_birth" required style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #b0bec5; margin-top:0.3rem;">
+        </label>
+        <button type="submit" style="margin-top:1rem; background:#1976d2; color:white; border:none; border-radius:8px; padding:0.9rem 0; font-size:1.1rem; font-weight:600; cursor:pointer; transition:background 0.2s;">
+            <i class="fa-solid fa-user-plus" style="color:white;"></i> Register
+        </button>
+    </form>
+</div>
 {% endblock %}
