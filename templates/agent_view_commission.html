@@ -2,20 +2,107 @@
 {% block content %}
 <div class="container">
     <h2>My Commission</h2>
-    <form method="POST" class="search-form filter-bar" style="display: flex; align-items: center; gap: 1.5rem; max-width: 700px; margin-bottom: 2rem;">
-        <div class="form-group" style="margin: 0;">
-            <label for="start_date" style="margin-right: 0.5rem;">Start Date:</label>
-            <input type="date" id="start_date" name="start_date" value="{{ start_date }}">
+    
+    <!-- Date Filter Form -->
+    <form method="POST" class="filter-form">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="start_date">Start Date</label>
+                <input type="date" id="start_date" name="start_date" value="{{ start_date }}" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="end_date">End Date</label>
+                <input type="date" id="end_date" name="end_date" value="{{ end_date }}" class="form-control">
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Apply Filter</button>
+            </div>
         </div>
-        <div class="form-group" style="margin: 0;">
-            <label for="end_date" style="margin-right: 0.5rem;">End Date:</label>
-            <input type="date" id="end_date" name="end_date" value="{{ end_date }}">
-        </div>
-        <button type="submit" class="cta-button" style="margin: 0;">Filter</button>
     </form>
-    <h3>Commission Summary</h3>
-    <p>Total Commission: ¥{{ commission_data.total_commission or 0 }}</p>
-    <p>Average Commission per Ticket: ¥{{ commission_data.avg_commission or 0 }}</p>
-    <p>Total Tickets Sold: {{ commission_data.total_tickets or 0 }}</p>
+    
+    <!-- Commission Summary -->
+    <div class="commission-summary">
+        <h3>Commission Summary</h3>
+        <div class="summary-cards">
+            <div class="summary-card">
+                <h4>Total Commission</h4>
+                <p class="amount">¥{{ "%.2f"|format(commission_data.total_commission or 0) }}</p>
+            </div>
+            <div class="summary-card">
+                <h4>Average per Ticket</h4>
+                <p class="amount">¥{{ "%.2f"|format(commission_data.avg_commission or 0) }}</p>
+            </div>
+            <div class="summary-card">
+                <h4>Tickets Sold</h4>
+                <p class="amount">{{ commission_data.total_tickets or 0 }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Optional: Add future space for commission details/transactions -->
 </div>
+
+<style>
+    .filter-form {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+    
+    .form-row {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-end;
+        flex-wrap: wrap;
+    }
+    
+    .form-group {
+        margin-bottom: 0;
+    }
+    
+    .commission-summary {
+        margin-top: 2rem;
+    }
+    
+    .summary-cards {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        margin-top: 1rem;
+    }
+    
+    .summary-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        flex: 1;
+        min-width: 200px;
+    }
+    
+    .summary-card h4 {
+        color: #6c757d;
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .amount {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 0;
+    }
+    
+    @media (max-width: 768px) {
+        .form-row {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .form-group {
+            width: 100%;
+        }
+    }
+</style>
 {% endblock %}
