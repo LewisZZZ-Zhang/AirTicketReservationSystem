@@ -363,8 +363,6 @@ def search_flights():
 # BEGIN
 #     DECLARE remaining INT DEFAULT 0;
 #     DECLARE new_ticket_id INT DEFAULT 0;
-
-#     -- 检查剩余座位
 #     SELECT a.seats - IFNULL(COUNT(p.ticket_id), 0)
 #       INTO remaining
 #       FROM Flight f
@@ -375,12 +373,9 @@ def search_flights():
 #      GROUP BY a.seats;
 
 #     IF remaining > 0 THEN
-#         -- 新 ticket_id
 #         SELECT IFNULL(MAX(ticket_id), 0) + 1 INTO new_ticket_id FROM Ticket;
-#         -- 插入 Ticket
 #         INSERT INTO Ticket(ticket_id, airline_name, flight_num)
 #         VALUES (new_ticket_id, p_airline_name, p_flight_num);
-#         -- 插入 Purchases
 #         INSERT INTO Purchases(ticket_id, customer_email, purchase_date)
 #         VALUES (new_ticket_id, p_customer_email, CURDATE());
 #         SET p_result = 'success';
