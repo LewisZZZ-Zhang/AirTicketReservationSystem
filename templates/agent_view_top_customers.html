@@ -1,21 +1,138 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class="container">
-    <h2 class="text-center mb-4">Purchase Ticket</h2>
-    <form method="POST" action="{{ url_for('agent_purchase_ticket') }}" style="max-width: 500px; margin: auto;">
-        <div class="form-group">
-            <label for="customer_email">Customer Email</label>
-            <input type="email" id="customer_email" name="customer_email" class="form-control" required>
+    <h2>Top Customers</h2>
+    
+    <div class="top-customers-section">
+        <div class="top-customers-card">
+            <h3><i class="fas fa-ticket-alt"></i> Top 5 Customers by Tickets Sold</h3>
+            <div class="table-responsive">
+                <table class="top-customers-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Customer Email</th>
+                            <th>Tickets Purchased</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for customer in top_customers_tickets %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ customer.customer_email }}</td>
+                            <td class="highlight">{{ customer.tickets_sold }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3" class="no-data">No customer data available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <div class="form-group">
-            <label for="airline_name">Airline Name</label>
-            <input type="text" id="airline_name" name="airline_name" class="form-control" value="{{ airline_name }}" readonly>
+
+        <div class="top-customers-card">
+            <h3><i class="fas fa-money-bill-wave"></i> Top 5 Customers by Commission Earned</h3>
+            <div class="table-responsive">
+                <table class="top-customers-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Customer Email</th>
+                            <th>Commission Generated</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for customer in top_customers_commission %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ customer.customer_email }}</td>
+                            <td class="highlight">¥{{ "%.2f"|format(customer.commission_earned) }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3" class="no-data">No customer data available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <div class="form-group">
-            <label for="flight_num">Flight Number</label>
-            <input type="text" id="flight_num" name="flight_num" class="form-control" value="{{ flight_num }}" readonly>
-        </div>
-        <button type="submit" class="btn btn-primary btn-block mt-3">Purchase Ticket</button>
-    </form>
+    </div>
 </div>
+
+<style>
+    .top-customers-section {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2rem;
+        margin-top: 1.5rem;
+    }
+    
+    .top-customers-card {
+        flex: 1;
+        min-width: 300px;
+        background: rgb(255, 255, 255);
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        padding: 1.5rem;
+    }
+    
+    .top-customers-card h3 {
+        color: #2c3e50;
+        margin-bottom: 1.25rem;
+        font-size: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .top-customers-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .top-customers-table th {
+        background-color: #1b30b7;
+        padding: 0.75rem;
+        text-align: left;
+        font-weight: 600;
+        color: #ffffff;
+    }
+    
+    .top-customers-table td {
+        padding: 0.75rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .top-customers-table tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .highlight {
+        font-weight: bold;
+        color: #2c3e50;
+    }
+    
+    .no-data {
+        text-align: center;
+        color: #6c757d;
+        font-style: italic;
+    }
+    
+    .table-responsive {
+        overflow-x: auto;
+    }
+    
+    @media (max-width: 768px) {
+        .top-customers-section {
+            flex-direction: column;
+        }
+        
+        .top-customers-card {
+            min-width: 100%;
+        }
+    }
+</style>
 {% endblock %}
