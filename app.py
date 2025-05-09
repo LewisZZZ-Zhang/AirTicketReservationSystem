@@ -532,6 +532,8 @@ def view_all_tickets():
 
 # ...existing code...
 
+# ...existing code...
+
 @app.route('/user_home', methods=['GET', 'POST'])
 def user_home():
     if 'username' not in session or session['user_type'] != 'customer':
@@ -540,7 +542,6 @@ def user_home():
 
     customer_email = session['username']
 
-    # 默认起止时间：最近半年
     today = datetime.today()
     default_start = (today - timedelta(days=180)).replace(day=1)
     default_end = today
@@ -555,16 +556,16 @@ def user_home():
         start_date = default_start
 
     if end_month:
-        # 取该月最后一天
         end_date = datetime.strptime(end_month, '%Y-%m')
         next_month = (end_date.replace(day=28) + timedelta(days=4)).replace(day=1)
         end_date = next_month - timedelta(days=1)
     else:
         end_date = default_end
 
-    # 查询半年内总花销
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
+
+    # 查询半年内总花销
     cursor.execute("""
         SELECT SUM(Flight.price) AS total_spent
         FROM Purchases
@@ -575,6 +576,34 @@ def user_home():
           AND DATE(Purchases.purchase_date) <= %s
     """, (customer_email, start_date.strftime('%Y-%m-%d'), end_date.strftime('%Y-%m-%d')))
     total_spent = cursor.fetchone()['total_spent'] or 0
+
+    # 查询去年总花销
+    last_year_start = (today - timedelta(days=365)).strftime('%Y-%m-%d')
+    last_year_end = today.strftime('%Y-%m-%d')
+    cursor.execute("""
+        SELECT SUM(Flight.price) AS last_year_spent
+        FROM Purchases
+        JOIN Ticket ON Purchases.ticket_id = Ticket.ticket_id
+        JOIN Flight ON Ticket.airline_name = Flight.airline_name AND Ticket.flight_num = Flight.flight_num
+        WHERE Purchases.customer_email = %s
+          AND DATE(Purchases.purchase_date) >= %s
+          AND DATE(Purchases.purchase_date) <= %s
+    """, (customer_email, last_year_start, last_year_end))
+    last_year_spent = cursor.fetchone()['last_year_spent'] or 0
+
+    # 查询最近半年总花销
+    last_half_year_start = (today - timedelta(days=180)).strftime('%Y-%m-%d')
+    last_half_year_end = today.strftime('%Y-%m-%d')
+    cursor.execute("""
+        SELECT SUM(Flight.price) AS last_half_year_spent
+        FROM Purchases
+        JOIN Ticket ON Purchases.ticket_id = Ticket.ticket_id
+        JOIN Flight ON Ticket.airline_name = Flight.airline_name AND Ticket.flight_num = Flight.flight_num
+        WHERE Purchases.customer_email = %s
+          AND DATE(Purchases.purchase_date) >= %s
+          AND DATE(Purchases.purchase_date) <= %s
+    """, (customer_email, last_half_year_start, last_half_year_end))
+    last_half_year_spent = cursor.fetchone()['last_half_year_spent'] or 0
 
     # 查询每月花销
     cursor.execute("""
@@ -588,23 +617,19 @@ def user_home():
         GROUP BY month
         ORDER BY month
     """, (customer_email, start_date.strftime('%Y-%m-%d'), end_date.strftime('%Y-%m-%d')))
-    # print(customer_email, start_date.strftime('%Y-%m-%d'), end_date.strftime('%Y-%m-%d'))
     monthly_data = cursor.fetchall()
-    print("monthly_data", monthly_data)
     cursor.close()
     conn.close()
 
     # 构造柱状图数据
     months = []
     monthly_spent = []
-    # 补全没有消费的月份
     current = start_date
     while current <= end_date:
         m = current.strftime('%Y-%m')
         months.append(m)
         found = next((item['monthly_spent'] for item in monthly_data if item['month'] == m), 0)
         monthly_spent.append(float(found) if found else 0)
-        # 下个月
         if current.month == 12:
             current = current.replace(year=current.year+1, month=1)
         else:
@@ -613,11 +638,14 @@ def user_home():
     return render_template(
         'user_home.html',
         total_spent=total_spent,
+        last_year_spent=last_year_spent,
+        last_half_year_spent=last_half_year_spent,
         months=months,
         monthly_spent=monthly_spent,
         start_month=start_date.strftime('%Y-%m'),
         end_month=end_date.strftime('%Y-%m')
     )
+# ...existing code...
 
 @app.route('/staff/staff_home')
 def staff_home():

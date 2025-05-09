@@ -1,7 +1,18 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class="container">
-    <h2>Total Spending (Last 6 Months): ¥{{ total_spent }}</h2>
+    <h2>Total Spending: ¥{{ total_spent }}</h2>
+
+    <div style="display: flex; gap: 2rem; margin-bottom: 1.5rem;">
+        <div style="background: #e3f2fd; color: #1976d2; border-radius: 8px; padding: 1rem 1.5rem; font-weight: 600; min-width: 180px; text-align: center;">
+            <i class="fa-solid fa-calendar-days"></i> Last Year Spending<br>
+            <span style="font-size: 1.3rem;">¥{{ last_year_spent }}</span>
+        </div>
+        <div style="background: #f1f8e9; color: #388e3c; border-radius: 8px; padding: 1rem 1.5rem; font-weight: 600; min-width: 180px; text-align: center;">
+            <i class="fa-solid fa-calendar-minus"></i> Last 6 Months Spending<br>
+            <span style="font-size: 1.3rem;">¥{{ last_half_year_spent }}</span>
+        </div>
+    </div>
 
     <form method="post" class="search-form filter-bar" style="display: flex; align-items: center; gap: 1.5rem; max-width: 700px; margin-bottom: 2rem;">
         <div class="form-group" style="margin: 0;">
