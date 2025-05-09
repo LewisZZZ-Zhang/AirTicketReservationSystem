@@ -16,16 +16,17 @@ app.secret_key = 'your_secret_key'  # 用于会话加密
 #         session['session_version'] = app.config['SESSION_VERSION']
 
 # 数据库连接配置
-db_config = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': '',
-    'database': 'airticketreservationsystem'
-}
+# db_config = {
+#     'host': 'localhost',
+#     'user': 'root',
+#     'password': '',
+#     'database': 'airticketreservationsystem'
+# }
 
-# 获取数据库连接
-def get_db_connection():
-    return mysql.connector.connect(**db_config)
+# # 获取数据库连接
+# def get_db_connection():
+#     return mysql.connector.connect(**db_config)
+from db import get_db_connection
 
 @app.route('/')
 def home():
