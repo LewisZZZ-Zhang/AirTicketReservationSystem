@@ -1,13 +1,13 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class="container">
-    <h2>Booking Agent Dashboard</h2>
+    <h2><i class="fa-solid fa-user-secret"></i> Booking Agent Dashboard</h2>
     <div class="staff-btn-grid" style="margin-bottom:2rem;">
-        <a class="staff-btn" href="{{ url_for('agent_view_flights') }}">View My Flights</a>
-        <a class="staff-btn" href="{{ url_for('search_flights') }}">Search for Flights / Purchase</a>
-        <a class="staff-btn" href="{{ url_for('agent_view_commission') }}">View My Commission</a>
-        <a class="staff-btn" href="{{ url_for('agent_view_top_customers') }}">View Top Customers</a>
-        <a class="staff-btn" href="{{ url_for('agent_purchase_ticket') }}">Purchase Ticket</a>
+        <a class="staff-btn" href="{{ url_for('agent_view_flights') }}"><i class="fa-solid fa-plane"></i> View My Flights</a>
+        <a class="staff-btn" href="{{ url_for('search_flights') }}"><i class="fa-solid fa-magnifying-glass"></i> Search for Flights / Purchase</a>
+        <a class="staff-btn" href="{{ url_for('agent_view_commission') }}"><i class="fa-solid fa-coins"></i> View My Commission</a>
+        <a class="staff-btn" href="{{ url_for('agent_view_top_customers') }}"><i class="fa-solid fa-users"></i> View Top Customers</a>
+        <a class="staff-btn" href="{{ url_for('agent_purchase_ticket') }}"><i class="fa-solid fa-ticket"></i> Purchase Ticket</a>
     </div>
 </div>
 {% endblock %}

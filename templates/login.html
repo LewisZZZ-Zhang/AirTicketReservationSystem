@@ -1,15 +1,18 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2 style="text-align:center;">Login</h2>
+<h2 style="text-align:center;"><i class="fa-solid fa-right-to-bracket"></i> Login</h2>
 <p style="text-align:center;">Select your login type:</p>
 <div class="login-type-grid">
     <a href="{{ url_for('login_customer') }}" class="login-type-btn customer">
+        <i class="fa-solid fa-user"></i>
         <span>Customer Login</span>
     </a>
     <a href="{{ url_for('login_agent') }}" class="login-type-btn agent">
+        <i class="fa-solid fa-user-secret"></i>
         <span>Booking Agent Login</span>
     </a>
     <a href="{{ url_for('login_staff') }}" class="login-type-btn staff">
+        <i class="fa-solid fa-user-tie"></i>
         <span>Airline Staff Login</span>
     </a>
 </div>

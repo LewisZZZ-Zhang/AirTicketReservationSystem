@@ -3,27 +3,35 @@
 <div class="hero">
     <h1>Welcome to Air Ticket System</h1>
     <div class="cta-buttons">
-        <a href="{{ url_for('search_flights') }}" class="cta-button">Search Flights / Purchase</a>
-        <a href="{{ url_for('check_status') }}" class="cta-button">Check Flight Status</a>
+        <a href="{{ url_for('search_flights') }}" class="cta-button">
+            <i class="fa-solid fa-magnifying-glass"></i> Search Flights / Purchase
+        </a>
+        <a href="{{ url_for('check_status') }}" class="cta-button">
+            <i class="fa-solid fa-plane-departure"></i> Check Flight Status
+        </a>
     </div>
 </div>
 
 {% if session['username'] is defined and session['user_type'] == 'customer' %}
     {% if tickets %}
-        <h3>My upcoming flights:</h3>
-        <p><a href="{{ url_for('view_all_tickets') }}">View all my flights</a></p>
+        <h3><i class="fa-solid fa-ticket"></i> My upcoming flights:</h3>
+        <p>
+            <a href="{{ url_for('view_all_tickets') }}">
+                <i class="fa-solid fa-list"></i> View all my flights
+            </a>
+        </p>
         <table border="1">
             <thead>
                 <tr>
-                    <th>Ticket ID</th>
-                    <th>Airline</th>
-                    <th>Flight Number</th>
-                    <th>Departure Airport</th>
-                    <th>Arrival Airport</th>
-                    <th>Departure Time</th>
-                    <th>Arrival Time</th>
-                    <th>Status</th>
-                    <th>Price</th>
+                    <th><i class="fa-solid fa-hashtag"></i> Ticket ID</th>
+                    <th><i class="fa-solid fa-plane"></i> Airline</th>
+                    <th><i class="fa-solid fa-list-ol"></i> Flight Number</th>
+                    <th><i class="fa-solid fa-plane-departure"></i> Departure Airport</th>
+                    <th><i class="fa-solid fa-plane-arrival"></i> Arrival Airport</th>
+                    <th><i class="fa-regular fa-clock"></i> Departure Time</th>
+                    <th><i class="fa-regular fa-clock"></i> Arrival Time</th>
+                    <th><i class="fa-solid fa-circle-info"></i> Status</th>
+                    <th><i class="fa-solid fa-dollar-sign"></i> Price</th>
                 </tr>
             </thead>
             <tbody>
@@ -43,10 +51,17 @@
             </tbody>
         </table>
     {% else %}
-        <p>I have no upcoming flights.</p>
-        <p><a href="{{ url_for('view_all_tickets') }}">View all my flights</a></p>
+        <p><i class="fa-regular fa-face-frown"></i> I have no upcoming flights.</p>
+        <p>
+            <a href="{{ url_for('view_all_tickets') }}">
+                <i class="fa-solid fa-list"></i> View all my flights
+            </a>
+        </p>
     {% endif %}
 {% else %}
-    <p>Please <a href="{{ url_for('login_customer') }}">login</a> to view your tickets.</p>
+    <p>
+        <i class="fa-regular fa-face-smile"></i>
+        Please <a href="{{ url_for('login_customer') }}"><i class="fa-solid fa-right-to-bracket"></i> login</a> to view your tickets.
+    </p>
 {% endif %}
 {% endblock %}
