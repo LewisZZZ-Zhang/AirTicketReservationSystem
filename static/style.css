@@ -83,10 +83,10 @@ body {
 
 /* 按钮样式 */
 .cta-buttons {
-    display: flex;
+    flex-direction: column !important;
     gap: 1.5rem;
-    justify-content: center;
-    margin-top: 2rem;
+    align-items: center;
+    display: flex;
 }
 
 .cta-button {
@@ -98,6 +98,11 @@ body {
     font-weight: 600;
     transition: transform 0.2s, box-shadow 0.2s;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    min-width: 300px;      /* 设置最小宽度 */
+    max-width: 400px;      /* 设置最大宽度 */
+    width: 260px;          /* 固定宽度 */
+    text-align: center;
+    box-sizing: border-box;
 }
 
 .cta-button:hover {
