@@ -253,6 +253,45 @@
                 INSERT INTO Airplane (airline_name, airplane_id, seats)
                 VALUES (%s, %s, %s);
             
-            Remove airport:
+            Remove airplane:
                 DELETE FROM Airplane WHERE airline_name = %s AND airplane_id = %s;
-    
+
+        4.2.3 Manage Airports
+        Use Case: Allow staff with admin permissions to add or remove airports.
+        Queries:
+            Add airport:
+                INSERT INTO Airport (airport_name, airport_city)
+                VALUES (%s, %s);
+            
+            Remove airport:
+                DELETE FROM Airport WHERE airport_name = %s;
+        
+        4.2.4 Manage Permissions
+        Use Case: Allow staff with admin permissions to grant or revoke permissions for other staff members.
+        Queries:
+            Grant permission:
+                INSERT INTO Permission (username, permission_type)
+                VALUES (%s, %s);
+            
+            Revoke permission:
+                DELETE FROM Permission 
+                WHERE username = %s AND permission_type = %s;
+
+        4.2.5 Manage Booking Agents
+        Use Case: Allow staff with admin permissions to add or remove booking agents for their airline.
+        Queries:
+            Add booking agent:
+                INSERT INTO Booking_Agent_Working (email, airline_name)
+                VALUES (%s, %s);
+            
+            Remove booking agent:
+                DELETE FROM Booking_Agent_Working 
+                WHERE email = %s AND airline_name = %s;
+
+    4.3 Operator Functions
+        4.3.1 Change Flight Status
+            Use Case: Allow staff with operator permissions to update the status of flights.
+            Query:
+                UPDATE Flight
+                SET status = %s
+                WHERE airline_name = %s AND flight_num = %s;
