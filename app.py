@@ -331,7 +331,6 @@ def search_flights():
     flights = cursor.fetchall()
     cursor.close()
     conn.close()
-    # print("result:",flights)
     return render_template('search_flights.html', flights=flights, from_location=from_location, to_location=to_location, date=date)
 
 @app.route('/purchase_ticket', methods=['POST'])
@@ -422,11 +421,6 @@ def check_status():
     cursor.close()
     conn.close()
 
-    # if status_results:
-    #     flash(f"Found {len(status_results)} flight(s) matching your criteria.")
-    # else:
-    #     flash("No flights found matching your criteria.")
-
     return render_template(
         'check_status.html',
         status_results=status_results,
@@ -497,7 +491,6 @@ def view_all_tickets():
 
     return render_template('all_tickets.html', tickets=tickets)
 
-# ...existing code...
 
 @app.route('/customer/spending', methods=['GET', 'POST'])
 def spending():

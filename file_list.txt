@@ -1,0 +1,54 @@
+1. app.py
+Purpose: Main application file.
+
+2. templates
+Purpose: Contains HTML templates for rendering web pages.
+Contents:
+(Since all of the html files is for render the web page for the corresponding function in app.py,
+for simplicity, we will directly show the contents of the corresponding part in app.py for the html files)
+    agent_home.html: Dashboard for booking agents.
+    agent_purchase_ticket.html: Purchase tickets for specified customer.
+    agent_view_commission.html: View commission earned by the agent.
+    agent_view_flights.html: View flights booked by the agent.
+    agent_view_top_customers.html: View top customers for the agent.
+    all_tickets.html: View all tickets purchased by a customer.
+    check_status.html: Check the status of searched flight. Available for all users.
+    index.html: Homepage for the application.
+    layout.html: Base layout for all pages, includes navigation and common styles.
+    login_generic.html: Generic login form for customers, agents, and staff after the login type selection.
+    login.html: Login selection page for different user types.
+    register_agent.html: Registration form for booking agents.
+    register_customer.html: Registration form for customers.
+    register_staff.html: Registration form for airline staff.
+    register.html: Registration selection page for different user types.
+    search_filghts.html: Search flights according to departure city and time. Available for all users.
+    spending.html: Customer spending report.
+    staff_airport_management.html: Manage airports for the airline.
+    staff_change_agent.html: Manage booking agents for the airline.
+    staff_change_airplane.html: Manage airplanes for the airline.
+    staff_change_flight_status.html: Change flight statuses.
+    staff_home.html: Dashboard for airline staff.
+    staff_permission_management.html: Manage staff permissions.
+    staff_ticket_sales.html: Ticket sales report for staff.
+    staff_earnings_analysis.html: Earnings analysis for staff.
+    staff_top_destinations.html: Top destinations report for staff.
+    staff_view_my_flights.html: Page to view flights managed by staff.
+
+3 static (logo.png, LOGO1.png, style.css)
+Purpose: Contains CSS styles for the application.
+Contents:
+    Global styles for layout, typography, and colors.
+    Specific styles for navigation, forms, tables, and buttons.
+    Responsive design rules for mobile and desktop views.
+
+4 create_table.sql
+Purpose: SQL script to create the database schema.
+Contents:
+    Table definitions for airline, airline_staff, permission, airplane, airport, flight, ticket, purchases, etc.
+    Foreign key relationships between tables.
+
+5. insert_data_and_procedure.sql
+Purpose: SQL script to insert initial data and define stored procedures.
+Contents:
+    Sample data for airlines, staff, airplanes, airports, and flights.
+    Stored procedures like customer_get_upcoming_flights and GetStaffAirlineInfo.
