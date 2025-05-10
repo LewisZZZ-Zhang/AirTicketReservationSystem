@@ -10,9 +10,29 @@ User Authentication:
     Generic login function for three user type
     User registration + html
 
+Agent Function:
+
+
 Staff Function: 
     Change flight status + html
     View frequent customer + html
     view ticket sales + html
 
 Demostration Text files
+
+Jonathan(Zijun Wu)
+SQL:
+    Two Procedures
+    SELECT Functions
+
+User Authentication:
+    python codes for inserting inserting new users & login function for verifying existing users
+    Login & Register html improved 
+
+Agent Function:
+    My Flight, My Commission & Top Customer python codes & html file
+
+Staff Function: 
+    staff permission verification(both Homepage html  and python verification)
+    
+    All Remianing Functions & html files except what Tim has mentioned
