@@ -295,3 +295,99 @@
                 UPDATE Flight
                 SET status = %s
                 WHERE airline_name = %s AND flight_num = %s;
+
+5. Booking Agent Use Cases
+
+    5.1 View Flights Sold
+    Use Case: Allow booking agents to view all flights they have sold tickets for.
+    Query:
+        SELECT 
+            Flight.airline_name, 
+            Flight.flight_num, 
+            Flight.departure_airport, 
+            Flight.arrival_airport, 
+            Flight.departure_time, 
+            Flight.arrival_time, 
+            Flight.status, 
+            Flight.price
+        FROM Purchases
+        JOIN Ticket ON Purchases.ticket_id = Ticket.ticket_id
+        JOIN Flight ON Ticket.airline_name = Flight.airline_name AND Ticket.flight_num = Flight.flight_num
+        WHERE Purchases.booking_agent_id = (
+            SELECT booking_agent_id FROM Booking_Agent WHERE email = %s
+        )
+        [AND DATE(Flight.departure_time) >= %s]
+        [AND DATE(Flight.departure_time) <= %s]
+        [AND Flight.departure_airport = %s]
+        [AND Flight.arrival_airport = %s]
+        ORDER BY Flight.departure_time
+
+    5.2 Purchase Ticket for Customer
+    Use Case: Allow booking agents to purchase tickets for customers (only for airlines they work for).
+    Queries:
+        Check agent works for airline:
+            SELECT 1 FROM Booking_Agent_Work_For WHERE email = %s AND airline_name = %s;
+
+        Check ticket availability:
+            SELECT 
+                a.seats - IFNULL(COUNT(p.ticket_id), 0) AS remaining_seats
+            FROM Flight f
+            JOIN Airplane a ON f.airline_name = a.airline_name AND f.airplane_id = a.airplane_id
+            LEFT JOIN Ticket t ON f.airline_name = t.airline_name AND f.flight_num = t.flight_num
+            LEFT JOIN Purchases p ON t.ticket_id = p.ticket_id
+            WHERE f.airline_name = %s AND f.flight_num = %s
+            GROUP BY a.seats;
+
+        Insert ticket and purchase:
+            INSERT INTO Ticket (ticket_id, airline_name, flight_num)
+                VALUES (%s, %s, %s);
+
+            INSERT INTO Purchases (ticket_id, customer_email, booking_agent_id, purchase_date)
+                VALUES (%s, %s, (SELECT booking_agent_id FROM Booking_Agent WHERE email = %s), %s);
+
+    5.3 View Commission
+    Use Case: Allow booking agents to view their total and average commission, and number of tickets sold in a given period.
+    Query:
+        SELECT 
+            SUM(Flight.price * 0.1) AS total_commission,
+            AVG(Flight.price * 0.1) AS avg_commission,
+            COUNT(*) AS total_tickets
+        FROM Purchases
+        JOIN Ticket ON Purchases.ticket_id = Ticket.ticket_id
+        JOIN Flight ON Ticket.airline_name = Flight.airline_name AND Ticket.flight_num = Flight.flight_num
+        WHERE Purchases.booking_agent_id = (
+            SELECT booking_agent_id FROM Booking_Agent WHERE email = %s
+        )
+        AND DATE(Purchases.purchase_date) BETWEEN %s AND %s
+
+    5.4 View Top Customers
+    Use Case: Allow booking agents to view their top 5 customers by tickets sold (past 6 months) and by commission earned (past year).
+    Queries:
+        Top 5 by tickets sold (past 6 months):
+            SELECT 
+                Purchases.customer_email, 
+                COUNT(*) AS tickets_sold
+            FROM Purchases
+            JOIN Ticket ON Purchases.ticket_id = Ticket.ticket_id
+            WHERE Purchases.booking_agent_id = (
+                SELECT booking_agent_id FROM Booking_Agent WHERE email = %s
+            )
+            AND Purchases.purchase_date >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
+            GROUP BY Purchases.customer_email
+            ORDER BY tickets_sold DESC
+            LIMIT 5
+
+        Top 5 by commission earned (past year):
+            SELECT 
+                Purchases.customer_email, 
+                SUM(Flight.price * 0.1) AS commission_earned
+            FROM Purchases
+            JOIN Ticket ON Purchases.ticket_id = Ticket.ticket_id
+            JOIN Flight ON Ticket.airline_name = Flight.airline_name AND Ticket.flight_num = Flight.flight_num
+            WHERE Purchases.booking_agent_id = (
+                SELECT booking_agent_id FROM Booking_Agent WHERE email = %s
+            )
+            AND Purchases.purchase_date >= DATE_SUB(NOW(), INTERVAL 1 YEAR)
+            GROUP BY Purchases.customer_email
+            ORDER BY commission_earned DESC
+            LIMIT 5

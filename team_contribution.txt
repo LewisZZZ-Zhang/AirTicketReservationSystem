@@ -1,0 +1,18 @@
+Tim(Tianchen Xie):
+SQL:
+    Insert data
+
+Public Information function:
+    Search for flights
+    Check flight status
+
+User Authentication:
+    Generic login function for three user type
+    User registration + html
+
+Staff Function: 
+    Change flight status + html
+    View frequent customer + html
+    view ticket sales + html
+
+Demostration Text files
