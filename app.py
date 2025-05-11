@@ -461,7 +461,7 @@ def view_all_tickets():
     """
     params = [customer_email]
 
-    # 动态添加筛选条件
+    # Add filters based on user input
     if start_date:
         query += " AND DATE(Flight.departure_time) >= %s"
         params.append(start_date)
@@ -475,7 +475,7 @@ def view_all_tickets():
         query += " AND (Flight.arrival_airport = %s OR Flight.arrival_city = %s)"
         params.extend([to_location, to_location])
 
-    # 默认按 status 排序
+    # Order by status and departure time by default
     query += """
         ORDER BY 
             FIELD(Flight.status, 'Upcoming', 'Delayed', 'In progress'),
@@ -500,12 +500,12 @@ def spending():
 
     customer_email = session['username']
 
-    # 默认起止时间：最近半年
+    # Default date range: last 6 months
     today = datetime.today()
     default_start = (today - timedelta(days=180)).replace(day=1)
     default_end = today
 
-    # 获取用户选择的起止年月
+    # Get filter values from the form
     start_month = request.form.get('start_month')
     end_month = request.form.get('end_month')
 
@@ -515,14 +515,13 @@ def spending():
         start_date = default_start
 
     if end_month:
-        # 取该月最后一天
         end_date = datetime.strptime(end_month, '%Y-%m')
         next_month = (end_date.replace(day=28) + timedelta(days=4)).replace(day=1)
         end_date = next_month - timedelta(days=1)
     else:
         end_date = default_end
 
-    # 查询半年内总花销
+    # Search for total spending in the past 6 months
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
@@ -536,7 +535,7 @@ def spending():
     """, (customer_email, start_date.strftime('%Y-%m-%d'), end_date.strftime('%Y-%m-%d')))
     total_spent = cursor.fetchone()['total_spent'] or 0
 
-    # 查询每月花销
+    # Search for monthly spending
     cursor.execute("""
         SELECT DATE_FORMAT(Purchases.purchase_date, '%Y-%m') AS month, SUM(Flight.price) AS monthly_spent
         FROM Purchases
@@ -548,7 +547,6 @@ def spending():
         GROUP BY month
         ORDER BY month
     """, (customer_email, start_date.strftime('%Y-%m-%d'), end_date.strftime('%Y-%m-%d')))
-    # print(customer_email, start_date.strftime('%Y-%m-%d'), end_date.strftime('%Y-%m-%d'))
     monthly_data = cursor.fetchall()
     print("monthly_data", monthly_data)
     cursor.close()
@@ -1832,83 +1830,6 @@ def agent_view_flights():
     conn.close()
 
     return render_template('agent_view_flights.html', flights=flights)
-
-
-# 这里有点问题，前端要新弄一个html给agent
-# Purchase tickets: Booking agent chooses a flight and purchases tickets for other customers giving 
-# customer information. You may find it easier to implement this along with a use case to search for 
-# flights. Notice that as described in the previous assignments, the booking agent may only purchase tickets from 
-# airlines they work for.
-
-# @app.route('/agent/purchase_ticket', methods=['POST'])
-# def agent_purchase_ticket():
-#     if 'username' not in session.keys() or session['user_type'] != 'agent':
-#         flash('Please log in as a booking agent to purchase tickets.')
-#         return redirect(url_for('login_agent'))
-
-#     agent_email = session['username']
-#     customer_email = request.form['customer_email']  这里有点问题，前端要新弄一个html给agent
-#     airline_name = request.form['airline_name']       
-#     flight_num = request.form['flight_num']  
-
-#     conn = get_db_connection()
-#     cursor = conn.cursor()
-
-#     try:
-#         # Check if the agent works for the airline
-#         cursor.execute("""
-#             SELECT 1 FROM Booking_Agent_Works_For 
-#             WHERE booking_agent_email = %s AND airline_name = %s
-#         """, (agent_email, airline_name))
-#         if not cursor.fetchone():
-#             flash('You can only purchase tickets for airlines you work for.')
-#             return redirect(url_for('search_flights'))
-
-#         # Check if there are available tickets
-#         cursor.execute("""
-#             SELECT 
-#                 a.seats - IFNULL(COUNT(p.ticket_id), 0) AS remaining_seats
-#             FROM Flight f
-#             JOIN Airplane a 
-#                 ON f.airline_name = a.airline_name AND f.airplane_id = a.airplane_id
-#             LEFT JOIN Ticket t 
-#                 ON f.airline_name = t.airline_name AND f.flight_num = t.flight_num
-#             LEFT JOIN Purchases p 
-#                 ON t.ticket_id = p.ticket_id
-#             WHERE f.airline_name = %s AND f.flight_num = %s
-#             GROUP BY a.seats;
-#         """, (airline_name, flight_num))
-#         result = cursor.fetchone()
-#         if not result or result[0] <= 0:
-#             flash('No available tickets for this flight.')
-#             return redirect(url_for('search_flights'))
-
-#         # Insert new ticket
-#         cursor.execute("SELECT MAX(ticket_id) FROM Ticket")
-#         max_id = cursor.fetchone()[0] or 0
-#         new_ticket_id = max_id + 1
-
-#         cursor.execute("""
-#             INSERT INTO Ticket (ticket_id, airline_name, flight_num)
-#             VALUES (%s, %s, %s)
-#         """, (new_ticket_id, airline_name, flight_num))
-
-#         # Insert purchase record
-#         cursor.execute("""
-#             INSERT INTO Purchases (ticket_id, customer_email, booking_agent_id, purchase_date)
-#             VALUES (%s, %s, (
-#                 SELECT booking_agent_id FROM Booking_Agent WHERE email = %s
-#             ), %s)
-#         """, (new_ticket_id, customer_email, agent_email, datetime.now().strftime('%Y-%m-%d')))
-#         conn.commit()
-#         flash('Ticket purchased successfully!')
-#     except mysql.connector.Error as err:
-#         flash(f"Error: {err}")
-#     finally:
-#         cursor.close()
-#         conn.close()
-
-#     return redirect(url_for('search_flights'))
 
 
 @app.route('/agent/purchase_ticket', methods=['GET', 'POST'])

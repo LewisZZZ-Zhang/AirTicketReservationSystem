@@ -7,18 +7,27 @@ Public Information function:
     Check flight status
 
 User Authentication:
-    Generic login function for three user type
+    Generic login function for three user type + html
     User registration + html
 
-Agent Function:
+Customer Functions:
+    Purchase history + html
+    view spending + html
 
+Agent Functions:
+    Home page
+    Purchase ticket + html
 
-Staff Function: 
+Staff Functions: 
     Change flight status + html
     View frequent customer + html
     view ticket sales + html
 
 Demostration Text files
+
+
+
+
 
 Jonathan(Zijun Wu)
 SQL:
@@ -29,10 +38,10 @@ User Authentication:
     python codes for inserting inserting new users & login function for verifying existing users
     Login & Register html improved 
 
-Agent Function:
+Agent Functions:
     My Flight, My Commission & Top Customer python codes & html file
 
-Staff Function: 
+Staff Functions: 
     staff permission verification(both Homepage html  and python verification)
     
     All Remianing Functions & html files except what Tim has mentioned
