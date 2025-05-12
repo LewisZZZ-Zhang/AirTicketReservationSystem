@@ -1,10 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, make_response
 import mysql.connector
 from datetime import datetime, timedelta
 import hashlib
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  
+app.secret_key = 'your_secret_key'
 
 db_config = {
     'host': 'localhost',
@@ -70,9 +70,6 @@ def login_customer():
                 flash('No account found with this email. Please register first.')
                 return redirect(url_for('register_customer'))
         
-        
-        
-
     return render_template(
         'login_generic.html',
         user_type="Customer",
@@ -225,7 +222,8 @@ def register_customer():
             cursor.close()
             conn.close()
 
-    return render_template('register_customer.html')
+    current_date = datetime.today().strftime('%Y-%m-%d')
+    return render_template('register_customer.html', current_date=current_date)
 
 
 @app.route('/register/agent', methods=['GET', 'POST'])
@@ -283,7 +281,7 @@ def register_staff():
             flash('Airline Staff registered successfully!')
             session['username'] = username
             session['user_type'] = 'staff'
-            return redirect(url_for('login'))
+            return redirect(url_for('staff_home'))
         except mysql.connector.Error as err:
             flash(f"Error: {err}")
         finally:
@@ -297,8 +295,11 @@ def register_staff():
 @app.route('/logout')
 def logout():
     session.clear()
-    flash('Logged out successfully!')
-    return redirect(url_for('home'))
+    response = make_response(redirect(url_for('home')))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '-1'
+    return response
 
 
 @app.route('/search_flights', methods=['GET','POST'])

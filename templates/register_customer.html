@@ -8,69 +8,69 @@
 
   <form action="{{ url_for('register_customer') }}" method="POST" class="registration-form">
     <div class="form-group full-width">
-      <label for="name" class="required-field">Full Name</label>
+      <label for="name">Full Name</label>
       <input type="text" id="name" name="name" class="form-control" required>
     </div>
 
     <div class="form-group full-width">
-      <label for="email" class="required-field">Email Address</label>
+      <label for="email">Email Address</label>
       <input type="email" id="email" name="email" class="form-control" required>
     </div>
 
     <div class="form-group full-width">
-      <label for="password" class="required-field">Password</label>
+      <label for="password">Password</label>
       <input type="password" id="password" name="password" class="form-control" required>
     </div>
 
     <div class="form-section">Personal Information</div>
 
     <div class="form-group">
-      <label for="date_of_birth" class="required-field">Date of Birth</label>
-      <input type="date" id="date_of_birth" name="date_of_birth" class="form-control" required>
+    <label for="date_of_birth">Date of Birth</label>
+    <input type="date" id="date_of_birth" name="date_of_birth" class="form-control" required max="{{ current_date }}">
     </div>
 
     <div class="form-group">
       <label for="phone_number">Phone Number</label>
-      <input type="tel" id="phone_number" name="phone_number" class="form-control">
+      <input type="tel" id="phone_number" name="phone_number" class="form-control" required>
     </div>
 
     <div class="form-section">Address Information</div>
 
     <div class="form-group">
       <label for="building_number">Building Number</label>
-      <input type="text" id="building_number" name="building_number" class="form-control">
+      <input type="text" id="building_number" name="building_number" class="form-control" required>
     </div>
 
     <div class="form-group">
       <label for="street">Street</label>
-      <input type="text" id="street" name="street" class="form-control">
+      <input type="text" id="street" name="street" class="form-control" required>
     </div>
 
     <div class="form-group">
       <label for="city">City</label>
-      <input type="text" id="city" name="city" class="form-control">
+      <input type="text" id="city" name="city" class="form-control" required>
     </div>
 
     <div class="form-group">
       <label for="state">State/Province</label>
-      <input type="text" id="state" name="state" class="form-control">
+      <input type="text" id="state" name="state" class="form-control" required>
     </div>
 
     <div class="form-section">Passport Information</div>
 
     <div class="form-group">
       <label for="passport_number">Passport Number</label>
-      <input type="text" id="passport_number" name="passport_number" class="form-control">
+      <input type="text" id="passport_number" name="passport_number" class="form-control" required>
     </div>
 
     <div class="form-group">
-      <label for="passport_expiration">Passport Expiration</label>
-      <input type="date" id="passport_expiration" name="passport_expiration" class="form-control">
+    <label for="passport_expiration">Passport Expiration</label>
+    <input type="date" id="passport_expiration" name="passport_expiration" class="form-control" required min="{{ current_date }}">
     </div>
 
     <div class="form-group">
       <label for="passport_country">Passport Country</label>
-      <input type="text" id="passport_country" name="passport_country" class="form-control">
+      <input type="text" id="passport_country" name="passport_country" class="form-control" required>
     </div>
 
     <button type="submit" class="submit-btn">Create Account</button>
@@ -80,7 +80,6 @@
     Already have an account? <a href="{{ url_for('login_customer') }}">Sign in here</a>
   </div>
 </div>
-
 
 <style>
     .registration-container {
@@ -142,10 +141,10 @@
       box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
     }
   
-    .required-field::after {
+    /* .required-field::after {
       content: " *";
       color: #e74c3c;
-    }
+    } */
   
     .submit-btn {
       grid-column: span 2;

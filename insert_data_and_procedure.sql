@@ -5,7 +5,8 @@ INSERT INTO `airline` (`airline_name`) VALUES
 
 -- 2. Airline Staff
 INSERT INTO `airline_staff` (`username`, `password`, `first_name`, `last_name`, `date_of_birth`, `airline_name`) VALUES
-  ('admin1', MD5('adminpass'), 'John',   'Doe',   '1985-07-12', 'China Eastern');
+  ('admin1', MD5('adminpass'), 'John',   'Doe',   '1985-07-12', 'China Eastern'),
+  ('admin2', MD5('admin2pass'), 'John',  'Smith', '1990-03-15', 'Emirates');
 
 -- 3. Staff Permissions
 INSERT INTO `permission` (`username`, `permission_type`) VALUES
@@ -14,7 +15,7 @@ INSERT INTO `permission` (`username`, `permission_type`) VALUES
 
 -- 4. Airplane
 INSERT INTO `airplane` (`airline_name`, `airplane_id`, `seats`) VALUES
-  ('China Eastern', 1, 200),
+  ('China Eastern', 1, 1),
   ('China Eastern', 2, 300),
   ('Emirates', 3, 350);
 
