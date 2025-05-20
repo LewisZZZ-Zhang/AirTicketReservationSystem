@@ -778,7 +778,7 @@ def create_flight():
             conn.close()
             return redirect(url_for('create_flight'))
 
-        # Check if departure time is earlier than arrival time
+            # Check if departure time is earlier than arrival time
         if datetime.fromisoformat(departure_time) >= datetime.fromisoformat(arrival_time):
             flash('Departure time must be earlier than arrival time.')
             cursor.close()
